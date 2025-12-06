@@ -16,6 +16,10 @@
     overflow-x: hidden;
 }
 
+html {
+    font-size: 80%;
+}
+
 body {
     font-family: Montserrat, Arial, sans-serif;
     background-color: var(--background);
@@ -168,19 +172,18 @@ a {
     width: 100%;
 }
 
-#events-box {
-    width: 100%;
-}
-
-.main-article-img{
-    height: 100%;
+.article-img {
     object-fit: cover;
 }
 
+.content-img-box {
+    width: 30rem;
+}
+
 .article-text-box {
-    height: 100%;
-    padding: 2rem;
+    width: fit-content;
     flex-direction: column;
+    padding: 2rem;
 }
 
 .article-text-box-small {
