@@ -1,0 +1,171 @@
+:root {
+    --uep-blue: #17376E;
+    --uep-yellow: #FFD700;
+    --background: #f7f7f7;
+    --default-shadow: 5px 5px 20px -10px rgba(0, 0, 0, 0.25);
+    --default-radius: 25px;
+    --default-border: 1px solid rgba(0, 0, 0, 0.25);
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+html {
+    font-size: 80%;
+}
+
+body {
+    font-family: Montserrat, Arial, sans-serif;
+    background-color: var(--background);
+    height: 100vh;
+    width: 100vw;
+}
+
+div {
+    display: flex;
+}
+
+.main {
+    height: 100%;
+    width: 100%;
+    padding: 5rem;
+    align-items: center;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/*Login Styling*/
+
+#left, #right {
+    height: 100%;
+    align-items: center;
+}
+
+#left {
+    width: 60%;
+    gap: 1rem;
+    justify-content: center;
+}
+
+#iUEP-logo {
+    height: 25rem;
+    object-fit: contain;
+}
+
+#splash-text {
+    flex-direction: column;
+}
+
+#splash-text p {
+    color: var(--uep-blue);
+    font-size: 3rem;
+}
+
+#right {
+    width: 40%;
+}
+
+#form-container {
+    flex-direction: column;
+    width: 35rem;
+    background-color: white;
+    border-radius: var(--default-radius);
+    border: var(--default-border);
+    box-shadow: var(--default-shadow);
+    padding: 3rem;
+    align-items: center;
+    justify-content: center;
+}
+
+h1 {
+    color: var(--uep-blue);
+    margin-bottom: 2rem;
+    font-weight: 800;
+}
+
+h3 {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+form {
+    width: 100%;
+}
+
+.form-div-bottom-margin {
+    width: 100%;
+    flex-direction: column;
+    margin-bottom: 1.5rem;
+}
+
+.form-div-styling {
+    width: 100%;
+}
+
+.form-div-styling div {
+    width: 100%;
+    align-items: center;
+}
+
+#styling-right {
+    justify-content: flex-end;
+}
+
+form label {
+    margin-left: 1rem;
+    color: rgba(0, 0, 0, 0.5);
+    font-weight: 600;
+}
+
+.input-textbox {
+    margin-top: .5rem;
+    font-size: 1.15rem;
+    padding: 1rem;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    border-radius: 25px;
+}
+
+#remember-me {
+    height: 1rem;
+    width: 1rem;
+}
+
+button {
+    width: 100%;
+    font-size: 1.25rem;
+    font-weight: 600;
+    padding: 1rem;
+    border: none;
+    border-radius: var(--default-radius);
+    cursor: pointer;
+}
+
+#primary-button {
+    color: white;
+    background-color: var(--uep-blue);
+}
+
+#secondary-button {
+    color: var(--uep-blue);
+    background-color: white;
+    border: var(--default-border);
+}
+
+#signup-buttons {
+    width: 100%;
+    gap: 1rem;
+}
+
+#signup-buttons a {
+    width: 100%;
+}
+
+h3 {
+    text-align: center;
+}

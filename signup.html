@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup to iUEP</title>
+    <link rel="stylesheet" href="losignin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="main">
+        <div id="left">
+            <img src="Figma/iUEP Logo 2 - Transparent.png" alt="" id="iUEP-logo">
+            <div id="splash-text">
+                <p><b>U</b>NIVERSITY</p>
+                <p><b>E</b>LECTRONIC</p>
+                <p><b>P</b>ORTAL</p>
+            </div>
+        </div>
+        <div id="right">
+            <div id="form-container">
+                <h1>SIGNUP</h1>
+
+                <form id="signup-form">
+                    <div class="form-div-bottom-margin">
+                        <label for="name">Full Name (Format: First, Middle, Last)</label>
+                        <input type="text" id="name" class="input-textbox" name="name"
+                            placeholder="e.g. Cherry, Ibañez, Ultra" required>
+                    </div>
+
+                    <div class="form-div-bottom-margin">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" class="input-textbox" name="username"
+                            placeholder="Enter your desired username" required>
+                    </div>
+
+                    <div class="form-div-bottom-margin">
+                        <label for="stu_id">Student ID</label>
+                        <input type="number" id="stu_id" class="input-textbox" name="stu_id"
+                            placeholder="Enter your Student ID" maxlength="6" required>
+                    </div>
+
+                    <div class="form-div-bottom-margin">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" class="input-textbox" name="password"
+                            placeholder="Enter your password" required>
+                    </div>
+
+                    <div id="signup-buttons">
+                        <button id="primary-button" onclick="handleSignup(event)">Sign Up</button>
+
+                        <a href="login.html">
+                            <button type="button" id="secondary-button">Log In</button>
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+    <script src="users-db.js"></script>
+    <script src="utils.js"></script>
+    <script src="auth.js"></script>
+</body>
+
+</html>

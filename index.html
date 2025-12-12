@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iUEP | Home</title>
+    <script src="auth-check.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="main">
+
+        <div id="left-nav">
+            <div id="nav-button-container">
+                <a href="index.html">
+                    <div>
+                        <svg class="nav-icons" id="current-page" xmlns="http://www.w3.org/2000/svg" height="24px"
+                            viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                            <path
+                                d="M480-427ZM240-120q-50 0-85-35t-35-85v-240q0-24 9-46t26-39l240-240q17-18 39.5-26.5T480-840q23 0 45 8.5t40 26.5l240 240q17 17 26 39t9 46v240q0 50-35 85t-85 35H240Zm0-80h480q17 0 28.5-11.5T760-240v-240q0-8-3-15t-9-13L595-662l-59 58 144 144v180H280v-180l258-258-30-30q-8-8-15.5-10t-12.5-2q-5 0-12.5 2T452-748L212-508q-6 6-9 13t-3 15v240q0 17 11.5 28.5T240-200Zm120-160h240v-67L480-547 360-427v67Z" />
+                        </svg>
+                        <h2 id="current-page">Home</h2>
+                    </div>
+                </a>
+                <a href="grades.html">
+                    <div>
+                        <svg class="nav-icons" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                            width="24px" fill="#000000">
+                            <path
+                                d="M160-200h160v-320H160v320Zm240 0h160v-560H400v560Zm240 0h160v-240H640v240ZM80-120v-480h240v-240h320v320h240v400H80Z" />
+                        </svg>
+                        <h2>Grades</h2>
+                    </div>
+                </a>
+                <a href="discussion.html">
+                    <div>
+                        <svg class="nav-icons" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                            width="24px" fill="#000000">
+                            <path
+                                d="M880-80 720-240H320q-33 0-56.5-23.5T240-320v-40h440q33 0 56.5-23.5T760-440v-280h40q33 0 56.5 23.5T880-640v560ZM160-473l47-47h393v-280H160v327ZM80-280v-520q0-33 23.5-56.5T160-880h440q33 0 56.5 23.5T680-800v280q0 33-23.5 56.5T600-440H240L80-280Zm80-240v-280 280Z" />
+                        </svg>
+                        <h2>Discussion</h2>
+                    </div>
+                </a>
+                <a href="schedule.html">
+                    <div>
+                        <svg class="nav-icons" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                            width="24px" fill="#000000">
+                            <path
+                                d="m612-292 56-56-148-148v-184h-80v216l172 172ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-400Zm0 320q133 0 226.5-93.5T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160Z" />
+                        </svg>
+                        <h2>Schedule</h2>
+                    </div>
+                </a>
+                <a href="about.html">
+                    <div>
+                        <svg class="nav-icons" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                            width="24px" fill="#000000">
+                            <path
+                                d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+                        </svg>
+                        <h2>About</h2>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="content">
+
+            <div class="section-div">
+                <h2 class="subheadings">Dashboard</h2>
+                <a href="https://www.facebook.com/share/p/1Bn9bgkrpL/" target="_blank">
+                    <div class="content-box" id="headline-box">
+                        <div class="content-img-box">
+                            <img src="Figma/USC-announcement-1.jpg" alt="" class="article-img">
+                        </div>
+                        <div class="article-text-box">
+                            <h2>
+                                ENTRANCE EXAMINATION FOR FIRST YEAR APPLICANTS RESCHEDULING UPDATE
+                            </h2>
+                            <P class="main-text">
+                                The Office of Student Affairs-University Testing Center (OSA-UTC) announces the
+                                rescheduling of the entrance examination for incoming first-year applicants originally
+                                set on November 10, 2025, which was postponed due to Super Typhoon Uwan.
+                            </P>
+
+                            <p class="sub-text" id="sub-text-large-margin">
+                                University Student Council
+                            </p>
+                            <p class="sub-text">
+                                November 11, 2025
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="section-div section-div-top-margin">
+                <h2 class="subheadings">
+                    Updates by Department
+                </h2>
+                <div id="department-updates-container">
+                    <a href="https://www.facebook.com/share/p/1BvPRtGL9P/" target="_blank">
+                        <div class="dept-updates-card content-box">
+                            <img src="Figma/CS-update.jpg" alt="">
+                            <div class="article-text-box-small">
+                                <h3><b>CS: ITEM LOST</b></h3>
+                                <p>
+                                    A Green Infinix Phone with a pink butterfly drawing as a wallpaper, was lost at the
+                                    Academic Building at 9 AM, and the owner of this Axel Rose R. Caranog.
+                                </p>
+
+                                <p class="sub-text" id="sub-text-small-margin">
+                                    November 20, 2025
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="https://www.facebook.com/share/p/19y2hkejpa/" target="_blank">
+                        <div class="dept-updates-card content-box">
+                            <img src="Figma/CNAHS-update.jpg" alt="">
+                            <div class="article-text-box-small">
+                                <h3><b>CNAHS: LitMus Night 2025</b></h3>
+                                <p>
+                                    CNAHSians, let us come together for a vibrant celebration at LitMus Night 2025 at
+                                    the UEP Volleyball Court, carrying the illuminating theme “Mockingjay Radiance: Girl
+                                    on Fire.”
+                                </p>
+
+                                <p class="sub-text" id="sub-text-small-margin">
+                                    November 18, 2025
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="https://www.facebook.com/share/p/1PF95aN5sP/" target="_blank">
+                        <div class="dept-updates-card content-box">
+                            <img src="Figma/COE-update.jpg" alt="">
+                            <div class="article-text-box-small">
+                                <h3><b>COE: LETTER OF REQUEST SUBMITTED & RECEIVED</b></h3>
+                                <p>
+                                    COESC formally submitted a Letter of Request addressed to the University President
+                                    requesting essential improvements for the College of Engineering Student Center
+                                <p class="sub-text" id="sub-text-small-margin">
+                                    November 14, 2025
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                    <a href="https://www.facebook.com/share/p/191rt1Waif/" target="_blank">
+                        <div class="dept-updates-card content-box">
+                            <img src="Figma/CVM-update.jpg" alt="">
+                            <div class="article-text-box-small">
+                                <h3><b>CVM: LOST and PAWND ALERT!</b></h3>
+                                <p>
+                                    A black wallet belonging to Ms. Krizzell Del Rio, a Second Year DVM Student was lost
+                                    yesterday, Thursday, November 20, at around 8:15 PM while she was traveling back
+                                    home to UEP zone 1 in a public tricycle.
+                                </p>
+
+                                <p class="sub-text" id="sub-text-small-margin">
+                                    November 21, 2025
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="section-div section-div-top-margin">
+                <h2 class="subheadings">Campus Events</h2>
+                <a href="https://www.facebook.com/share/p/1BD5ZPtm8o/" target="_blank">
+                    <div class="content-box" id="headline-box">
+                        <div class="content-img-box">
+                            <img src="Figma/USC-balik-kampus.jpg" alt="" class="article-img">
+                        </div>
+                        <div class="article-text-box">
+                            <h2>
+                                BALIK KAMPUS 2025!
+                            </h2>
+                            <P class="main-text">
+                                UEPians, this September 22 is not just another Monday... It's a day-long <b>BALIK KAMPUS
+                                    2025</b>!
+                                From the Kabataan Caravan that fuels your ideas, to the State of the Student Address
+                                that sparks vision, the Turnover & Inaugural Ceremonies that mark a new chapter, and the
+                                Program & Org Fair that connects passions.
+                                Every moment is made for YOU.
+                            </P>
+
+                            <p class="sub-text" id="sub-text-large-margin">
+                                University Student Council
+                            </p>
+                            <p class="sub-text">
+                                Septemeber 20, 2025
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="utils.js"></script>
+    <script src="layout.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login to iUEP</title>
+    <link rel="stylesheet" href="losignin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="main">
+        <div id="left">
+            <img src="Figma/iUEP Logo 2 - Transparent.png" alt="" id="iUEP-logo">
+            <div id="splash-text">
+                <p><b>U</b>NIVERSITY</p>
+                <p><b>E</b>LECTRONIC</p>
+                <p><b>P</b>ORTAL</p>
+            </div>
+        </div>
+        <div id="right">
+            <div id="form-container">
+                <h1>LOGIN</h1>
+
+                <form id="login-form">
+                    <div class="form-div-bottom-margin">
+                        <label for="username">Username or Student ID</label>
+                        <input type="text" id="username" class="input-textbox" name="username"
+                            placeholder="Enter your username or student ID" required>
+                    </div>
+
+                    <div class="form-div-bottom-margin">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" class="input-textbox" name="password"
+                            placeholder="Enter your password" required>
+                    </div>
+
+                    <div class="form-div-bottom-margin">
+                        <div class="form-div-styling">
+                            <div id="styling-left">
+                                <input type="checkbox" id="remember-me" name="remember-me">
+                                <label for="remember-me">Remember Me</label>
+                            </div>
+                            <div id="styling-right">
+                                <a href="#">Forgot Password?</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-div-bottom-margin">
+                        <button id="primary-button" onclick="handleLogin(event)">Log In</button>
+                    </div>
+                </form>
+
+                <div class="form-div-bottom-margin">
+                    <h3>or</h3>
+                </div>
+
+                <div class="form-div-bottom-margin">
+                    <a href="signup.html">
+                        <button id="secondary-button">Sign Up</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="users-db.js"></script>
+    <script src="utils.js"></script>
+    <script src="auth.js"></script>
+</body>
+
+</html>

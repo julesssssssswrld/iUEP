@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iUEP | Discussion</title>
+    <script src="auth-check.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="main">
+
+        <div id="left-nav">
+            <div id="nav-button-container">
+                <a href="index.html">
+                    <div>
+                        <svg class="nav-icons" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                            width="24px" fill="#e3e3e3">
+                            <path
+                                d="M480-427ZM240-120q-50 0-85-35t-35-85v-240q0-24 9-46t26-39l240-240q17-18 39.5-26.5T480-840q23 0 45 8.5t40 26.5l240 240q17 17 26 39t9 46v240q0 50-35 85t-85 35H240Zm0-80h480q17 0 28.5-11.5T760-240v-240q0-8-3-15t-9-13L595-662l-59 58 144 144v180H280v-180l258-258-30-30q-8-8-15.5-10t-12.5-2q-5 0-12.5 2T452-748L212-508q-6 6-9 13t-3 15v240q0 17 11.5 28.5T240-200Zm120-160h240v-67L480-547 360-427v67Z" />
+                        </svg>
+                        <h2>Home</h2>
+                    </div>
+                </a>
+                <a href="grades.html">
+                    <div>
+                        <svg class="nav-icons" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                            width="24px" fill="#000000">
+                            <path
+                                d="M160-200h160v-320H160v320Zm240 0h160v-560H400v560Zm240 0h160v-240H640v240ZM80-120v-480h240v-240h320v320h240v400H80Z" />
+                        </svg>
+                        <h2>Grades</h2>
+                    </div>
+                </a>
+                <a href="discussion.html">
+                    <div>
+                        <svg class="nav-icons" id="current-page" xmlns="http://www.w3.org/2000/svg" height="24px"
+                            viewBox="0 -960 960 960" width="24px" fill="#000000">
+                            <path
+                                d="M880-80 720-240H320q-33 0-56.5-23.5T240-320v-40h440q33 0 56.5-23.5T760-440v-280h40q33 0 56.5 23.5T880-640v560ZM160-473l47-47h393v-280H160v327ZM80-280v-520q0-33 23.5-56.5T160-880h440q33 0 56.5 23.5T680-800v280q0 33-23.5 56.5T600-440H240L80-280Zm80-240v-280 280Z" />
+                        </svg>
+                        <h2 id="current-page">Discussion</h2>
+                    </div>
+                </a>
+                <a href="schedule.html">
+                    <div>
+                        <svg class="nav-icons" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                            width="24px" fill="#000000">
+                            <path
+                                d="m612-292 56-56-148-148v-184h-80v216l172 172ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-400Zm0 320q133 0 226.5-93.5T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160Z" />
+                        </svg>
+                        <h2>Schedule</h2>
+                    </div>
+                </a>
+                <a href="about.html">
+                    <div>
+                        <svg class="nav-icons" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                            width="24px" fill="#000000">
+                            <path
+                                d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+                        </svg>
+                        <h2>About</h2>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="content" id="discussion-content">
+
+            <div class="content-box content-box-discussions" data-post-id="1">
+                <div class="discussions-post-user-info">
+                    <div class="discussions-post-user-info-profile-container">
+                        <img src="" alt="">
+                    </div>
+                    <div class="user-info-and-posted">
+                        <h3>Jovan</h3>
+                        <p class="sub-text">2 hours ago</p>
+                    </div>
+                </div>
+
+                <div class="discussions-article">
+                    <h2>I love bluetooth</h2>
+                    <p class="main-text">There's nothing quite like establishing a loving Bluetooth connection. It's a
+                        dance of proximity and desire, where both parties must be discoverable and willing to pair. The
+                        initial attempt can feel like a brief, intense search, but once the bond is affirmed, the signal
+                        becomes strong and unwavering. The real pleasure lies in the seamless, intimate data transfer
+                        that follows, a quiet, energetic exchange conducted in perfect sync. No wires, no fuss, just a
+                        private, powerful current flowing directly from source to source, solidifying a beautifully
+                        uncomplicated connection that keeps you charged and satisfied.</p>
+                </div>
+
+                <div class="interact-container">
+                    <div class="reaction-container">
+                        <div class="like-reaction-container">
+                            <svg class="discussion-reaction-icons" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                viewBox="0 -960 960 960" width="24px" fill="#000000">
+                                <path
+                                    d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z" />
+                            </svg>
+                            <span class="reaction-count" data-type="like">0</span>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="dislike-reaction-container">
+                            <svg class="discussion-reaction-icons" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                                <path
+                                    d="M240-840h440v520L400-40l-50-50q-7-7-11.5-19t-4.5-23v-14l44-174H120q-32 0-56-24t-24-56v-80q0-7 2-15t4-15l120-282q9-20 30-34t44-14Zm360 80H240L120-480v80h360l-54 220 174-174v-406Zm0 406v-406 406Zm80 34v-80h120v-360H680v-80h200v520H680Z" />
+                            </svg>
+                            <span class="reaction-count" data-type="dislike">0</span>
+                        </div>
+                    </div>
+                    <div class="reaction-container">
+                        <div class="comment-trigger">
+                            <div class="comment-reaction-container">
+                                <svg class="discussion-reaction-icons" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                    viewBox="0 -960 960 960" width="24px" fill="#000000">
+                                    <path
+                                        d="M240-400h480v-80H240v80Zm0-120h480v-80H240v80Zm0-120h480v-80H240v80ZM880-80 720-240H160q-33 0-56.5-23.5T80-320v-480q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v720ZM160-320h594l46 45v-525H160v480Zm0 0v-480 480Z" />
+                                </svg>
+                                <span class="reaction-count" data-type="comment">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comments-section" style="display: none;">
+                    <div class="comments-list"></div>
+                    <div class="comment-input-wrapper">
+                        <input type="text" class="comment-input" placeholder="Write a comment...">
+                        <div class="comment-send-btn" onclick="postComment(this)">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="#17376E">
+                                <path
+                                    d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-box content-box-discussions" data-post-id="2">
+                <div class="discussions-post-user-info">
+                    <div class="discussions-post-user-info-profile-container">
+                        <img src="" alt="">
+                    </div>
+                    <div class="user-info-and-posted">
+                        <h3>Anonymous User</h3>
+                        <p class="sub-text">1 day ago</p>
+                    </div>
+                </div>
+
+                <div class="discussions-article">
+                    <h2>PABAKSAKIN SI ULTRA!</h2>
+                    <p class="main-text">Tanginang president to!.. Daming pinagawa, liit na nga ng sahod delay pa.. mas
+                        delay p sa regla q0h hihihi!!! XD</p>
+                </div>
+
+                <div class="interact-container">
+                    <div class="reaction-container">
+                        <div class="like-reaction-container">
+                            <svg class="discussion-reaction-icons" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                viewBox="0 -960 960 960" width="24px" fill="#000000">
+                                <path
+                                    d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z" />
+                            </svg>
+                            <span class="reaction-count" data-type="like">0</span>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="dislike-reaction-container">
+                            <svg class="discussion-reaction-icons" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                                <path
+                                    d="M240-840h440v520L400-40l-50-50q-7-7-11.5-19t-4.5-23v-14l44-174H120q-32 0-56-24t-24-56v-80q0-7 2-15t4-15l120-282q9-20 30-34t44-14Zm360 80H240L120-480v80h360l-54 220 174-174v-406Zm0 406v-406 406Zm80 34v-80h120v-360H680v-80h200v520H680Z" />
+                            </svg>
+                            <span class="reaction-count" data-type="dislike">0</span>
+                        </div>
+                    </div>
+                    <div class="reaction-container">
+                        <div class="comment-trigger">
+                            <div class="comment-reaction-container">
+                                <svg class="discussion-reaction-icons" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                    viewBox="0 -960 960 960" width="24px" fill="#000000">
+                                    <path
+                                        d="M240-400h480v-80H240v80Zm0-120h480v-80H240v80Zm0-120h480v-80H240v80ZM880-80 720-240H160q-33 0-56.5-23.5T80-320v-480q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v720ZM160-320h594l46 45v-525H160v480Zm0 0v-480 480Z" />
+                                </svg>
+                                <span class="reaction-count" data-type="comment">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comments-section" style="display: none;">
+                    <div class="comments-list"></div>
+                    <div class="comment-input-wrapper">
+                        <input type="text" class="comment-input" placeholder="Write a comment...">
+                        <div class="comment-send-btn" onclick="postComment(this)">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="#17376E">
+                                <path
+                                    d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-box content-box-discussions" data-post-id="3">
+                <div class="discussions-post-user-info">
+                    <div class="discussions-post-user-info-profile-container">
+                        <img src="" alt="">
+                    </div>
+                    <div class="user-info-and-posted">
+                        <h3>Jules</h3>
+                        <p class="sub-text">3 days ago</p>
+                    </div>
+                </div>
+
+                <div class="discussions-article">
+                    <h2>Nigga</h2>
+                    <p class="main-text">nigga</p>
+                </div>
+
+                <div class="interact-container">
+                    <div class="reaction-container">
+                        <div class="like-reaction-container">
+                            <svg class="discussion-reaction-icons" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                viewBox="0 -960 960 960" width="24px" fill="#000000">
+                                <path
+                                    d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z" />
+                            </svg>
+                            <span class="reaction-count" data-type="like">0</span>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="dislike-reaction-container">
+                            <svg class="discussion-reaction-icons" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+                                <path
+                                    d="M240-840h440v520L400-40l-50-50q-7-7-11.5-19t-4.5-23v-14l44-174H120q-32 0-56-24t-24-56v-80q0-7 2-15t4-15l120-282q9-20 30-34t44-14Zm360 80H240L120-480v80h360l-54 220 174-174v-406Zm0 406v-406 406Zm80 34v-80h120v-360H680v-80h200v520H680Z" />
+                            </svg>
+                            <span class="reaction-count" data-type="dislike">0</span>
+                        </div>
+                    </div>
+                    <div class="reaction-container">
+                        <div class="comment-trigger">
+                            <div class="comment-reaction-container">
+                                <svg class="discussion-reaction-icons" xmlns="http://www.w3.org/2000/svg" height="24px"
+                                    viewBox="0 -960 960 960" width="24px" fill="#000000">
+                                    <path
+                                        d="M240-400h480v-80H240v80Zm0-120h480v-80H240v80Zm0-120h480v-80H240v80ZM880-80 720-240H160q-33 0-56.5-23.5T80-320v-480q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v720ZM160-320h594l46 45v-525H160v480Zm0 0v-480 480Z" />
+                                </svg>
+                                <span class="reaction-count" data-type="comment">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comments-section" style="display: none;">
+                    <div class="comments-list"></div>
+                    <div class="comment-input-wrapper">
+                        <input type="text" class="comment-input" placeholder="Write a comment...">
+                        <div class="comment-send-btn" onclick="postComment(this)">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                                fill="#17376E">
+                                <path
+                                    d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="discussion-right-menu">
+            <div id="discussion-right-menu-top">
+                <h3>Preferences:</h3>
+                <div>
+                    <input type="checkbox" name="anonymous" id="anonymous">
+                    <label for="anonymous">
+                        Stay anonymous on posts and comments
+                    </label>
+                </div>
+            </div>
+            <div id="discussion-right-menu-bottom">
+                <div id="discussion-post-section">
+                    <h3>Write a post</h3>
+                    <button id="discussion-post-button">Post</button>
+                </div>
+
+                <input type="text" id="discussion-post-title" placeholder="Title">
+                <textarea id="discussion-post-content" placeholder="Write your thoughts here..."></textarea>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="utils.js"></script>
+    <script src="layout.js"></script>
+    <script src="discussion.js"></script>
+</body>
+
+</html>
