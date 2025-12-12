@@ -72,6 +72,17 @@ const INITIAL_PROFILES = {
         "college": "coe"
     },
     "7": {
+        "last_name": "Atencio",
+        "first_name": "Jovan",
+        "middle_name": "P",
+        "username": "japcakKe",
+        "stu_id": "244530",
+        "password": "123",
+        "role": "student",
+        "college": "cs"
+    }
+    ,
+    "8": {
         "last_name": "Tomacas",
         "first_name": "Jules Ian",
         "middle_name": "Cajandab",
