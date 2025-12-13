@@ -74,7 +74,7 @@ const INITIAL_PROFILES = {
     "7": {
         "last_name": "Atencio",
         "first_name": "Jovan",
-        "middle_name": "P",
+        "middle_name": "Pabia",
         "username": "japcakKe",
         "stu_id": "244530",
         "password": "123",
