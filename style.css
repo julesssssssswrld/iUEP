@@ -21,6 +21,26 @@ html {
     scrollbar-width: thin;
 }
 
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(23, 55, 110, 0.5);
+    /* Brand color hint on hover */
+}
+
 body {
     font-family: Montserrat, Arial, sans-serif;
     background-color: var(--background);
@@ -247,23 +267,6 @@ a {
     overflow-x: auto;
     scrollbar-width: thin;
     padding-bottom: 5px;
-}
-
-#department-updates-container::-webkit-scrollbar {
-    height: 8px;
-}
-
-#department-updates-container::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-#department-updates-container::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
-}
-
-#department-updates-container::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(0, 0, 0, 0.4);
 }
 
 
@@ -943,7 +946,7 @@ h2#about-subheading {
     margin-bottom: 3rem;
 }
 
-b {
+#about-content b {
     color: var(--uep-blue);
 }
 
