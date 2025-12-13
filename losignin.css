@@ -139,6 +139,24 @@ form {
     padding: 2px;
 }
 
+#login-form {
+    display: flex;
+    flex-direction: column;
+}
+
+#login-form>div:first-child {
+    margin-top: auto;
+}
+
+#login-form>div:last-child {
+    margin-bottom: auto;
+    padding-bottom: 1.5rem;
+}
+
+#login-form>div {
+    flex-shrink: 0;
+}
+
 .form-div-bottom-margin {
     width: 100%;
     flex-direction: column;
