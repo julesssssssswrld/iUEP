@@ -554,6 +554,7 @@ iframe {
 
 #user-options-popup::backdrop {
     background-color: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(1px);
 }
 
 #popup-top-section {
@@ -877,4 +878,64 @@ iframe {
 
 .active-reaction .reaction-count {
     color: var(--uep-blue);
+}
+
+/*Save Changes Popup*/
+.save-changes-popup {
+    width: 40rem;
+    height: 30rem;
+    background-color: white;
+    border-radius: 25px;
+    border: var(--default-border);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 5rem;
+    box-shadow: 5px 5px 20px -10px rgba(0, 0, 0, 0.25);
+    inset: 0;
+    margin: auto;
+    display: none;
+}
+
+.save-changes-popup:popover-open {
+    display: flex;
+}
+
+.save-changes-popup::backdrop {
+    background-color: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(1px);
+}
+
+.save-changes-popup svg {
+    height: 8rem;
+    width: 8rem;
+    fill: #238636;
+}
+
+.save-changes-popup h1 {
+    color: var(--uep-blue);
+    font-weight: 600;
+    font-size: 2rem;
+}
+
+#save-confirmation-styling {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.save-changes-popup button {
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    border: var(--default-border);
+    background-color: var(--uep-blue);
+    color: white;
+    font-weight: 600;
+    font-size: 1.15rem;
+    cursor: pointer;
+}
+
+.save-changes-popup button:hover {
+    background-color: var(--blue-button-hover);
+    transition: .25s ease-in-out;
 }

@@ -32,6 +32,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (saveButton) {
         saveButton.addEventListener('click', saveProfileChanges);
     }
+
+    const confirmButton = document.getElementById('save-popup-confirm-btn');
+    if (confirmButton) {
+        confirmButton.addEventListener('click', () => {
+            const popover = document.getElementById('save-changes-popup');
+            if (popover) {
+                popover.hidePopover();
+            }
+        });
+    }
 });
 
 function updatePreviewImage(base64String) {
@@ -94,7 +104,11 @@ function saveProfileChanges() {
         const updatedUser = profiles[profileKey];
         setSessionUser(updatedUser);
 
-        alert("Profile updated successfully!");
+        // Show Popover
+        const popover = document.getElementById('save-changes-popup');
+        if (popover) {
+            popover.showPopover();
+        }
 
         // Refresh UI
         if (typeof updateUserInfo === 'function') {
