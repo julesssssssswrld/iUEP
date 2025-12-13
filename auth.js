@@ -30,11 +30,6 @@ function handleLogin(event) {
     const passwordInput = document.getElementById('password').value.trim();
     const rememberMe = document.getElementById('remember-me').checked;
 
-    if (!usernameInput || !passwordInput) {
-        alert("Please enter both username and password.");
-        return;
-    }
-
     const profiles = getStorage(STORAGE_KEYS.PROFILES, {});
 
     // Optimize search: iterate over values directly
@@ -63,10 +58,15 @@ function handleLogin(event) {
 function handleSignup(event) {
     event.preventDefault();
 
-    const rawName = document.getElementById('name').value;
+    const rawName = document.getElementById('name').value.trim();
     const username = document.getElementById('username').value.trim();
     const stu_id = document.getElementById('stu_id').value.trim();
     const password = document.getElementById('password').value.trim();
+
+    if (!rawName || !username || !stu_id || !password) {
+        alert("Please fill in all fields.");
+        return;
+    }
 
     if (!rawName.includes(',')) {
         alert("Please format the name as: First Name, Middle Name, Last Name");
