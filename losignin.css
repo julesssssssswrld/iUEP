@@ -43,7 +43,8 @@ a {
 
 /*Login Styling*/
 
-#left, #right {
+#left,
+#right {
     height: 100%;
     align-items: center;
 }
@@ -168,4 +169,60 @@ button {
 
 h3 {
     text-align: center;
+}
+
+/*Login Error Popup*/
+
+.login-error-popup {
+    width: 40rem;
+    height: 30rem;
+    background-color: white;
+    border-radius: var(--default-radius);
+    border: var(--default-border);
+    box-shadow: var(--default-shadow);
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    flex-direction: column;
+    inset: 0;
+    margin: auto;
+    display: none;
+}
+
+.login-error-popup:popover-open {
+    display: flex;
+}
+
+.login-error-popup::backdrop {
+    background-color: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(1px);
+}
+
+.login-error-popup svg {
+    height: 8rem;
+    width: 8rem;
+    fill: red;
+}
+
+#login-error-styling {
+    flex-direction: column;
+    align-items: center;
+}
+
+#login-error-styling p {
+    font-size: 1.15rem;
+}
+
+.login-error-popup button {
+    width: fit-content;
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    background-color: var(--uep-blue);
+    color: white;
+    font-weight: 600;
+}
+
+.login-error-popup button:hover {
+    background-color: color-mix(in srgb, #1737da 75%, white);
+    color: white;
 }

@@ -914,7 +914,7 @@ iframe {
 
 .save-changes-popup h1 {
     color: var(--uep-blue);
-    font-weight: 600;
+    font-weight: 800;
     font-size: 2rem;
 }
 
@@ -941,10 +941,13 @@ iframe {
 }
 
 h2#about-subheading {
-    text-align: left;
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
 }
 
 b {
     color: var(--uep-blue);
+}
+
+.about-text-margin-bottom {
+    margin-bottom: 3rem;
 }

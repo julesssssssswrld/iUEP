@@ -54,10 +54,9 @@ function handleLogin(event) {
             localStorage.removeItem('iUEP_remembered_user');
         }
 
-        alert(`Login Successful! Welcome, ${userFound.first_name}.`);
         window.location.href = (userFound.role === 'student') ? 'index.html' : 'admin.html';
     } else {
-        alert("Invalid credentials. Please check your Username/ID and Password.");
+        document.getElementById('login-error-popover').showPopover();
     }
 }
 
