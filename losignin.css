@@ -30,7 +30,7 @@ div {
 }
 
 .main {
-    height: 100%;
+    height: 100vh;
     width: 100%;
     padding: 5rem;
     align-items: center;
@@ -53,6 +53,8 @@ a {
     width: 60%;
     gap: 1rem;
     justify-content: center;
+    align-items: center;
+    /* Restore vertical alignment for logo/splash */
 }
 
 #iUEP-logo {
@@ -71,6 +73,7 @@ a {
 
 #right {
     width: 40%;
+    justify-content: center;
 }
 
 #form-container {
@@ -97,6 +100,19 @@ h3 {
 
 form {
     width: 100%;
+}
+
+/* Signup Page Specifics - Internal Scrolling */
+.signup-page #form-container {
+    height: 100%;
+    overflow: hidden;
+    justify-content: flex-start;
+}
+
+.signup-page form {
+    flex: 1;
+    overflow-y: auto;
+    padding: 2px;
 }
 
 .form-div-bottom-margin {
@@ -225,4 +241,106 @@ h3 {
 .login-error-popup button:hover {
     background-color: color-mix(in srgb, #1737da 75%, white);
     color: white;
+}
+
+/* Password Toggle Styling */
+.password-container {
+    position: relative;
+    width: 100%;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 3rem;
+    /* Make room for the button */
+}
+
+#toggle-password {
+    position: absolute;
+    right: 1rem;
+    top: calc(50% + .25rem);
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    width: auto;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#toggle-password svg {
+    fill: rgba(0, 0, 0, 0.5);
+    width: 24px;
+    height: 24px;
+}
+
+#toggle-password:hover svg {
+    fill: var(--uep-blue);
+}
+
+/*Account Created Popup*/
+.account-created-popup {
+    width: 40rem;
+    height: 30rem;
+    background-color: white;
+    border-radius: 25px;
+    border: var(--default-border);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 5rem;
+    box-shadow: var(--default-shadow);
+    inset: 0;
+    margin: auto;
+    display: none;
+}
+
+.account-created-popup:popover-open {
+    display: flex;
+}
+
+.account-created-popup::backdrop {
+    background-color: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(1px);
+}
+
+.account-created-popup svg {
+    height: 8rem;
+    width: 8rem;
+    fill: #238636;
+}
+
+.account-created-popup h1 {
+    color: var(--uep-blue);
+    font-weight: 800;
+    font-size: 2rem;
+    margin: 0;
+    /* Override default h1 margin if needed */
+}
+
+#account-created-styling {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.account-created-popup button {
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    border: var(--default-border);
+    background-color: var(--uep-blue);
+    color: white;
+    font-weight: 600;
+    font-size: 1.15rem;
+    cursor: pointer;
+    width: fit-content;
+    /* Ensure it doesn't take full width unless intended */
+}
+
+.account-created-popup button:hover {
+    background-color: color-mix(in srgb, #1737da 75%, white);
+    transition: .25s ease-in-out;
 }

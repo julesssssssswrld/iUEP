@@ -12,7 +12,7 @@
         rel="stylesheet">
 </head>
 
-<body>
+<body class="signup-page">
     <div class="main">
         <div id="left">
             <img src="Figma/iUEP Logo 2 - Transparent.png" alt="" id="iUEP-logo">
@@ -28,9 +28,21 @@
 
                 <form id="signup-form">
                     <div class="form-div-bottom-margin">
-                        <label for="name">Full Name (Format: First, Middle, Last)</label>
-                        <input type="text" id="name" class="input-textbox" name="name"
-                            placeholder="e.g. Cherry, Ibañez, Ultra" required>
+                        <label for="first_name">First Name</label>
+                        <input type="text" id="first_name" class="input-textbox" name="first_name"
+                            placeholder="e.g. Cherry" required>
+                    </div>
+
+                    <div class="form-div-bottom-margin">
+                        <label for="middle_name">Middle Name</label>
+                        <input type="text" id="middle_name" class="input-textbox" name="middle_name"
+                            placeholder="e.g. Ibañez">
+                    </div>
+
+                    <div class="form-div-bottom-margin">
+                        <label for="last_name">Last Name</label>
+                        <input type="text" id="last_name" class="input-textbox" name="last_name"
+                            placeholder="e.g. Ultra" required>
                     </div>
 
                     <div class="form-div-bottom-margin">
@@ -47,8 +59,18 @@
 
                     <div class="form-div-bottom-margin">
                         <label for="password">Password</label>
-                        <input type="password" id="password" class="input-textbox" name="password"
-                            placeholder="Enter your password" required>
+                        <div class="password-container">
+                            <input type="password" id="password" class="input-textbox" name="password"
+                                placeholder="Enter your password" required>
+                            <button type="button" id="toggle-password" onclick="togglePasswordVisibility()">
+                                <!-- Eye Icon Placeholder -->
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960"
+                                    width="24px" fill="#5f6368">
+                                    <path
+                                        d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q62-139 182-220.5T480-802q146 0 266 81.5T920-500q-62 139-182 220.5T480-200Zm0-300Zm0 220q113 0 207.5-59.5T832-500q-50-101-144.5-160.5T480-720q-113 0-207.5 59.5T128-500q50 101 144.5 160.5T480-200Z" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
 
                     <div id="signup-buttons">
@@ -60,6 +82,22 @@
                     </div>
                 </form>
 
+
+                <!-- Account Created Popover -->
+                <div id="account-created-popup" class="account-created-popup" popover="manual">
+                    <div id="account-created-styling">
+                        <!-- Checkmark Icon -->
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px"
+                            fill="#e3e3e3">
+                            <path
+                                d="m424-296 282-282-56-56-226 226-114-114-56 56 170 170Zm56 216q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+                        </svg>
+                        <h1>Account Created</h1>
+                    </div>
+                    <button id="account-created-confirm-btn">
+                        Confirm
+                    </button>
+                </div>
             </div>
         </div>
     </div>
