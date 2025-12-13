@@ -340,7 +340,12 @@ h3 {
     /* Ensure it doesn't take full width unless intended */
 }
 
-.account-created-popup button:hover {
+.account-created-popup button:hover, #primary-button:hover {
     background-color: color-mix(in srgb, #1737da 75%, white);
+    transition: .25s ease-in-out;
+}
+
+#secondary-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
     transition: .25s ease-in-out;
 }
