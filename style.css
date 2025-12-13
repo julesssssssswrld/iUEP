@@ -939,3 +939,12 @@ iframe {
     background-color: var(--blue-button-hover);
     transition: .25s ease-in-out;
 }
+
+h2#about-subheading {
+    text-align: left;
+    margin-bottom: 2rem;
+}
+
+b {
+    color: var(--uep-blue);
+}
