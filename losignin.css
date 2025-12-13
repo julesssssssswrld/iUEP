@@ -392,3 +392,77 @@ h3 {
     background-color: rgba(0, 0, 0, 0.05);
     transition: .25s ease-in-out;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .main {
+        flex-direction: column;
+        padding: 1rem;
+        justify-content: center;
+        height: 100vh;
+    }
+
+    /* Hide the splash/logo side */
+    #left {
+        display: none;
+    }
+
+    #right {
+        width: 100%;
+        height: 100%;
+        align-items: center;
+    }
+
+    #form-container {
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+        border: none;
+        box-shadow: none;
+        padding: 1.5rem;
+        background-color: var(--background);
+        /* Match background so it looks like a full page */
+        justify-content: flex-start;
+        /* Ensure content starts at top if needed, but usually center is fine */
+    }
+
+    /* Adjust form container specific to login/signup pages if they have overflowing content */
+    .signup-page #form-container,
+    .login-page #form-container {
+        border-radius: 0;
+        box-shadow: none;
+        max-height: none;
+    }
+
+    h1 {
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    h3 {
+        font-size: 1rem;
+    }
+
+    /* Adjust inputs */
+    .input-textbox {
+        padding: 0.75rem;
+    }
+
+    button {
+        padding: 0.75rem;
+    }
+
+    /* Popups */
+    .login-error-popup,
+    .account-created-popup {
+        width: 90vw;
+        height: auto;
+        padding: 2rem;
+    }
+
+    .login-error-popup svg,
+    .account-created-popup svg {
+        height: 5rem;
+        width: 5rem;
+    }
+}
