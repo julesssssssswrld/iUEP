@@ -160,7 +160,8 @@ function initTheme() {
 
     // Default to light if nothing saved, unless system prefers dark
     // For now, let's favor light mode as default if nothing saved, matching original design
-    let theme = savedTheme ? savedTheme : (prefersDark ? 'dark' : 'light');
+    // Default to light if nothing saved. Only use saved preference.
+    let theme = savedTheme ? savedTheme : 'light';
 
     document.documentElement.setAttribute('data-theme', theme);
     updateThemeIcons(theme);

@@ -118,7 +118,7 @@ const formatRelativeTime = (timestamp) => {
 const applyTheme = () => {
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    let theme = savedTheme ? savedTheme : (prefersDark ? 'dark' : 'light');
+    let theme = savedTheme ? savedTheme : 'light';
     document.documentElement.setAttribute('data-theme', theme);
 };
 
