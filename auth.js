@@ -61,6 +61,11 @@ function handleSignup(event) {
         return;
     }
 
+    if (stu_id.length !== 6) {
+        alert("Student ID must be exactly 6 digits.");
+        return;
+    }
+
     const profiles = getStorage(STORAGE_KEYS.PROFILES, {});
 
     // Optimize existence check

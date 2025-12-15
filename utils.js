@@ -113,3 +113,14 @@ const formatRelativeTime = (timestamp) => {
         return seconds < 30 ? 'Just now' : `${seconds} seconds ago`;
     }
 };
+
+// Theme Logic
+const applyTheme = () => {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = savedTheme ? savedTheme : (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+};
+
+// Apply immediately
+applyTheme();

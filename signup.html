@@ -54,7 +54,8 @@
                     <div class="form-div-bottom-margin">
                         <label for="stu_id">Student ID</label>
                         <input type="number" id="stu_id" class="input-textbox" name="stu_id"
-                            placeholder="Enter your Student ID" maxlength="6" required>
+                            placeholder="Enter your Student ID" maxlength="6"
+                            oninput="if(this.value.length > 6) this.value = this.value.slice(0, 6);" required>
                     </div>
 
                     <div class="form-div-bottom-margin">

@@ -1,10 +1,30 @@
 :root {
     --uep-blue: #17376E;
     --uep-yellow: #FFD700;
+
+    /* Semantic Variables */
     --background: #f7f7f7;
-    --default-shadow: 5px 5px 20px -10px rgba(0, 0, 0, 0.25);
+    --surface: #ffffff;
+    --text-primary: #000000;
+    --text-secondary: rgba(0, 0, 0, 0.5);
+    --border-color: rgba(0, 0, 0, 0.25);
+    --shadow-color: rgba(0, 0, 0, 0.25);
+    --hover-bg: rgba(0, 0, 0, 0.1);
+
+    --default-shadow: 5px 5px 20px -10px var(--shadow-color);
     --default-radius: 25px;
-    --default-border: 1px solid rgba(0, 0, 0, 0.25);
+    --default-border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] {
+    --uep-blue: #4a8eff;
+    --background: #020617;
+    --surface: #0f172a;
+    --text-primary: #e0e0e0;
+    --text-secondary: rgba(255, 255, 255, 0.6);
+    --border-color: rgba(255, 255, 255, 0.12);
+    --shadow-color: rgba(255, 255, 255, 0.5);
+    --hover-bg: rgba(255, 255, 255, 0.1);
 }
 
 * {
@@ -25,7 +45,7 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: var(--background);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -41,6 +61,7 @@ html {
 body {
     font-family: Montserrat, Arial, sans-serif;
     background-color: var(--background);
+    color: var(--text-primary);
     height: 100vh;
     width: 100vw;
 }
@@ -99,7 +120,7 @@ a {
 #form-container {
     flex-direction: column;
     width: 35rem;
-    background-color: white;
+    background-color: var(--surface);
     border-radius: var(--default-radius);
     border: var(--default-border);
     box-shadow: var(--default-shadow);
@@ -115,7 +136,7 @@ h1 {
 }
 
 h3 {
-    color: rgba(0, 0, 0, 0.5);
+    color: var(--text-secondary);
 }
 
 form {
@@ -178,7 +199,7 @@ form {
 
 form label {
     margin-left: 1rem;
-    color: rgba(0, 0, 0, 0.5);
+    color: var(--text-secondary);
     font-weight: 600;
 }
 
@@ -186,8 +207,10 @@ form label {
     margin-top: .5rem;
     font-size: 1.15rem;
     padding: 1rem;
-    border: 1px solid rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-color);
     border-radius: 25px;
+    background-color: var(--background);
+    color: var(--text-primary);
 }
 
 #remember-me {
@@ -212,7 +235,7 @@ button {
 
 #secondary-button {
     color: var(--uep-blue);
-    background-color: white;
+    background-color: var(--surface);
     border: var(--default-border);
 }
 
@@ -234,7 +257,7 @@ h3 {
 .login-error-popup {
     width: 40rem;
     height: 30rem;
-    background-color: white;
+    background-color: var(--surface);
     border-radius: var(--default-radius);
     border: var(--default-border);
     box-shadow: var(--default-shadow);
@@ -245,6 +268,7 @@ h3 {
     inset: 0;
     margin: auto;
     display: none;
+    color: var(--text-primary);
 }
 
 .login-error-popup:popover-open {
@@ -314,7 +338,7 @@ h3 {
 }
 
 #toggle-password svg {
-    fill: rgba(0, 0, 0, 0.5);
+    fill: var(--text-secondary);
     width: 24px;
     height: 24px;
 }
@@ -327,7 +351,7 @@ h3 {
 .account-created-popup {
     width: 40rem;
     height: 30rem;
-    background-color: white;
+    background-color: var(--surface);
     border-radius: 25px;
     border: var(--default-border);
     align-items: center;
@@ -338,6 +362,7 @@ h3 {
     inset: 0;
     margin: auto;
     display: none;
+    color: var(--text-primary);
 }
 
 .account-created-popup:popover-open {
