@@ -154,10 +154,10 @@ async function openReview(appId) {
         ADMIN_DOM.reviewLib.textContent = app.library_id || '—';
         ADMIN_DOM.reviewDate.textContent = formatShortDate(app.submitted_at);
 
-        // COR — set both img src and link href for new-tab viewing
+        // COR — set img src. Link click is handled via JS blob conversion.
         const corSrc = app.cor_base64 || '';
         ADMIN_DOM.reviewCor.src = corSrc;
-        ADMIN_DOM.reviewCorLink.href = corSrc;
+        ADMIN_DOM.reviewCorLink.dataset.corSrc = corSrc;
 
         // Update status bar in popover
         updateReviewStatusBar(app.status);
@@ -342,6 +342,30 @@ async function refreshData() {
     await Promise.all([loadStats(), loadApplications()]);
 }
 
+function dataURItoBlob(dataURI) {
+    const split = dataURI.split(',');
+    const byteString = atob(split[1]);
+    const mimeString = split[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
+}
+
+function openDocumentInNewTab(dataUrl) {
+    if (!dataUrl || !dataUrl.startsWith('data:')) return;
+    try {
+        const blob = dataURItoBlob(dataUrl);
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+    } catch (e) {
+        console.error('Failed to open document:', e);
+        alert('Could not open document preview.');
+    }
+}
+
 /* ----------------------------------------------
  *  Initialization
  * ---------------------------------------------- */
@@ -363,6 +387,12 @@ function initAdminId() {
             rejectMode = false;
             ADMIN_DOM.rejectBtn.textContent = 'Reject';
         }
+    });
+
+    // COR click handler (opens Blob URL to avoid about:blank#blocked on data URIs)
+    ADMIN_DOM.reviewCorLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        openDocumentInNewTab(ADMIN_DOM.reviewCorLink.dataset.corSrc);
     });
 
     // Initial data load
