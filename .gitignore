@@ -10,3 +10,6 @@ iuep.db
 # OS
 Thumbs.db
 .DS_Store
+
+# Context
+UEP-full-courses.txt

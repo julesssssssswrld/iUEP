@@ -60,9 +60,31 @@ function renderGradesTable() {
     `).join('');
 }
 
+/**
+ * Checks if user is logged in. If not, shows auth guard.
+ * @returns {boolean} True if authenticated.
+ */
+function checkGradesAuth() {
+    const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
+    const guard = document.getElementById('grades-auth-guard');
+    const content = document.getElementById('grades-content');
+
+    if (!user) {
+        if (guard) guard.classList.remove('hidden');
+        if (content) content.classList.add('hidden');
+        return false;
+    }
+
+    if (guard) guard.classList.add('hidden');
+    if (content) content.classList.remove('hidden');
+    return true;
+}
+
 // Initialize on DOM ready
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderGradesTable);
+    document.addEventListener('DOMContentLoaded', () => {
+        if (checkGradesAuth()) renderGradesTable();
+    });
 } else {
-    renderGradesTable();
+    if (checkGradesAuth()) renderGradesTable();
 }

@@ -55,6 +55,7 @@ function cacheAdminDom() {
         rejectBtn: document.getElementById('admin-reject-btn'),
         rejectSection: document.getElementById('admin-reject-section'),
         rejectReason: document.getElementById('admin-reject-reason'),
+        svgTarget: document.getElementById('admin-review-svg-target'),
     };
 }
 
@@ -72,6 +73,30 @@ async function apiFetch(endpoint, options = {}) {
         throw new Error(err.error || res.statusText);
     }
     return res.json();
+}
+
+/* ----------------------------------------------
+ *  UEP Seal Logo Loader (cached)
+ * ---------------------------------------------- */
+
+let _adminLogoCache = null;
+
+async function loadAdminLogo() {
+    if (_adminLogoCache) return _adminLogoCache;
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            const c = document.createElement('canvas');
+            c.width = img.naturalWidth;
+            c.height = img.naturalHeight;
+            c.getContext('2d').drawImage(img, 0, 0);
+            _adminLogoCache = c.toDataURL('image/png');
+            resolve(_adminLogoCache);
+        };
+        img.onerror = () => resolve('');
+        img.src = 'Figma/UEP Logo.png';
+    });
 }
 
 /* ----------------------------------------------
@@ -172,11 +197,63 @@ async function openReview(appId) {
         ADMIN_DOM.rejectSection.classList.add('hidden');
         ADMIN_DOM.rejectReason.value = '';
 
+        // Render SVG ID card preview
+        renderAdminSvgPreview(app);
+
         ADMIN_DOM.reviewPopover.showPopover();
     } catch (e) {
         console.error('Failed to open review:', e);
         alert('Failed to load application details.');
     }
+}
+
+/**
+ * Renders the SVG ID card preview in the admin review popover.
+ * @param {Object} app - Application data with student info.
+ */
+async function renderAdminSvgPreview(app) {
+    if (!ADMIN_DOM.svgTarget || typeof generateIdCardSVG !== 'function') return;
+
+    const logoBase64 = await loadAdminLogo();
+    const fullName = buildFullName(app).toUpperCase();
+
+    // Map course to college (reuse same mapping logic)
+    const college = getAdminCollege(app.course);
+
+    ADMIN_DOM.svgTarget.innerHTML = generateIdCardSVG({
+        studentName: fullName,
+        studentId: app.stu_id || app.student_id || '000000',
+        course: app.course || 'BSIT',
+        college: college,
+        photoBase64: app.photo_base64 || '',
+        logoBase64: logoBase64,
+    });
+}
+
+/**
+ * Maps course abbreviation to college name for admin preview.
+ */
+function getAdminCollege(course) {
+    if (!course) return 'COLLEGE OF SCIENCE';
+    const u = course.toUpperCase();
+    const map = {
+        'BSBIO': 'COLLEGE OF SCIENCE', 'BSCHEM': 'COLLEGE OF SCIENCE',
+        'BSES': 'COLLEGE OF SCIENCE', 'BSIT': 'COLLEGE OF SCIENCE',
+        'BSMBIO': 'COLLEGE OF SCIENCE', 'BSMATH': 'COLLEGE OF SCIENCE',
+        'BSABE': 'COLLEGE OF ENGINEERING', 'BSCE': 'COLLEGE OF ENGINEERING',
+        'BSEE': 'COLLEGE OF ENGINEERING', 'BSME': 'COLLEGE OF ENGINEERING',
+        'BET': 'COLLEGE OF ENGINEERING',
+        'BSN': 'COLLEGE OF NURSING AND ALLIED HEALTH SERVICES',
+        'BSRT': 'COLLEGE OF NURSING AND ALLIED HEALTH SERVICES',
+        'BSCRIM': 'COLLEGE OF CRIMINAL JUSTICE',
+        'BSA': 'COLLEGE OF BUSINESS ADMINISTRATION',
+        'BSENTREP': 'COLLEGE OF BUSINESS ADMINISTRATION',
+        'BSHM': 'COLLEGE OF BUSINESS ADMINISTRATION',
+        'BSBA': 'COLLEGE OF BUSINESS ADMINISTRATION',
+        'BEED': 'COLLEGE OF EDUCATION', 'BPED': 'COLLEGE OF EDUCATION',
+        'BSED': 'COLLEGE OF EDUCATION', 'BTLED': 'COLLEGE OF EDUCATION',
+    };
+    return map[u] || 'COLLEGE OF SCIENCE';
 }
 
 function closeReview() {

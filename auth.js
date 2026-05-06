@@ -87,8 +87,18 @@ function initLogin() {
             if (result.success) {
                 showMessage(messageEl, 'Login successful! Redirecting...', 'success');
 
-                // Store session (placeholder — will be replaced with proper session management)
-                sessionStorage.setItem('iUEP_session', JSON.stringify(result.user));
+                // Store session — must use the same key getSessionUser() reads
+                const sessionUser = {
+                    stu_id: result.user.stuId,
+                    username: result.user.username,
+                    first_name: result.user.firstName,
+                    middle_name: result.user.middleName,
+                    last_name: result.user.lastName,
+                    course: result.user.course,
+                    year_level: result.user.yearLevel,
+                    section: result.user.section,
+                };
+                sessionStorage.setItem('iUEP_current_user', JSON.stringify(sessionUser));
 
                 setTimeout(() => {
                     window.location.href = 'index.html';

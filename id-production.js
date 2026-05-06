@@ -7,6 +7,9 @@
  *   State 2: Application in progress → show status bar
  *   State 3: ID ready/active → show full card, enable lost/damaged report
  *   Rejected: Show rejection banner, re-enable apply
+ *
+ * Now also renders the SVG ID card via id-card-svg.js and
+ * enforces an auth guard for unauthenticated visitors.
  */
 
 /* ──────────────────────────────────────────────
@@ -17,7 +20,7 @@ const STATUS_STEPS = ['uploaded', 'received', 'processing', 'completed'];
 
 /**
  * Resolves the current student ID.
- * Uses session user if available, falls back to '202100001' for demo.
+ * Uses session user if available, falls back to '202101' for demo.
  */
 function getCurrentStudentId() {
     const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
@@ -33,8 +36,7 @@ let DOM = {};
 function cacheDom() {
     DOM = {
         container: document.getElementById('id-card-container'),
-        photoImg: document.getElementById('id-photo-img'),
-        photoPlaceholder: document.getElementById('id-photo-placeholder'),
+        svgTarget: document.getElementById('id-card-svg-target'),
         course: document.getElementById('id-course'),
         year: document.getElementById('id-year'),
         section: document.getElementById('id-section'),
@@ -57,7 +59,179 @@ function cacheDom() {
         formLib: document.getElementById('id-form-lib'),
         formPreviewImg: document.getElementById('id-form-preview-img'),
         formPhotoPreview: document.getElementById('id-form-photo-preview'),
+        authGuard: document.getElementById('id-auth-guard'),
+        content: document.getElementById('id-production-content'),
+        fullscreenPopover: document.getElementById('id-fullscreen-popover'),
+        fullscreenSvgTarget: document.getElementById('id-fullscreen-svg-target'),
+        fullscreenClose: document.getElementById('id-fullscreen-close'),
     };
+}
+
+/* ──────────────────────────────────────────────
+ *  Auth Guard
+ * ────────────────────────────────────────────── */
+
+/**
+ * Checks if a user is logged in. If not, shows the auth guard
+ * and hides the page content.
+ * @returns {boolean} True if user is authenticated.
+ */
+function checkAuth() {
+    const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
+
+    if (!user) {
+        if (DOM.authGuard) DOM.authGuard.classList.remove('hidden');
+        if (DOM.content) DOM.content.classList.add('hidden');
+        return false;
+    }
+
+    if (DOM.authGuard) DOM.authGuard.classList.add('hidden');
+    if (DOM.content) DOM.content.classList.remove('hidden');
+    return true;
+}
+
+/* ──────────────────────────────────────────────
+ *  SVG ID Card Rendering
+ * ────────────────────────────────────────────── */
+
+/** Cached UEP seal logo base64 (loaded once) */
+let _logoBase64Cache = null;
+
+/**
+ * Loads the UEP seal as base64 (cached after first load).
+ * @returns {Promise<string>} base64 data URI of the logo.
+ */
+async function loadLogoBase64() {
+    if (_logoBase64Cache) return _logoBase64Cache;
+
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
+            canvas.getContext('2d').drawImage(img, 0, 0);
+            _logoBase64Cache = canvas.toDataURL('image/png');
+            resolve(_logoBase64Cache);
+        };
+        img.onerror = () => resolve('');
+        img.src = 'Figma/UEP Logo.png';
+    });
+}
+
+/**
+ * Renders the SVG ID card into the target div using current session user data
+ * and (optionally) application data.
+ * @param {Object|null} app - Application data (photo, course, etc.)
+ */
+async function renderSvgIdCard(app) {
+    if (!DOM.svgTarget || typeof generateIdCardSVG !== 'function') return;
+
+    const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
+    const logoBase64 = await loadLogoBase64();
+
+    // Build the full name in the format: FIRST MIDDLE_INITIAL. LAST
+    let studentName = 'STUDENT NAME';
+    if (user) {
+        const parts = [];
+        if (user.first_name) parts.push(user.first_name.toUpperCase());
+        if (user.middle_name) parts.push(user.middle_name.charAt(0).toUpperCase() + '.');
+        if (user.last_name) parts.push(user.last_name.toUpperCase());
+        studentName = parts.join(' ') || 'STUDENT NAME';
+    }
+
+    // Determine college from course (simple mapping)
+    const college = app?.college || getCollegeFromCourse(user?.course || app?.course) || 'COLLEGE OF SCIENCE';
+
+    const cardData = {
+        studentName: studentName,
+        studentId: user?.stu_id || '000000',
+        course: user?.course || app?.course || 'BSIT',
+        college: college,
+        photoBase64: app?.photo_base64 || '',
+        logoBase64: logoBase64,
+    };
+
+    DOM.svgTarget.innerHTML = generateIdCardSVG(cardData);
+}
+
+/**
+ * Shows a placeholder card in the SVG target area.
+ * Same dimensions as the SVG card for visual uniformity.
+ * @param {string} message - Message to display in the placeholder.
+ */
+function showPlaceholder(message = 'No ID on record') {
+    if (!DOM.svgTarget) return;
+
+    DOM.svgTarget.innerHTML = `
+        <div class="id-card-placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="var(--text-secondary)">
+                <path d="M560-440h200v-80H560v80Zm0-120h200v-80H560v80ZM200-320h320v-22q0-45-44-71.5T360-440q-72 0-116 26.5T200-342v22Zm160-160q33 0 56.5-23.5T440-560q0-33-23.5-56.5T360-640q-33 0-56.5 23.5T280-560q0 33 23.5 56.5T360-480ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Z"/>
+            </svg>
+            <p class="sub-text">${message}</p>
+        </div>
+    `;
+}
+
+/**
+ * Maps a course abbreviation to its parent college name.
+ * @param {string} course - Course abbreviation (e.g. "BSIT").
+ * @returns {string} College name.
+ */
+function getCollegeFromCourse(course) {
+    if (!course) return 'COLLEGE OF SCIENCE';
+
+    const upper = course.toUpperCase();
+    const mapping = {
+        // College of Science
+        'BSBIO': 'COLLEGE OF SCIENCE',
+        'BSCHEM': 'COLLEGE OF SCIENCE',
+        'BSES': 'COLLEGE OF SCIENCE',
+        'BSIT': 'COLLEGE OF SCIENCE',
+        'BSMBIO': 'COLLEGE OF SCIENCE',
+        'BSMATH': 'COLLEGE OF SCIENCE',
+        // College of Engineering
+        'BSABE': 'COLLEGE OF ENGINEERING',
+        'BSCE': 'COLLEGE OF ENGINEERING',
+        'BSEE': 'COLLEGE OF ENGINEERING',
+        'BSME': 'COLLEGE OF ENGINEERING',
+        'BET': 'COLLEGE OF ENGINEERING',
+        // College of Nursing and Allied Health
+        'BSN': 'COLLEGE OF NURSING AND ALLIED HEALTH SERVICES',
+        'BSRT': 'COLLEGE OF NURSING AND ALLIED HEALTH SERVICES',
+        // College of Criminal Justice
+        'BSCRIM': 'COLLEGE OF CRIMINAL JUSTICE',
+        // College of Business Administration
+        'BSA': 'COLLEGE OF BUSINESS ADMINISTRATION',
+        'BSENTREP': 'COLLEGE OF BUSINESS ADMINISTRATION',
+        'BSHM': 'COLLEGE OF BUSINESS ADMINISTRATION',
+        'BSBA': 'COLLEGE OF BUSINESS ADMINISTRATION',
+        // College of Education
+        'BEED': 'COLLEGE OF EDUCATION',
+        'BPED': 'COLLEGE OF EDUCATION',
+        'BSED': 'COLLEGE OF EDUCATION',
+        'BTLED': 'COLLEGE OF EDUCATION',
+        // College of Arts and Communication
+        'BAEL': 'COLLEGE OF ARTS AND COMMUNICATION',
+        'BAL': 'COLLEGE OF ARTS AND COMMUNICATION',
+        'BAPS': 'COLLEGE OF ARTS AND COMMUNICATION',
+        'BAPA': 'COLLEGE OF ARTS AND COMMUNICATION',
+        'BAS': 'COLLEGE OF ARTS AND COMMUNICATION',
+        'BSCD': 'COLLEGE OF ARTS AND COMMUNICATION',
+        'BSDC': 'COLLEGE OF ARTS AND COMMUNICATION',
+        // College of Veterinary Medicine
+        'DVM': 'COLLEGE OF VETERINARY MEDICINE',
+        'BSMT': 'COLLEGE OF VETERINARY MEDICINE',
+        // College of Agriculture
+        'BSAGRI': 'COLLEGE OF AGRICULTURE, FISHERIES AND NATURAL RESOURCES',
+        'BSAGED': 'COLLEGE OF AGRICULTURE, FISHERIES AND NATURAL RESOURCES',
+        'BSAG': 'COLLEGE OF AGRICULTURE, FISHERIES AND NATURAL RESOURCES',
+        'BSF': 'COLLEGE OF AGRICULTURE, FISHERIES AND NATURAL RESOURCES',
+        'BSFOR': 'COLLEGE OF AGRICULTURE, FISHERIES AND NATURAL RESOURCES',
+    };
+
+    return mapping[upper] || 'COLLEGE OF SCIENCE';
 }
 
 /* ──────────────────────────────────────────────
@@ -101,9 +275,8 @@ async function renderIdPage() {
 
 /** State 1: No ID on record */
 function renderNoId() {
-    // Photo area
-    DOM.photoImg.style.display = 'none';
-    DOM.photoPlaceholder.style.display = 'flex';
+    // Show placeholder (no SVG card until completed)
+    showPlaceholder('No University ID on record');
 
     // Info values
     DOM.course.textContent = '—';
@@ -131,6 +304,8 @@ function renderNoId() {
 
 /** State 2: Application in progress (uploaded/received/processing) */
 function renderInProgress(app) {
+    // Show placeholder while processing (no SVG card until completed)
+    showPlaceholder('ID application in progress...');
     populateCardInfo(app);
 
     DOM.noRecord.classList.add('hidden');
@@ -148,7 +323,13 @@ function renderInProgress(app) {
 
 /** State 3: ID completed — ready for pickup or claimed */
 function renderCompleted(app) {
+    // Only completed status shows the real SVG ID card
+    renderSvgIdCard(app);
     populateCardInfo(app);
+
+    // Make the card clickable for fullscreen view
+    _currentApp = app;
+    DOM.svgTarget.classList.add('id-card-clickable');
 
     DOM.noRecord.classList.add('hidden');
     DOM.readyNotice.classList.remove('hidden');
@@ -165,6 +346,8 @@ function renderCompleted(app) {
 
 /** Rejected state */
 function renderRejected(app) {
+    // Show placeholder (rejected, no SVG card)
+    showPlaceholder('Application was rejected');
     populateCardInfo(app);
 
     DOM.noRecord.classList.add('hidden');
@@ -190,19 +373,11 @@ function renderRejected(app) {
 }
 
 /**
- * Fills the ID card display with application data.
+ * Fills the info panel (right side) with application data.
+ * Does NOT render the SVG card — that's handled per-state.
  * @param {Object} app - Application data.
  */
 function populateCardInfo(app) {
-    if (app.photo_base64) {
-        DOM.photoImg.src = app.photo_base64;
-        DOM.photoImg.style.display = 'block';
-        DOM.photoPlaceholder.style.display = 'none';
-    } else {
-        DOM.photoImg.style.display = 'none';
-        DOM.photoPlaceholder.style.display = 'flex';
-    }
-
     DOM.course.textContent = app.course || '—';
     DOM.year.textContent = app.year_level || '—';
     DOM.section.textContent = app.section || '—';
@@ -346,11 +521,58 @@ function fileToBase64(file) {
 }
 
 /* ──────────────────────────────────────────────
+ *  Fullscreen ID Card Popover
+ * ────────────────────────────────────────────── */
+
+/** Holds the current completed app data for fullscreen rendering */
+let _currentApp = null;
+
+/**
+ * Opens the fullscreen popover and renders the SVG card at large scale.
+ */
+async function openFullscreenCard() {
+    if (!_currentApp || !DOM.fullscreenPopover) return;
+
+    // Render the card into the fullscreen target
+    const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
+    const logoBase64 = await loadLogoBase64();
+
+    let studentName = 'STUDENT NAME';
+    if (user) {
+        const parts = [];
+        if (user.first_name) parts.push(user.first_name.toUpperCase());
+        if (user.middle_name) parts.push(user.middle_name.charAt(0).toUpperCase() + '.');
+        if (user.last_name) parts.push(user.last_name.toUpperCase());
+        studentName = parts.join(' ') || 'STUDENT NAME';
+    }
+
+    const college = _currentApp?.college || getCollegeFromCourse(user?.course || _currentApp?.course) || 'COLLEGE OF SCIENCE';
+
+    DOM.fullscreenSvgTarget.innerHTML = generateIdCardSVG({
+        studentName: studentName,
+        studentId: user?.stu_id || '000000',
+        course: user?.course || _currentApp?.course || 'BSIT',
+        college: college,
+        photoBase64: _currentApp?.photo_base64 || '',
+        logoBase64: logoBase64,
+    });
+
+    DOM.fullscreenPopover.showPopover();
+}
+
+function closeFullscreenCard() {
+    if (DOM.fullscreenPopover) DOM.fullscreenPopover.hidePopover();
+}
+
+/* ──────────────────────────────────────────────
  *  Event Binding & Initialization
  * ────────────────────────────────────────────── */
 
 function initIdProduction() {
     cacheDom();
+
+    // Auth guard — stop initialization if not logged in
+    if (!checkAuth()) return;
 
     // Buttons
     DOM.applyBtn.addEventListener('click', openApplicationForm);
@@ -376,6 +598,10 @@ function initIdProduction() {
 
     // Render initial state
     renderIdPage();
+
+    // Fullscreen card popover
+    DOM.svgTarget.addEventListener('click', openFullscreenCard);
+    DOM.fullscreenClose.addEventListener('click', closeFullscreenCard);
 }
 
 if (document.readyState === 'loading') {
