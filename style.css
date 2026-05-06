@@ -1,11 +1,11 @@
 /* ================================================================
- *  iUEP Portal — Main Stylesheet
+ *  iUEP Portal â€” Main Stylesheet
  *  University of Eastern Philippines Student Portal
  * ================================================================ */
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  1. Design Tokens (CSS Custom Properties)
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 :root {
     /* Brand Colors */
@@ -40,6 +40,13 @@
     --space-xl: 2rem;
     --space-2xl: 3rem;
     --space-3xl: 5rem;
+    /* Typography Scale */
+    --font-h1: 1.5rem;
+    --font-h2: 1.125rem;
+    --font-h3: 0.95rem;
+    --font-body: 0.875rem;
+    --font-sm: 0.8rem;
+    --font-xs: 0.7rem;
 
     /* Layout */
     --header-height: 4.5rem;
@@ -48,9 +55,9 @@
     --content-min-width: 17.5rem;
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  2. Dark Theme Overrides
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 [data-theme="dark"] {
     --uep-blue: #4a8eff;
@@ -67,9 +74,9 @@
     --scrollbar-thumb-hover: #777;
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  3. Reset & Base Styles
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 *,
 *::before,
@@ -113,9 +120,9 @@ body {
     background: var(--scrollbar-thumb-hover);
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  4. Typography & Links
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 a {
     text-decoration: none;
@@ -124,21 +131,21 @@ a {
 
 .sub-text {
     color: var(--text-secondary);
-    font-size: 0.875rem;
+    font-size: var(--font-sm);
 }
 
 .main-text {
-    font-size: 0.9rem;
+    font-size: var(--font-body);
 }
 
 .subheadings {
     margin-bottom: 0.75rem;
-    font-size: 1.1rem;
+    font-size: var(--font-h2);
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  5. Shared Component Styles
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 .content-box {
     background-color: var(--surface);
@@ -164,9 +171,9 @@ a {
     fill: var(--uep-blue);
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  6. Header
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 #header {
     display: flex;
@@ -200,7 +207,7 @@ a {
 }
 
 .header-left-text h2 {
-    font-size: 0.85rem;
+    font-size: var(--font-body);
 }
 
 .header-left-text p {
@@ -264,7 +271,7 @@ a {
 }
 
 .user-preview-text h2 {
-    font-size: 0.85rem;
+    font-size: var(--font-body);
 }
 
 .user-preview-text p {
@@ -287,9 +294,9 @@ a {
     border-radius: var(--default-radius);
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  7. User Options Popup
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 #user-options-popup {
     display: none;
@@ -345,11 +352,11 @@ a {
 }
 
 #popup-user-info h3 {
-    font-size: 0.9rem;
+    font-size: var(--font-body);
 }
 
 #popup-user-info p {
-    font-size: 0.8rem;
+    font-size: var(--font-sm);
 }
 
 #user-options-popup-divider {
@@ -385,12 +392,12 @@ a {
 .popup-options p {
     font-weight: 600;
     color: var(--text-secondary);
-    font-size: 0.85rem;
+    font-size: var(--font-body);
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  8. Sidebar Navigation
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 #left-nav {
     display: flex;
@@ -427,7 +434,7 @@ a {
 }
 
 .nav-item h2 {
-    font-size: 0.85rem;
+    font-size: var(--font-body);
     font-weight: 600;
 }
 
@@ -438,9 +445,9 @@ a {
     flex-shrink: 0;
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  9. Main Layout
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 .main {
     display: flex;
@@ -470,9 +477,9 @@ a {
     margin-top: var(--space-2xl);
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  10. Feed Cards (Uniform Horizontal)
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 .feed-card {
     display: flex;
@@ -506,13 +513,13 @@ a {
 }
 
 .feed-card-body h3 {
-    font-size: 0.9rem;
+    font-size: var(--font-body);
     font-weight: 700;
     line-height: 1.3;
 }
 
 .feed-card-body .feed-card-excerpt {
-    font-size: 0.8rem;
+    font-size: var(--font-sm);
     line-height: 1.45;
     color: var(--text-primary);
     display: -webkit-box;
@@ -530,12 +537,12 @@ a {
     margin-top: var(--space-sm);
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  12. Grades Page
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 #grades-content h1 {
-    font-size: 1.5rem;
+    font-size: var(--font-h1);
     margin-bottom: var(--space-sm);
 }
 
@@ -555,7 +562,7 @@ a {
 
 #grades-table {
     margin-top: var(--space-lg);
-    font-size: 0.9rem;
+    font-size: var(--font-body);
     background-color: var(--surface);
     width: 100%;
     border-collapse: collapse;
@@ -577,9 +584,14 @@ a {
     text-align: center;
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  13. Dashboard — Home Layout & Date Groups
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
+
+#dashboard-heading {
+    font-size: var(--font-h1);
+    margin-bottom: var(--space-xl);
+}
 
 #home-layout {
     display: flex;
@@ -604,7 +616,7 @@ a {
 }
 
 .dept-sidebar-heading {
-    font-size: 0.85rem;
+    font-size: var(--font-body);
     font-weight: 700;
     color: var(--text-secondary);
     margin-bottom: var(--space-md);
@@ -626,7 +638,7 @@ a {
     border: none;
     background-color: transparent;
     color: var(--text-secondary);
-    font-size: 0.8rem;
+    font-size: var(--font-sm);
     font-weight: 600;
     font-family: inherit;
     cursor: pointer;
@@ -652,7 +664,7 @@ a {
 }
 
 .date-group-header span {
-    font-size: 0.85rem;
+    font-size: var(--font-body);
     font-weight: 700;
     color: var(--text-secondary);
     white-space: nowrap;
@@ -677,9 +689,9 @@ a {
     font-style: italic;
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  14. About Page
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 #about-content {
     padding-left: 5rem;
@@ -690,12 +702,12 @@ a {
     text-align: center;
     color: var(--uep-blue);
     margin-bottom: var(--space-2xl);
-    font-size: 1.5rem;
+    font-size: var(--font-h1);
 }
 
 .about-text {
     text-align: justify;
-    font-size: 0.95rem;
+    font-size: var(--font-h3);
     margin-bottom: var(--space-md);
     line-height: 1.6;
 }
@@ -705,7 +717,7 @@ a {
     margin-bottom: var(--space-2xl);
     color: var(--uep-blue);
     text-align: center;
-    font-size: 1.15rem;
+    font-size: var(--font-h2);
 }
 
 .about-credits-heading {
@@ -713,7 +725,7 @@ a {
     color: var(--uep-blue);
     text-align: center;
     margin-bottom: var(--space-md);
-    font-size: 1rem;
+    font-size: var(--font-h3);
 }
 
 .about-subtext {
@@ -728,9 +740,9 @@ a {
     color: var(--uep-blue);
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  15. Save Changes Popup (Account Settings)
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 .save-changes-popup {
     display: none;
@@ -767,7 +779,7 @@ a {
 .save-changes-popup h1 {
     color: var(--uep-blue);
     font-weight: 800;
-    font-size: 1.5rem;
+    font-size: var(--font-h1);
 }
 
 #save-confirmation-styling {
@@ -784,7 +796,7 @@ a {
     background-color: var(--uep-blue);
     color: white;
     font-weight: 600;
-    font-size: 0.9rem;
+    font-size: var(--font-body);
     cursor: pointer;
 }
 
@@ -793,9 +805,9 @@ a {
     transition: background-color 0.25s ease-in-out;
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  16. Toggle Switch Component
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 .switch {
     position: relative;
@@ -844,9 +856,9 @@ input:checked+.slider::before {
     transform: translateX(1.25rem);
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  17a. Shared Button Styles
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 .btn-primary {
     padding: 0.65rem 1.5rem;
@@ -855,7 +867,7 @@ input:checked+.slider::before {
     background-color: var(--uep-blue);
     color: white;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: var(--font-body);
     font-family: inherit;
     cursor: pointer;
     transition: background-color 0.2s ease;
@@ -879,7 +891,7 @@ input:checked+.slider::before {
     background-color: transparent;
     color: var(--text-primary);
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: var(--font-body);
     font-family: inherit;
     cursor: pointer;
     transition: background-color 0.2s ease;
@@ -922,12 +934,12 @@ input:checked+.slider::before {
     color: #ef4444;
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  17b. ID Production Page
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 #id-page-heading {
-    font-size: 1.5rem;
+    font-size: var(--font-h1);
     margin-bottom: var(--space-xl);
 }
 
@@ -945,7 +957,7 @@ input:checked+.slider::before {
     flex-shrink: 0;
 }
 
-/* Physical ID: 5.4 × 8.56 cm (portrait) */
+/* Physical ID: 5.4 Ã— 8.56 cm (portrait) */
 #id-card-photo {
     height: 100%;
     aspect-ratio: 5.4 / 8.56;
@@ -998,14 +1010,14 @@ input:checked+.slider::before {
 }
 
 .id-info-label {
-    font-size: 0.8rem;
+    font-size: var(--font-sm);
     font-weight: 700;
     color: var(--text-secondary);
     min-width: 5.5rem;
 }
 
 .id-info-value {
-    font-size: 0.9rem;
+    font-size: var(--font-body);
     font-weight: 600;
 }
 
@@ -1035,7 +1047,7 @@ input:checked+.slider::before {
 }
 
 .id-status-step span {
-    font-size: 0.7rem;
+    font-size: var(--font-xs);
     color: var(--text-secondary);
     font-weight: 600;
 }
@@ -1096,7 +1108,7 @@ input:checked+.slider::before {
     border-radius: 0.5rem;
     border: 0.0625rem solid #ef4444;
     color: #ef4444;
-    font-size: 0.85rem;
+    font-size: var(--font-body);
 }
 
 #id-no-record,
@@ -1104,7 +1116,7 @@ input:checked+.slider::before {
     display: flex;
     align-items: center;
     gap: var(--space-sm);
-    font-size: 0.8rem;
+    font-size: var(--font-sm);
     color: var(--text-secondary);
 }
 
@@ -1133,8 +1145,7 @@ input:checked+.slider::before {
     display: none;
     width: min(32rem, 95vw);
     max-height: 85vh;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
     background-color: var(--surface);
     border-radius: var(--default-radius);
     border: var(--default-border);
@@ -1143,7 +1154,6 @@ input:checked+.slider::before {
     inset: 0;
     margin: auto;
     padding: 0;
-    scrollbar-width: thin;
 }
 
 .id-form-popover:popover-open {
@@ -1165,7 +1175,7 @@ input:checked+.slider::before {
 }
 
 #id-form-header h2 {
-    font-size: 1.1rem;
+    font-size: var(--font-h2);
 }
 
 .id-form-body {
@@ -1173,6 +1183,10 @@ input:checked+.slider::before {
     flex-direction: column;
     gap: var(--space-lg);
     padding: var(--space-xl);
+    padding-bottom: var(--space-md);
+    margin-bottom: var(--space-md);
+    overflow-y: auto;
+    scrollbar-width: thin;
 }
 
 .id-form-group {
@@ -1182,7 +1196,7 @@ input:checked+.slider::before {
 }
 
 .id-form-group label {
-    font-size: 0.85rem;
+    font-size: var(--font-body);
     font-weight: 600;
 }
 
@@ -1194,7 +1208,7 @@ input:checked+.slider::before {
     background-color: var(--background);
     color: var(--text-primary);
     font-family: inherit;
-    font-size: 0.85rem;
+    font-size: var(--font-body);
 }
 
 .id-form-group input:disabled {
@@ -1212,7 +1226,7 @@ input:checked+.slider::before {
 }
 
 .id-form-section-label {
-    font-size: 0.8rem;
+    font-size: var(--font-sm);
     font-weight: 700;
     color: var(--text-secondary);
     text-transform: uppercase;
@@ -1225,7 +1239,7 @@ input:checked+.slider::before {
     display: flex;
     align-items: center;
     gap: var(--space-xs);
-    font-size: 0.8rem;
+    font-size: var(--font-sm);
     color: var(--text-secondary);
     font-style: italic;
 }
@@ -1267,12 +1281,12 @@ input:checked+.slider::before {
     display: none;
 }
 
-/* ──────────────────────────────────────────────
+/* ----------------------------------------------
  *  17c. Account Settings Page
- * ────────────────────────────────────────────── */
+ * ---------------------------------------------- */
 
 #settings-heading {
-    font-size: 1.5rem;
+    font-size: var(--font-h1);
     margin-bottom: var(--space-xl);
 }
 
@@ -1282,7 +1296,7 @@ input:checked+.slider::before {
 }
 
 .settings-section-title {
-    font-size: 1rem;
+    font-size: var(--font-h3);
     margin-bottom: var(--space-lg);
 }
 
@@ -1326,7 +1340,7 @@ input:checked+.slider::before {
 }
 
 .settings-form-group label {
-    font-size: 0.85rem;
+    font-size: var(--font-body);
     font-weight: 600;
     color: var(--text-secondary);
 }
@@ -1338,7 +1352,7 @@ input:checked+.slider::before {
     background-color: var(--background);
     color: var(--text-primary);
     font-family: inherit;
-    font-size: 0.85rem;
+    font-size: var(--font-body);
 }
 
 .settings-form-group input:disabled {
@@ -1371,9 +1385,9 @@ input:checked+.slider::before {
     justify-content: flex-end;
 }
 
-/* ──────────────────────────────────────────────
- *  17. Responsive — Tablet (≤ 1024px)
- * ────────────────────────────────────────────── */
+/* ----------------------------------------------
+ *  17. Responsive â€” Tablet (â‰¤ 1024px)
+ * ---------------------------------------------- */
 
 @media (max-width: 1024px) {
     :root {
@@ -1406,9 +1420,9 @@ input:checked+.slider::before {
     }
 }
 
-/* ──────────────────────────────────────────────
- *  18. Responsive — Mobile (≤ 768px)
- * ────────────────────────────────────────────── */
+/* ----------------------------------------------
+ *  18. Responsive â€” Mobile (â‰¤ 768px)
+ * ---------------------------------------------- */
 
 @media (max-width: 768px) {
     :root {
@@ -1429,7 +1443,7 @@ input:checked+.slider::before {
         display: none;
     }
 
-    /* User Preview — compact */
+    /* User Preview â€” compact */
     .user-preview-text {
         display: none;
     }
@@ -1499,7 +1513,7 @@ input:checked+.slider::before {
         padding: var(--space-md);
     }
 
-    /* Feed Cards — Stack vertically */
+    /* Feed Cards â€” Stack vertically */
     .feed-card {
         flex-direction: column;
     }
@@ -1509,7 +1523,7 @@ input:checked+.slider::before {
         height: 10rem;
     }
 
-    /* Home — Stack department sidebar below */
+    /* Home â€” Stack department sidebar below */
     #home-layout {
         flex-direction: column;
     }
@@ -1536,7 +1550,7 @@ input:checked+.slider::before {
         font-size: 0.75rem;
     }
 
-    /* ID Production — Stack */
+    /* ID Production â€” Stack */
     #id-card-container {
         flex-direction: column;
         align-items: center;
