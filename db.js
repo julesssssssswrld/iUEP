@@ -23,6 +23,7 @@ function initDatabase() {
 
     runMigrations();
     seedDemoData();
+    seedCourses();
 
     console.log(`[DB] SQLite database ready at ${DB_PATH}`);
     return db;
@@ -85,6 +86,13 @@ function runMigrations() {
             author       TEXT,
             published_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
+
+        -- Course-to-College mapping (single source of truth)
+        CREATE TABLE IF NOT EXISTS courses (
+            course_code  TEXT PRIMARY KEY,
+            course_name  TEXT NOT NULL,
+            college      TEXT NOT NULL
+        );
     `);
 }
 
@@ -134,3 +142,77 @@ function getDb() {
 }
 
 module.exports = { initDatabase, getDb };
+
+/* ----------------------------------------------
+ *  Course Seed Data
+ * ---------------------------------------------- */
+
+function seedCourses() {
+    const courseCount = db.prepare('SELECT COUNT(*) AS count FROM courses').get().count;
+    if (courseCount > 0) return; // Already seeded
+
+    console.log('[DB] Seeding course data...');
+
+    const ins = db.prepare(`
+        INSERT OR IGNORE INTO courses (course_code, course_name, college)
+        VALUES (?, ?, ?)
+    `);
+
+    const seed = db.transaction(() => {
+        // College of Science
+        ins.run('BSBIO',    'BS in Biology',                         'COLLEGE OF SCIENCE');
+        ins.run('BSCHEM',   'BS in Chemistry',                       'COLLEGE OF SCIENCE');
+        ins.run('BSES',     'BS in Environmental Science',           'COLLEGE OF SCIENCE');
+        ins.run('BSIT',     'BS in Information Technology',          'COLLEGE OF SCIENCE');
+        ins.run('BSMBIO',   'BS in Marine Biology',                  'COLLEGE OF SCIENCE');
+        ins.run('BSMATH',   'BS in Mathematics',                     'COLLEGE OF SCIENCE');
+
+        // College of Engineering
+        ins.run('BSABE',    'BS in Agricultural and Biosystems Engineering', 'COLLEGE OF ENGINEERING');
+        ins.run('BSCE',     'BS in Civil Engineering',               'COLLEGE OF ENGINEERING');
+        ins.run('BSEE',     'BS in Electrical Engineering',          'COLLEGE OF ENGINEERING');
+        ins.run('BSME',     'BS in Mechanical Engineering',          'COLLEGE OF ENGINEERING');
+        ins.run('BET',      'Bachelor of Engineering Technology',    'COLLEGE OF ENGINEERING');
+
+        // College of Nursing and Allied Health Services
+        ins.run('BSN',      'BS in Nursing',                         'COLLEGE OF NURSING AND ALLIED HEALTH SERVICES');
+        ins.run('BSRT',     'BS in Radiologic Technology',           'COLLEGE OF NURSING AND ALLIED HEALTH SERVICES');
+
+        // College of Criminal Justice
+        ins.run('BSCRIM',   'BS in Criminology',                     'COLLEGE OF CRIMINAL JUSTICE');
+
+        // College of Business Administration
+        ins.run('BSA',      'BS in Accountancy',                     'COLLEGE OF BUSINESS ADMINISTRATION');
+        ins.run('BSENTREP', 'BS in Entrepreneurship',                'COLLEGE OF BUSINESS ADMINISTRATION');
+        ins.run('BSHM',     'BS in Hospitality Management',          'COLLEGE OF BUSINESS ADMINISTRATION');
+        ins.run('BSBA',     'BS in Business Administration',         'COLLEGE OF BUSINESS ADMINISTRATION');
+
+        // College of Education
+        ins.run('BEED',     'Bachelor of Elementary Education',       'COLLEGE OF EDUCATION');
+        ins.run('BPED',     'Bachelor of Physical Education',         'COLLEGE OF EDUCATION');
+        ins.run('BSED',     'BS in Secondary Education',             'COLLEGE OF EDUCATION');
+        ins.run('BTLED',    'Bachelor of Technology and Livelihood Education', 'COLLEGE OF EDUCATION');
+
+        // College of Arts and Communication
+        ins.run('BAEL',     'BA in English Language',                'COLLEGE OF ARTS AND COMMUNICATION');
+        ins.run('BAL',      'BA in Literature',                      'COLLEGE OF ARTS AND COMMUNICATION');
+        ins.run('BAPS',     'BA in Political Science',               'COLLEGE OF ARTS AND COMMUNICATION');
+        ins.run('BAPA',     'BA in Public Administration',           'COLLEGE OF ARTS AND COMMUNICATION');
+        ins.run('BAS',      'BA in Sociology',                       'COLLEGE OF ARTS AND COMMUNICATION');
+        ins.run('BSCD',     'BS in Community Development',           'COLLEGE OF ARTS AND COMMUNICATION');
+        ins.run('BSDC',     'BS in Development Communication',       'COLLEGE OF ARTS AND COMMUNICATION');
+
+        // College of Veterinary Medicine
+        ins.run('DVM',      'Doctor of Veterinary Medicine',         'COLLEGE OF VETERINARY MEDICINE');
+        ins.run('BSMT',     'BS in Medical Technology',              'COLLEGE OF VETERINARY MEDICINE');
+
+        // College of Agriculture, Fisheries and Natural Resources
+        ins.run('BSAGRI',   'BS in Agriculture',                     'COLLEGE OF AGRICULTURE, FISHERIES AND NATURAL RESOURCES');
+        ins.run('BSAGED',   'BS in Agricultural Education',          'COLLEGE OF AGRICULTURE, FISHERIES AND NATURAL RESOURCES');
+        ins.run('BSAG',     'BS in Agribusiness',                    'COLLEGE OF AGRICULTURE, FISHERIES AND NATURAL RESOURCES');
+        ins.run('BSF',      'BS in Fisheries',                       'COLLEGE OF AGRICULTURE, FISHERIES AND NATURAL RESOURCES');
+        ins.run('BSFOR',    'BS in Forestry',                        'COLLEGE OF AGRICULTURE, FISHERIES AND NATURAL RESOURCES');
+    });
+
+    seed();
+}

@@ -186,6 +186,28 @@ app.get('/api/users/:stuId', (req, res) => {
 });
 
 /**
+ * GET /api/courses
+ * Returns all course-to-college mappings.
+ */
+app.get('/api/courses', (req, res) => {
+    const db = getDb();
+    const courses = db.prepare('SELECT course_code, course_name, college FROM courses ORDER BY college, course_code').all();
+    res.json(courses);
+});
+
+/**
+ * GET /api/courses/:code
+ * Returns a single course by its code.
+ */
+app.get('/api/courses/:code', (req, res) => {
+    const db = getDb();
+    const course = db.prepare('SELECT course_code, course_name, college FROM courses WHERE course_code = ?').get(req.params.code.toUpperCase());
+
+    if (!course) return res.status(404).json({ error: 'Course not found' });
+    res.json(course);
+});
+
+/**
  * GET /api/id-application/:stuId
  * Returns the latest ID application for a student.
  */

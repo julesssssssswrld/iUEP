@@ -175,63 +175,36 @@ function showPlaceholder(message = 'No ID on record') {
 }
 
 /**
+ * Course-to-college mapping (fetched from DB, cached after first load).
+ * @type {Object<string, string>}
+ */
+let _courseCollegeMap = {};
+
+/**
+ * Fetches all course-to-college mappings from the API and caches them.
+ * Call this once during initialization.
+ */
+async function loadCourseMap() {
+    try {
+        const courses = await apiFetch('/courses');
+        _courseCollegeMap = {};
+        for (const c of courses) {
+            _courseCollegeMap[c.course_code.toUpperCase()] = c.college;
+        }
+    } catch (e) {
+        console.error('Failed to load course map:', e);
+    }
+}
+
+/**
  * Maps a course abbreviation to its parent college name.
+ * Uses the cached map from the DB.
  * @param {string} course - Course abbreviation (e.g. "BSIT").
  * @returns {string} College name.
  */
 function getCollegeFromCourse(course) {
     if (!course) return 'COLLEGE OF SCIENCE';
-
-    const upper = course.toUpperCase();
-    const mapping = {
-        // College of Science
-        'BSBIO': 'COLLEGE OF SCIENCE',
-        'BSCHEM': 'COLLEGE OF SCIENCE',
-        'BSES': 'COLLEGE OF SCIENCE',
-        'BSIT': 'COLLEGE OF SCIENCE',
-        'BSMBIO': 'COLLEGE OF SCIENCE',
-        'BSMATH': 'COLLEGE OF SCIENCE',
-        // College of Engineering
-        'BSABE': 'COLLEGE OF ENGINEERING',
-        'BSCE': 'COLLEGE OF ENGINEERING',
-        'BSEE': 'COLLEGE OF ENGINEERING',
-        'BSME': 'COLLEGE OF ENGINEERING',
-        'BET': 'COLLEGE OF ENGINEERING',
-        // College of Nursing and Allied Health
-        'BSN': 'COLLEGE OF NURSING AND ALLIED HEALTH SERVICES',
-        'BSRT': 'COLLEGE OF NURSING AND ALLIED HEALTH SERVICES',
-        // College of Criminal Justice
-        'BSCRIM': 'COLLEGE OF CRIMINAL JUSTICE',
-        // College of Business Administration
-        'BSA': 'COLLEGE OF BUSINESS ADMINISTRATION',
-        'BSENTREP': 'COLLEGE OF BUSINESS ADMINISTRATION',
-        'BSHM': 'COLLEGE OF BUSINESS ADMINISTRATION',
-        'BSBA': 'COLLEGE OF BUSINESS ADMINISTRATION',
-        // College of Education
-        'BEED': 'COLLEGE OF EDUCATION',
-        'BPED': 'COLLEGE OF EDUCATION',
-        'BSED': 'COLLEGE OF EDUCATION',
-        'BTLED': 'COLLEGE OF EDUCATION',
-        // College of Arts and Communication
-        'BAEL': 'COLLEGE OF ARTS AND COMMUNICATION',
-        'BAL': 'COLLEGE OF ARTS AND COMMUNICATION',
-        'BAPS': 'COLLEGE OF ARTS AND COMMUNICATION',
-        'BAPA': 'COLLEGE OF ARTS AND COMMUNICATION',
-        'BAS': 'COLLEGE OF ARTS AND COMMUNICATION',
-        'BSCD': 'COLLEGE OF ARTS AND COMMUNICATION',
-        'BSDC': 'COLLEGE OF ARTS AND COMMUNICATION',
-        // College of Veterinary Medicine
-        'DVM': 'COLLEGE OF VETERINARY MEDICINE',
-        'BSMT': 'COLLEGE OF VETERINARY MEDICINE',
-        // College of Agriculture
-        'BSAGRI': 'COLLEGE OF AGRICULTURE, FISHERIES AND NATURAL RESOURCES',
-        'BSAGED': 'COLLEGE OF AGRICULTURE, FISHERIES AND NATURAL RESOURCES',
-        'BSAG': 'COLLEGE OF AGRICULTURE, FISHERIES AND NATURAL RESOURCES',
-        'BSF': 'COLLEGE OF AGRICULTURE, FISHERIES AND NATURAL RESOURCES',
-        'BSFOR': 'COLLEGE OF AGRICULTURE, FISHERIES AND NATURAL RESOURCES',
-    };
-
-    return mapping[upper] || 'COLLEGE OF SCIENCE';
+    return _courseCollegeMap[course.toUpperCase()] || 'COLLEGE OF SCIENCE';
 }
 
 /* ──────────────────────────────────────────────
@@ -568,11 +541,14 @@ function closeFullscreenCard() {
  *  Event Binding & Initialization
  * ────────────────────────────────────────────── */
 
-function initIdProduction() {
+async function initIdProduction() {
     cacheDom();
 
     // Auth guard — stop initialization if not logged in
     if (!checkAuth()) return;
+
+    // Load course→college mapping from DB (cached for session)
+    await loadCourseMap();
 
     // Buttons
     DOM.applyBtn.addEventListener('click', openApplicationForm);

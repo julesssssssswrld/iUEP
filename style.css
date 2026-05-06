@@ -1036,10 +1036,10 @@ input:checked+.slider::before {
 
 #id-fullscreen-svg-target {
     height: 75vh;
+    max-width: calc(100vw - var(--space-2xl)); /* Prevent touching edges on mobile */
     aspect-ratio: 54 / 85.6;
     border-radius: 0.75rem;
     overflow: hidden;
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
 }
 
 #id-fullscreen-svg-target svg {

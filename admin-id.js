@@ -231,29 +231,29 @@ async function renderAdminSvgPreview(app) {
 }
 
 /**
- * Maps course abbreviation to college name for admin preview.
+ * Course-to-college mapping (fetched from DB, cached after first load).
+ */
+let _adminCourseMap = {};
+
+async function loadAdminCourseMap() {
+    try {
+        const res = await fetch('/api/courses');
+        const courses = await res.json();
+        _adminCourseMap = {};
+        for (const c of courses) {
+            _adminCourseMap[c.course_code.toUpperCase()] = c.college;
+        }
+    } catch (e) {
+        console.error('Failed to load course map:', e);
+    }
+}
+
+/**
+ * Maps course abbreviation to college name using the cached DB mapping.
  */
 function getAdminCollege(course) {
     if (!course) return 'COLLEGE OF SCIENCE';
-    const u = course.toUpperCase();
-    const map = {
-        'BSBIO': 'COLLEGE OF SCIENCE', 'BSCHEM': 'COLLEGE OF SCIENCE',
-        'BSES': 'COLLEGE OF SCIENCE', 'BSIT': 'COLLEGE OF SCIENCE',
-        'BSMBIO': 'COLLEGE OF SCIENCE', 'BSMATH': 'COLLEGE OF SCIENCE',
-        'BSABE': 'COLLEGE OF ENGINEERING', 'BSCE': 'COLLEGE OF ENGINEERING',
-        'BSEE': 'COLLEGE OF ENGINEERING', 'BSME': 'COLLEGE OF ENGINEERING',
-        'BET': 'COLLEGE OF ENGINEERING',
-        'BSN': 'COLLEGE OF NURSING AND ALLIED HEALTH SERVICES',
-        'BSRT': 'COLLEGE OF NURSING AND ALLIED HEALTH SERVICES',
-        'BSCRIM': 'COLLEGE OF CRIMINAL JUSTICE',
-        'BSA': 'COLLEGE OF BUSINESS ADMINISTRATION',
-        'BSENTREP': 'COLLEGE OF BUSINESS ADMINISTRATION',
-        'BSHM': 'COLLEGE OF BUSINESS ADMINISTRATION',
-        'BSBA': 'COLLEGE OF BUSINESS ADMINISTRATION',
-        'BEED': 'COLLEGE OF EDUCATION', 'BPED': 'COLLEGE OF EDUCATION',
-        'BSED': 'COLLEGE OF EDUCATION', 'BTLED': 'COLLEGE OF EDUCATION',
-    };
-    return map[u] || 'COLLEGE OF SCIENCE';
+    return _adminCourseMap[course.toUpperCase()] || 'COLLEGE OF SCIENCE';
 }
 
 function closeReview() {
@@ -450,8 +450,11 @@ function openDocumentInNewTab(dataUrl) {
  *  Initialization
  * ---------------------------------------------- */
 
-function initAdminId() {
+async function initAdminId() {
     cacheAdminDom();
+
+    // Load course→college mapping from DB
+    await loadAdminCourseMap();
 
     // Filter pills
     document.getElementById('admin-filter-bar').addEventListener('click', handleFilterClick);
