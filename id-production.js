@@ -36,6 +36,7 @@ function cacheDom() {
         photoImg: document.getElementById('id-photo-img'),
         photoPlaceholder: document.getElementById('id-photo-placeholder'),
         course: document.getElementById('id-course'),
+        year: document.getElementById('id-year'),
         section: document.getElementById('id-section'),
         library: document.getElementById('id-library'),
         statusContainer: document.getElementById('id-status-container'),
@@ -106,6 +107,7 @@ function renderNoId() {
 
     // Info values
     DOM.course.textContent = '—';
+    DOM.year.textContent = '—';
     DOM.section.textContent = '—';
     DOM.library.textContent = '—';
 
@@ -202,6 +204,7 @@ function populateCardInfo(app) {
     }
 
     DOM.course.textContent = app.course || '—';
+    DOM.year.textContent = app.year_level || '—';
     DOM.section.textContent = app.section || '—';
     DOM.library.textContent = app.library_id || '—';
 }

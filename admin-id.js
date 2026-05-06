@@ -43,6 +43,7 @@ function cacheAdminDom() {
         reviewName: document.getElementById('admin-review-name'),
         reviewStuId: document.getElementById('admin-review-stuid'),
         reviewCourse: document.getElementById('admin-review-course'),
+        reviewYear: document.getElementById('admin-review-year'),
         reviewSection: document.getElementById('admin-review-section'),
         reviewLib: document.getElementById('admin-review-lib'),
         reviewDate: document.getElementById('admin-review-date'),
@@ -123,6 +124,7 @@ function renderTable(applications) {
                 <td class="code-column">${escapeHtml(app.student_id)}</td>
                 <td>${escapeHtml(fullName)}</td>
                 <td>${escapeHtml(app.course || '—')}</td>
+                <td>${escapeHtml(app.year_level || '—')}</td>
                 <td>${escapeHtml(app.section || '—')}</td>
                 <td><span class="status-pill ${statusClass}">${STATUS_LABELS[app.status]}</span></td>
                 <td class="sub-text">${submittedDate}</td>
@@ -150,6 +152,7 @@ async function openReview(appId) {
         ADMIN_DOM.reviewName.textContent = buildFullName(app);
         ADMIN_DOM.reviewStuId.textContent = app.stu_id || app.student_id;
         ADMIN_DOM.reviewCourse.textContent = app.course || '—';
+        ADMIN_DOM.reviewYear.textContent = app.year_level || '—';
         ADMIN_DOM.reviewSection.textContent = app.section || '—';
         ADMIN_DOM.reviewLib.textContent = app.library_id || '—';
         ADMIN_DOM.reviewDate.textContent = formatShortDate(app.submitted_at);

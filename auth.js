@@ -130,7 +130,7 @@ function initSignup() {
         verifyBdayBtn: document.getElementById('signup-verify-bday-btn'),
 
         // Step 3
-        maskedEmailInput: document.getElementById('signup-masked-email'),
+        emailInput: document.getElementById('signup-email'),
         sendCodeBtn: document.getElementById('signup-send-code-btn'),
         otpInput: document.getElementById('signup-otp'),
         verifyOtpBtn: document.getElementById('signup-verify-otp-btn'),
@@ -235,7 +235,6 @@ function initSignup() {
             DOM.firstName.value = result.firstName || '';
             DOM.middleName.value = result.middleName || '';
             DOM.lastName.value = result.lastName || '';
-            DOM.maskedEmailInput.value = result.maskedEmail || 'No email on file';
 
             showMessage(DOM.messageEl, 'Identity verified! Please verify your email.', 'success');
             advanceToStep(3, DOM);
@@ -250,7 +249,16 @@ function initSignup() {
     // ── Step 3: Email Verification (Placeholder) ──
     DOM.sendCodeBtn.addEventListener('click', () => {
         hideMessage(DOM.messageEl);
+        const email = DOM.emailInput.value.trim();
+
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showMessage(DOM.messageEl, 'Please enter a valid email address.');
+            DOM.emailInput.focus();
+            return;
+        }
+
         showMessage(DOM.messageEl, 'Verification code sent to your email! (Placeholder — any 6-digit code will work)', 'info');
+        DOM.emailInput.disabled = true;
         DOM.sendCodeBtn.textContent = 'Resend';
         DOM.otpInput.disabled = false;
         DOM.verifyOtpBtn.disabled = false;
@@ -320,6 +328,7 @@ function initSignup() {
                 stuId: signupState.stuId,
                 username,
                 password,
+                email: DOM.emailInput.value.trim(),
             });
 
             if (result.success) {
@@ -373,7 +382,9 @@ function advanceToStep(step, DOM) {
             DOM.birthdayInput.focus();
             break;
         case 3:
+            DOM.emailInput.disabled = false;
             DOM.sendCodeBtn.disabled = false;
+            DOM.emailInput.focus();
             break;
         case 4:
             DOM.username.disabled = false;

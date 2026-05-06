@@ -61,7 +61,7 @@ app.post('/api/auth/check-student', (req, res) => {
  * POST /api/auth/verify-birthday
  * Step 2: Verify the student's birthday.
  * Body: { stuId, birthday } (birthday as YYYY-MM-DD)
- * Returns: { verified, firstName, lastName, middleName, course, section, maskedEmail }
+ * Returns: { verified, firstName, lastName, middleName, course, yearLevel, section }
  */
 app.post('/api/auth/verify-birthday', (req, res) => {
     const db = getDb();
@@ -80,20 +80,14 @@ app.post('/api/auth/verify-birthday', (req, res) => {
         return res.json({ verified: false });
     }
 
-    let maskedEmail = null;
-    if (user.email) {
-        const [local, domain] = user.email.split('@');
-        maskedEmail = local.charAt(0) + '***@' + domain;
-    }
-
     res.json({
         verified: true,
         firstName: user.first_name,
         middleName: user.middle_name,
         lastName: user.last_name,
         course: user.course,
+        yearLevel: user.year_level,
         section: user.section,
-        maskedEmail,
     });
 });
 
@@ -104,7 +98,7 @@ app.post('/api/auth/verify-birthday', (req, res) => {
  */
 app.post('/api/auth/register', (req, res) => {
     const db = getDb();
-    const { stuId, username, password } = req.body;
+    const { stuId, username, password, email } = req.body;
 
     if (!stuId || !username || !password) {
         return res.status(400).json({ error: 'All fields are required.' });
@@ -130,8 +124,8 @@ app.post('/api/auth/register', (req, res) => {
     }
 
     // Placeholder: store password as-is (NO hashing — will be replaced with bcrypt later)
-    db.prepare('UPDATE users SET username = ?, password_hash = ? WHERE stu_id = ?')
-        .run(username, password, stuId);
+    db.prepare('UPDATE users SET username = ?, password_hash = ?, email = ? WHERE stu_id = ?')
+        .run(username, password, email || null, stuId);
 
     res.status(201).json({ success: true, message: 'Account created successfully.' });
 });
@@ -169,6 +163,7 @@ app.post('/api/auth/login', (req, res) => {
             middleName: user.middle_name,
             lastName: user.last_name,
             course: user.course,
+            yearLevel: user.year_level,
             section: user.section,
         },
     });
@@ -248,7 +243,7 @@ app.get('/api/admin/applications', (req, res) => {
     const { status } = req.query;
 
     let query = `
-        SELECT a.*, u.first_name, u.middle_name, u.last_name, u.course, u.section
+        SELECT a.*, u.first_name, u.middle_name, u.last_name, u.course, u.year_level, u.section
         FROM id_applications a
         JOIN users u ON a.student_id = u.stu_id
     `;
@@ -272,7 +267,7 @@ app.get('/api/admin/applications', (req, res) => {
 app.get('/api/admin/applications/:id', (req, res) => {
     const db = getDb();
     const app_ = db.prepare(`
-        SELECT a.*, u.first_name, u.middle_name, u.last_name, u.course, u.section, u.stu_id
+        SELECT a.*, u.first_name, u.middle_name, u.last_name, u.course, u.year_level, u.section, u.stu_id
         FROM id_applications a
         JOIN users u ON a.student_id = u.stu_id
         WHERE a.id = ?
@@ -306,7 +301,7 @@ app.patch('/api/admin/applications/:id/status', (req, res) => {
     `).run(status, rejectionReason || null, req.params.id);
 
     const updated = db.prepare(`
-        SELECT a.*, u.first_name, u.middle_name, u.last_name, u.course, u.section
+        SELECT a.*, u.first_name, u.middle_name, u.last_name, u.course, u.year_level, u.section
         FROM id_applications a
         JOIN users u ON a.student_id = u.stu_id
         WHERE a.id = ?

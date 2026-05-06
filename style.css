@@ -1222,11 +1222,13 @@ input:checked+.slider::before {
 
 .id-form-row {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--space-md);
 }
 
 .id-form-row .id-form-group {
-    flex: 1;
+    flex: 1 1 auto;
+    min-width: 6rem;
 }
 
 .id-form-section-label {
@@ -1314,6 +1316,7 @@ input:checked+.slider::before {
 #profile-image-container {
     width: 5rem;
     height: 5rem;
+    aspect-ratio: 1 / 1;
     border-radius: 50%;
     background-color: var(--hover-bg);
     overflow: hidden;
