@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="iUEP Admin — ID Production application queue management panel.">
+    <title>iUEP | Admin — ID Production</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body data-page="admin-queue">
+
+    <div class="main">
+        <div class="content" id="admin-content">
+            <h1 id="admin-page-heading">ID Production — Admin Panel</h1>
+
+            <!-- Stats Bar -->
+            <div id="admin-stats-bar">
+                <div class="stat-card" data-stat="pending">
+                    <span class="stat-count" id="stat-pending">0</span>
+                    <span class="stat-label">Pending</span>
+                </div>
+                <div class="stat-card" data-stat="processing">
+                    <span class="stat-count" id="stat-processing">0</span>
+                    <span class="stat-label">Processing</span>
+                </div>
+                <div class="stat-card" data-stat="completed">
+                    <span class="stat-count" id="stat-completed">0</span>
+                    <span class="stat-label">Completed</span>
+                </div>
+                <div class="stat-card" data-stat="rejected">
+                    <span class="stat-count" id="stat-rejected">0</span>
+                    <span class="stat-label">Rejected</span>
+                </div>
+            </div>
+
+            <!-- Filter Pills -->
+            <div id="admin-filter-bar">
+                <button class="filter-pill active" data-filter="all">All</button>
+                <button class="filter-pill" data-filter="uploaded">Uploaded</button>
+                <button class="filter-pill" data-filter="received">Received</button>
+                <button class="filter-pill" data-filter="processing">Processing</button>
+                <button class="filter-pill" data-filter="completed">Completed</button>
+                <button class="filter-pill" data-filter="rejected">Rejected</button>
+            </div>
+
+            <!-- Queue Table -->
+            <div class="content-box" id="admin-table-container">
+                <table id="admin-queue-table">
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Course</th>
+                            <th>Section</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-queue-body">
+                        <!-- Rows injected by admin-id.js -->
+                    </tbody>
+                </table>
+                <div id="admin-empty-state" class="hidden">
+                    <p class="sub-text">No applications found for this filter.</p>
+                </div>
+            </div>
+
+            <!-- Review Popover -->
+            <div id="admin-review-popover" class="id-form-popover" popover="manual">
+                <div id="id-form-header">
+                    <h2>Review Application</h2>
+                    <button id="admin-review-close" class="btn-icon" aria-label="Close">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="var(--text-primary)">
+                            <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="id-form-body" id="admin-review-body">
+                    <!-- Student Info Row -->
+                    <div id="admin-review-student">
+                        <div id="admin-review-photo-container">
+                            <img id="admin-review-photo" src="" alt="Student Photo">
+                        </div>
+                        <div id="admin-review-info">
+                            <div class="id-info-row">
+                                <span class="id-info-label">Name</span>
+                                <span class="id-info-value" id="admin-review-name">—</span>
+                            </div>
+                            <div class="id-info-row">
+                                <span class="id-info-label">Student ID</span>
+                                <span class="id-info-value" id="admin-review-stuid">—</span>
+                            </div>
+                            <div class="id-info-row">
+                                <span class="id-info-label">Course</span>
+                                <span class="id-info-value" id="admin-review-course">—</span>
+                            </div>
+                            <div class="id-info-row">
+                                <span class="id-info-label">Section</span>
+                                <span class="id-info-value" id="admin-review-section">—</span>
+                            </div>
+                            <div class="id-info-row">
+                                <span class="id-info-label">Library ID</span>
+                                <span class="id-info-value" id="admin-review-lib">—</span>
+                            </div>
+                            <div class="id-info-row">
+                                <span class="id-info-label">Submitted</span>
+                                <span class="id-info-value" id="admin-review-date">—</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- COR Preview -->
+                    <div id="admin-review-cor-section">
+                        <p class="id-form-section-label">Certificate of Registration</p>
+                        <a id="admin-review-cor-link" href="" target="_blank" rel="noopener" class="cor-preview-link">
+                            <div id="admin-review-cor-container">
+                                <img id="admin-review-cor" src="" alt="COR Document">
+                                <span class="cor-open-hint sub-text">Click to open in new tab</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Status Bar (read-only visual) -->
+                    <div id="admin-review-status-container">
+                        <p class="id-form-section-label">Current Status</p>
+                        <div id="admin-review-status-bar" class="admin-status-bar">
+                            <div class="id-status-step" data-step="uploaded">
+                                <div class="step-dot"></div>
+                                <span>Uploaded</span>
+                            </div>
+                            <div class="step-connector"></div>
+                            <div class="id-status-step" data-step="received">
+                                <div class="step-dot"></div>
+                                <span>Received</span>
+                            </div>
+                            <div class="step-connector"></div>
+                            <div class="id-status-step" data-step="processing">
+                                <div class="step-dot"></div>
+                                <span>Processing</span>
+                            </div>
+                            <div class="step-connector"></div>
+                            <div class="id-status-step" data-step="completed">
+                                <div class="step-dot"></div>
+                                <span>Completed</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rejection Reason (shown only during reject action) -->
+                    <div id="admin-reject-section" class="hidden">
+                        <div class="id-form-group">
+                            <label for="admin-reject-reason">Rejection Reason <span class="required">*</span></label>
+                            <input type="text" id="admin-reject-reason" placeholder="e.g. Blurry photo, missing COR" required>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="admin-action-row">
+                        <button id="admin-reject-btn" class="btn-secondary btn-danger-text">Reject</button>
+                        <button id="admin-advance-btn" class="btn-primary">Advance Status</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="admin-id.js"></script>
+    <script src="admin-layout.js"></script>
+</body>
+
+</html>

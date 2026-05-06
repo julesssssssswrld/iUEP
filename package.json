@@ -1,0 +1,13 @@
+{
+  "name": "iuep-portal",
+  "version": "1.0.0",
+  "private": true,
+  "description": "University of Eastern Philippines Student Portal",
+  "scripts": {
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.7.0",
+    "express": "^4.21.0"
+  }
+}

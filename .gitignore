@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Database
+iuep.db
+
+# IDE
+.vscode/
+
+# OS
+Thumbs.db
+.DS_Store

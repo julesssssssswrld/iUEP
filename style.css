@@ -967,9 +967,13 @@ input:checked+.slider::before {
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 }
 
 #id-photo-img {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -1604,7 +1608,6 @@ input:checked+.slider::before {
         padding: var(--space-lg) var(--space-md);
     }
 
-    /* User Options Popup */
     #user-options-popup {
         width: 90vw;
         top: 50%;
@@ -1613,3 +1616,269 @@ input:checked+.slider::before {
         position: fixed;
     }
 }
+
+/* ----------------------------------------------
+ *  19. Admin Panel Styles
+ * ---------------------------------------------- */
+
+/* Page heading (reuses same token as other pages) */
+#admin-page-heading {
+    font-size: var(--font-h1);
+    margin-bottom: var(--space-xl);
+}
+
+/* Admin badge in header */
+.admin-badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    font-size: var(--font-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #fff;
+    background-color: var(--uep-blue);
+    border-radius: 999px;
+}
+
+/* Stats Bar */
+#admin-stats-bar {
+    display: flex;
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    flex: 1;
+    min-width: 8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-lg) var(--space-md);
+    background-color: var(--surface);
+    border: var(--default-border);
+    border-radius: var(--default-radius);
+    transition: box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    box-shadow: var(--default-shadow);
+}
+
+.stat-count {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--uep-blue);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Filter Pills Bar */
+#admin-filter-bar {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+    flex-wrap: wrap;
+}
+
+.filter-pill {
+    padding: 0.35rem 1rem;
+    font-size: var(--font-sm);
+    font-family: inherit;
+    border: var(--default-border);
+    border-radius: 999px;
+    background-color: var(--surface);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-pill:hover {
+    background-color: var(--hover-bg);
+}
+
+.filter-pill.active {
+    background-color: var(--uep-blue);
+    color: #fff;
+    border-color: var(--uep-blue);
+}
+
+/* Queue Table */
+#admin-table-container {
+    overflow-x: auto;
+}
+
+#admin-queue-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-body);
+}
+
+#admin-queue-table th {
+    text-align: left;
+    padding: var(--space-md) var(--space-lg);
+    font-weight: 700;
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: var(--default-border);
+}
+
+#admin-queue-table td {
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+#admin-queue-table tbody tr:hover {
+    background-color: var(--hover-bg);
+}
+
+#admin-queue-table .review-btn {
+    font-size: var(--font-sm);
+    padding: 0.3rem 0.8rem;
+}
+
+/* Status Pills */
+.status-pill {
+    display: inline-block;
+    padding: 0.2rem 0.7rem;
+    font-size: var(--font-xs);
+    font-weight: 600;
+    border-radius: 999px;
+    text-transform: capitalize;
+}
+
+.status-uploaded {
+    background-color: color-mix(in srgb, var(--uep-blue) 15%, transparent);
+    color: var(--uep-blue);
+}
+
+.status-received {
+    background-color: color-mix(in srgb, #f59e0b 15%, transparent);
+    color: #d97706;
+}
+
+.status-processing {
+    background-color: color-mix(in srgb, #6366f1 15%, transparent);
+    color: #4f46e5;
+}
+
+.status-completed {
+    background-color: color-mix(in srgb, #22c55e 15%, transparent);
+    color: #16a34a;
+}
+
+.status-rejected {
+    background-color: color-mix(in srgb, #ef4444 15%, transparent);
+    color: #dc2626;
+}
+
+/* Empty state */
+#admin-empty-state {
+    text-align: center;
+    padding: var(--space-2xl);
+}
+
+/* Admin Review Popover — extends id-form-popover */
+#admin-review-student {
+    display: flex;
+    gap: var(--space-xl);
+    align-items: flex-start;
+}
+
+#admin-review-photo-container {
+    width: 7rem;
+    height: auto;
+    max-height: 12rem;
+    aspect-ratio: 5.4 / 8.56;
+    border-radius: 0.625rem;
+    overflow: hidden;
+    background-color: var(--hover-bg);
+    flex-shrink: 0;
+}
+
+#admin-review-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+#admin-review-info {
+    flex: 1;
+}
+
+/* COR preview */
+.cor-preview-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+#admin-review-cor-container {
+    border: var(--default-border);
+    border-radius: var(--default-radius);
+    overflow: hidden;
+    max-height: 15rem;
+    position: relative;
+    transition: opacity 0.2s ease;
+}
+
+.cor-preview-link:hover #admin-review-cor-container {
+    opacity: 0.85;
+}
+
+#admin-review-cor {
+    width: 100%;
+    object-fit: contain;
+}
+
+.cor-open-hint {
+    display: block;
+    text-align: center;
+    padding: var(--space-xs);
+    background-color: var(--surface);
+    border-top: var(--default-border);
+}
+
+/* Status bar within popover */
+.admin-status-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+/* Action row */
+.admin-action-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: var(--default-border);
+}
+
+/* Admin responsive overrides */
+@media (max-width: 768px) {
+    #admin-stats-bar {
+        flex-direction: column;
+    }
+
+    #admin-review-student {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #admin-review-photo-container {
+        width: 5rem;
+    }
+}
+

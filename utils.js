@@ -2,8 +2,31 @@
 
 /**
  * @fileoverview Shared UI utility functions for the iUEP portal.
- * Provides date formatting, theme management, and localStorage helpers.
+ * Provides date formatting, theme management, localStorage helpers,
+ * and API fetch utilities.
  */
+
+/* ----------------------------------------------
+ *  API Helpers
+ * ---------------------------------------------- */
+
+/**
+ * Fetches data from the backend API.
+ * @param {string} endpoint - API path (e.g. '/users/202100001').
+ * @param {RequestInit} [options={}] - Fetch options.
+ * @returns {Promise<*>} Parsed JSON response.
+ */
+const apiFetch = async (endpoint, options = {}) => {
+    const res = await fetch(`/api${endpoint}`, {
+        headers: { 'Content-Type': 'application/json' },
+        ...options,
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        throw new Error(err.error || res.statusText);
+    }
+    return res.json();
+};
 
 /* ──────────────────────────────────────────────
  *  Storage Helpers

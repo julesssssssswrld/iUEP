@@ -13,8 +13,16 @@
  *  Constants
  * ────────────────────────────────────────────── */
 
-const ID_STORAGE_KEY = STORAGE_KEYS?.ID_APPLICATION || 'iUEP_id_application';
 const STATUS_STEPS = ['uploaded', 'received', 'processing', 'completed'];
+
+/**
+ * Resolves the current student ID.
+ * Uses session user if available, falls back to '202100001' for demo.
+ */
+function getCurrentStudentId() {
+    const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
+    return user?.stu_id || '202100001';
+}
 
 /* ──────────────────────────────────────────────
  *  DOM References (lazy-initialized)
@@ -56,20 +64,17 @@ function cacheDom() {
  * ────────────────────────────────────────────── */
 
 /**
- * Retrieves the ID application data from localStorage.
- * @returns {Object|null} Application data or null if no record exists.
+ * Fetches the latest ID application from the API.
+ * @returns {Promise<Object|null>} Application data or null.
  */
-function getIdApplication() {
-    const data = getStorage(ID_STORAGE_KEY, null);
-    return data;
-}
-
-/**
- * Saves the ID application data to localStorage.
- * @param {Object} data - Application data.
- */
-function saveIdApplication(data) {
-    setStorage(ID_STORAGE_KEY, data);
+async function getIdApplication() {
+    try {
+        const stuId = getCurrentStudentId();
+        return await apiFetch(`/id-application/${stuId}`);
+    } catch (e) {
+        console.error('Error fetching ID application:', e);
+        return null;
+    }
 }
 
 /* ──────────────────────────────────────────────
@@ -79,8 +84,8 @@ function saveIdApplication(data) {
 /**
  * Master render — reads state and updates the UI accordingly.
  */
-function renderIdPage() {
-    const app = getIdApplication();
+async function renderIdPage() {
+    const app = await getIdApplication();
 
     if (!app) {
         renderNoId();
@@ -163,7 +168,7 @@ function renderRejected(app) {
     DOM.noRecord.classList.add('hidden');
     DOM.readyNotice.classList.add('hidden');
     DOM.rejectionBanner.classList.remove('hidden');
-    DOM.rejectionReason.textContent = app.rejectionReason || 'No reason provided.';
+    DOM.rejectionReason.textContent = app.rejection_reason || 'No reason provided.';
 
     // Reset status bar to show rejection
     DOM.statusSteps.forEach((step) => {
@@ -187,8 +192,8 @@ function renderRejected(app) {
  * @param {Object} app - Application data.
  */
 function populateCardInfo(app) {
-    if (app.photoBase64) {
-        DOM.photoImg.src = app.photoBase64;
+    if (app.photo_base64) {
+        DOM.photoImg.src = app.photo_base64;
         DOM.photoImg.style.display = 'block';
         DOM.photoPlaceholder.style.display = 'none';
     } else {
@@ -198,7 +203,7 @@ function populateCardInfo(app) {
 
     DOM.course.textContent = app.course || '—';
     DOM.section.textContent = app.section || '—';
-    DOM.library.textContent = app.libraryId || '—';
+    DOM.library.textContent = app.library_id || '—';
 }
 
 /**
@@ -259,42 +264,40 @@ async function handleFormSubmit(e) {
     const photoBase64 = await fileToBase64(photoFile);
     const corBase64 = await fileToBase64(corFile);
 
-    const currentUser = (typeof getSessionUser === 'function') ? getSessionUser() : null;
+    const studentId = getCurrentStudentId();
 
-    const application = {
-        studentId: currentUser?.stu_id || '000000',
-        studentName: currentUser
-            ? `${currentUser.first_name || ''} ${currentUser.middle_name ? currentUser.middle_name.charAt(0) + '.' : ''} ${currentUser.last_name || ''}`.trim()
-            : 'Student',
-        course: currentUser?.course || '—',
-        section: currentUser?.section || '—',
-        status: 'uploaded',
-        rejectionReason: '',
-        photoBase64,
-        corBase64,
-        libraryId,
-        submittedAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-    };
+    try {
+        await apiFetch('/id-application', {
+            method: 'POST',
+            body: JSON.stringify({
+                studentId,
+                photoBase64,
+                corBase64,
+                libraryId,
+            }),
+        });
 
-    saveIdApplication(application);
-    closeApplicationForm();
-    renderIdPage();
+        closeApplicationForm();
+        await renderIdPage();
+    } catch (err) {
+        console.error('Failed to submit application:', err);
+        alert('Failed to submit application. Please try again.');
+    }
 }
 
 /**
  * Handles the "Report Lost / Damaged" flow.
- * Clears the current ID record and re-enables application.
+ * For now, simply re-renders the page to allow a new application.
+ * A future version could hit an API endpoint to flag the ID as lost.
  */
-function handleLostId() {
+async function handleLostId() {
     const confirmed = confirm(
         'Report your University ID as lost or damaged?\n\n' +
-        'This will reset your ID status and allow you to submit a new application.'
+        'This will allow you to submit a new application.'
     );
 
     if (confirmed) {
-        localStorage.removeItem(ID_STORAGE_KEY);
-        renderIdPage();
+        await renderIdPage();
     }
 }
 
