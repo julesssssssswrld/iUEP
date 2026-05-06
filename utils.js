@@ -2,8 +2,80 @@
 
 /**
  * @fileoverview Shared UI utility functions for the iUEP portal.
- * Provides date formatting and theme management.
+ * Provides date formatting, theme management, and localStorage helpers.
  */
+
+/* ──────────────────────────────────────────────
+ *  Storage Helpers
+ * ────────────────────────────────────────────── */
+
+/** @type {Object<string, string>} Namespaced localStorage keys */
+const STORAGE_KEYS = {
+    PROFILES: 'iUEP_profiles',
+    CURRENT_USER: 'iUEP_current_user',
+    ID_APPLICATION: 'iUEP_id_application',
+};
+
+/**
+ * Reads and parses a JSON value from localStorage.
+ * @param {string} key - Storage key.
+ * @param {*} [defaultVal={}] - Fallback if key is missing or corrupt.
+ * @returns {*} Parsed value or defaultVal.
+ */
+const getStorage = (key, defaultVal = {}) => {
+    try {
+        const item = localStorage.getItem(key);
+        return item ? JSON.parse(item) : defaultVal;
+    } catch (e) {
+        console.error(`Error reading ${key}`, e);
+        return defaultVal;
+    }
+};
+
+/**
+ * Serializes and writes a value to localStorage.
+ * @param {string} key - Storage key.
+ * @param {*} value - Value to store (will be JSON-stringified).
+ */
+const setStorage = (key, value) => {
+    try {
+        localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+        console.error(`Error writing ${key}`, e);
+    }
+};
+
+/**
+ * Reads the current user from sessionStorage.
+ * @returns {Object|null} User object or null.
+ */
+const getSessionUser = () => {
+    try {
+        const item = sessionStorage.getItem(STORAGE_KEYS.CURRENT_USER);
+        return item ? JSON.parse(item) : null;
+    } catch {
+        return null;
+    }
+};
+
+/**
+ * Writes the current user to sessionStorage.
+ * @param {Object} user - User object to persist for the session.
+ */
+const setSessionUser = (user) => {
+    try {
+        sessionStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+    } catch (e) {
+        console.error('Error writing session', e);
+    }
+};
+
+/**
+ * Clears the current user from sessionStorage.
+ */
+const clearSessionUser = () => {
+    sessionStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+};
 
 /* ──────────────────────────────────────────────
  *  Date Utilities

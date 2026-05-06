@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="iUEP Account Settings - Manage your student profile and preferences.">
+    <title>iUEP | Account Settings</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <script src="utils.js"></script>
+</head>
+
+<body data-page="">
+
+    <div class="main">
+        <div class="content" id="settings-content">
+            <h1 id="settings-heading">Account Settings</h1>
+
+            <!-- Profile Section -->
+            <section class="settings-section content-box" id="profile-section">
+                <h2 class="settings-section-title">Profile</h2>
+
+                <div id="settings-profile-row">
+                    <div id="profile-image-container">
+                        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Profile">
+                    </div>
+                    <div id="profile-image-actions">
+                        <button type="button" id="upload-photo-btn" class="btn-secondary">Upload Photo</button>
+                        <button type="button" id="remove-photo-btn" class="btn-secondary btn-danger-text">Remove</button>
+                        <input type="file" id="profile-photo-input" accept="image/*" hidden>
+                    </div>
+                </div>
+
+                <div class="settings-form-grid">
+                    <div class="settings-form-group">
+                        <label for="settings-username">Username</label>
+                        <input type="text" id="settings-username" placeholder="Enter username">
+                    </div>
+                    <div class="settings-form-group">
+                        <label>Student ID</label>
+                        <input type="text" id="settings-stu-id" class="display-stu-id" disabled>
+                    </div>
+                    <div class="settings-form-group">
+                        <label for="settings-first-name">First Name</label>
+                        <input type="text" id="settings-first-name" disabled>
+                    </div>
+                    <div class="settings-form-group">
+                        <label for="settings-last-name">Last Name</label>
+                        <input type="text" id="settings-last-name" disabled>
+                    </div>
+                </div>
+
+                <p class="settings-notice sub-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="var(--text-secondary)">
+                        <path d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Z"/>
+                    </svg>
+                    Name and Student ID are managed by the university. Contact an administrator for changes.
+                </p>
+            </section>
+
+            <!-- Preferences Section -->
+            <section class="settings-section content-box" id="preferences-section">
+                <h2 class="settings-section-title">Preferences</h2>
+
+                <div class="settings-toggle-row">
+                    <div class="settings-toggle-info">
+                        <p class="main-text"><strong>Dark Mode</strong></p>
+                        <p class="sub-text">Switch between light and dark theme</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="dark-mode-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Save Button -->
+            <div id="settings-actions">
+                <button type="button" id="save-settings-btn" class="btn-primary">Save Changes</button>
+            </div>
+
+            <!-- Save Confirmation Popover -->
+            <div class="save-changes-popup" id="save-confirmation" popover>
+                <div id="save-confirmation-styling">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px">
+                        <path d="m424-296 282-282-56-56-226 226-114-114-56 56 170 170Z"/>
+                    </svg>
+                    <h1>Changes Saved!</h1>
+                </div>
+                <button popovertarget="save-confirmation" popovertargetaction="hide">Done</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="settings.js"></script>
+    <script src="layout.js"></script>
+</body>
+
+</html>

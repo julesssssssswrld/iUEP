@@ -3,7 +3,7 @@
 /**
  * @fileoverview Shared layout module for the iUEP portal.
  * Dynamically injects the header, sidebar navigation, and manages
- * theme toggling across all authenticated pages.
+ * theme toggling across all pages.
  */
 
 /* ──────────────────────────────────────────────
@@ -33,10 +33,11 @@ const NAV_ITEMS = [
         icon: 'M160-200h160v-320H160v320Zm240 0h160v-560H400v560Zm240 0h160v-240H640v240ZM80-120v-480h240v-240h320v320h240v400H80Z',
     },
     {
-        id: 'schedule',
-        label: 'Schedule',
-        href: 'schedule.html',
-        icon: 'm612-292 56-56-148-148v-184h-80v216l172 172ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-400Zm0 320q133 0 226.5-93.5T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160Z',
+        id: 'id-production',
+        label: 'ID Production',
+        href: 'id-production.html',
+        // badge/card icon
+        icon: 'M560-440h200v-80H560v80Zm0-120h200v-80H560v80ZM200-320h320v-22q0-45-44-71.5T360-440q-72 0-116 26.5T200-342v22Zm160-160q33 0 56.5-23.5T440-560q0-33-23.5-56.5T360-640q-33 0-56.5 23.5T280-560q0 33 23.5 56.5T360-480ZM160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Z',
     },
     {
         id: 'about',
@@ -61,6 +62,7 @@ const ICONS = {
             <path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"/>
         </svg>`,
     settings: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000" class="theme-icon"><path d="m370-80-16-128q-13-5-24.5-12T307-235l-119 50L78-375l103-78q-1-7-1-13.5v-27q0-6.5 1-13.5L78-585l110-190 119 50q11-8 23-15t24-12l16-128h220l16 128q13 5 24.5 12t22.5 15l119-50 110 190-103 78q1 7 1 13.5v27q0 6.5-2 13.5l103 78-110 190-118-50q-11 8-23 15t-24 12L590-80H370Zm70-80h79l14-106q31-8 57.5-23.5T639-327l99 41 39-68-86-65q5-14 7-29.5t2-31.5q0-16-2-31.5t-7-29.5l86-65-39-68-99 42q-22-23-48.5-38.5T533-694l-13-106h-79l-14 106q-31 8-57.5 23.5T321-633l-99-41-39 68 86 64q-5 15-7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99-42q22 23 48.5 38.5T427-266l13 106Zm42-180q58 0 99-41t41-99q0-58-41-99t-99-41q-59 0-99.5 41T342-480q0 58 40.5 99t99.5 41Zm-2-140Z"/></svg>`,
+    logout: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#000000" class="theme-icon"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z"/></svg>`,
 };
 
 /** Transparent 1×1 GIF used as a placeholder when no profile image is set. */
@@ -118,10 +120,16 @@ function buildHeaderHTML() {
                 </div>
                 <div class="divider-horizontal" id="user-options-popup-divider"></div>
                 <div id="popup-bottom-section">
-                    <a href="#" id="account-settings-link">
+                    <a href="account-settings.html">
                         <div class="popup-options">
                             ${ICONS.settings}
                             <p class="main-text">Account Settings</p>
+                        </div>
+                    </a>
+                    <a href="#" id="logout-link" onclick="logoutUser()">
+                        <div class="popup-options">
+                            ${ICONS.logout}
+                            <p class="main-text">Log Out</p>
                         </div>
                     </a>
                 </div>
@@ -132,19 +140,19 @@ function buildHeaderHTML() {
 
 /**
  * Generates the sidebar navigation HTML based on the current page.
- * @param {string} currentPageId - The id of the active page (e.g. 'home', 'grades').
+ * @param {string} currentPageId - The id of the active page.
  * @returns {string} Sidebar navigation HTML markup.
  */
 function buildSidebarHTML(currentPageId) {
     const navLinks = NAV_ITEMS.map((item) => {
         const isActive = item.id === currentPageId;
-        const activeClass = isActive ? 'id="current-page"' : '';
+        const activeAttr = isActive ? 'id="current-page"' : '';
         const iconFill = isActive ? 'var(--uep-blue)' : 'var(--text-secondary)';
 
         return `
             <a href="${item.href}">
                 <div class="nav-item">
-                    <svg class="nav-icons" ${activeClass} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="${iconFill}">
+                    <svg class="nav-icons" ${activeAttr} xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="${iconFill}">
                         <path d="${item.icon}"/>
                     </svg>
                     <h2 ${isActive ? 'id="current-page"' : ''}>${item.label}</h2>
@@ -188,26 +196,13 @@ function loadHeader() {
 
 /**
  * Injects the sidebar navigation based on the current page's data attribute.
- * Expects `<body data-page="home">` (or grades/schedule/about) on each page.
  */
 function loadSidebar() {
     const currentPageId = document.body.dataset.page || 'home';
-    const navPlaceholder = document.getElementById('left-nav');
+    const mainEl = document.querySelector('.main');
 
-    if (navPlaceholder) {
-        // Already exists in HTML — replace its inner content
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = buildSidebarHTML(currentPageId);
-        const newNav = tempDiv.querySelector('#left-nav');
-        if (newNav) {
-            navPlaceholder.replaceWith(newNav);
-        }
-    } else {
-        // Inject before .main content
-        const mainEl = document.querySelector('.main');
-        if (mainEl) {
-            mainEl.insertAdjacentHTML('afterbegin', buildSidebarHTML(currentPageId));
-        }
+    if (mainEl) {
+        mainEl.insertAdjacentHTML('afterbegin', buildSidebarHTML(currentPageId));
     }
 }
 
@@ -216,15 +211,19 @@ function loadSidebar() {
  * ────────────────────────────────────────────── */
 
 /**
- * Populates user display fields with static defaults.
- * Kept as a placeholder for future session/auth integration.
+ * Populates user display fields with session data or static defaults.
+ * Placeholder for future session/auth integration.
  */
 function updateUserInfo() {
+    const currentUser = (typeof getSessionUser === 'function') ? getSessionUser() : null;
+
     const defaults = {
-        username: 'Student',
-        fullName: 'Student',
-        stuId: '000000',
-        profilePic: PLACEHOLDER_IMG,
+        username: currentUser?.username || 'Student',
+        fullName: currentUser
+            ? [currentUser.first_name, currentUser.middle_name ? `${currentUser.middle_name.charAt(0)}.` : '', currentUser.last_name].filter(Boolean).join(' ')
+            : 'Student',
+        stuId: currentUser?.stu_id || '000000',
+        profilePic: currentUser?.profile_pic || PLACEHOLDER_IMG,
     };
 
     const textMappings = [
@@ -273,21 +272,33 @@ function displayCurrentDate() {
 }
 
 /* ──────────────────────────────────────────────
- *  Theme Toggle
+ *  Auth / Logout
  * ────────────────────────────────────────────── */
 
 /**
- * Initializes the theme from localStorage and updates icon visibility.
+ * Logs the user out by clearing session and redirecting.
+ * Placeholder — will be wired when auth is implemented.
  */
+function logoutUser() {
+    if (typeof clearSessionUser === 'function') {
+        clearSessionUser();
+    }
+    window.location.href = 'index.html';
+}
+
+// Expose for inline onclick handlers
+window.logoutUser = logoutUser;
+
+/* ──────────────────────────────────────────────
+ *  Theme Toggle
+ * ────────────────────────────────────────────── */
+
 function initTheme() {
     const theme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', theme);
     updateThemeIcons(theme);
 }
 
-/**
- * Toggles between light and dark theme and persists the preference.
- */
 function toggleTheme() {
     const current = document.documentElement.getAttribute('data-theme') || 'light';
     const next = current === 'light' ? 'dark' : 'light';
@@ -317,17 +328,12 @@ function updateThemeIcons(theme) {
     }
 }
 
-// Expose for inline event handlers (if any remain)
 window.toggleTheme = toggleTheme;
 
 /* ──────────────────────────────────────────────
  *  Initialization
  * ────────────────────────────────────────────── */
 
-/**
- * Master init — called once on DOMContentLoaded.
- * Orchestrates all layout injection and setup.
- */
 function initLayout() {
     loadHeader();
     loadSidebar();
