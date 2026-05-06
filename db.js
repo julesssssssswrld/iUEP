@@ -36,16 +36,19 @@ function runMigrations() {
     db.exec(`
         -- Core user accounts (students)
         CREATE TABLE IF NOT EXISTS users (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            stu_id      TEXT UNIQUE NOT NULL,
-            username    TEXT,
-            first_name  TEXT NOT NULL,
-            middle_name TEXT,
-            last_name   TEXT NOT NULL,
-            course      TEXT,
-            section     TEXT,
-            profile_pic TEXT,
-            created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            stu_id        TEXT UNIQUE NOT NULL,
+            username      TEXT,
+            password_hash TEXT,
+            first_name    TEXT NOT NULL,
+            middle_name   TEXT,
+            last_name     TEXT NOT NULL,
+            course        TEXT,
+            section       TEXT,
+            birthday      DATE,
+            email         TEXT,
+            profile_pic   TEXT,
+            created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
         );
 
         -- Admin accounts
@@ -95,8 +98,8 @@ function seedDemoData() {
     console.log('[DB] Seeding demo data...');
 
     const insertUser = db.prepare(`
-        INSERT INTO users (stu_id, username, first_name, middle_name, last_name, course, section)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO users (stu_id, username, first_name, middle_name, last_name, course, section, birthday, email)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const insertAdmin = db.prepare(`
@@ -105,11 +108,11 @@ function seedDemoData() {
     `);
 
     const seedUsers = db.transaction(() => {
-        insertUser.run('202100001', 'jdcruz', 'Juan', 'Dela', 'Cruz', 'BSIT', '3A');
-        insertUser.run('202100002', 'mreyes', 'Maria', 'Santos', 'Reyes', 'BSCS', '2B');
-        insertUser.run('202100003', 'aramos', 'Antonio', null, 'Ramos', 'BSEd', '1A');
-        insertUser.run('202100004', 'lgonzales', 'Lourdes', 'Bautista', 'Gonzales', 'BSBA', '4C');
-        insertUser.run('202100005', 'pnavarro', 'Paolo', 'Mendoza', 'Navarro', 'BSCRIM', '2A');
+        insertUser.run('202101', null, 'Juan',    'Dela',     'Cruz',     'BSIT',   '3A', '2003-06-15', 'juandelacruz@gmail.com');
+        insertUser.run('202102', null, 'Maria',   'Santos',   'Reyes',    'BSCS',   '2B', '2004-01-22', 'maria.reyes@gmail.com');
+        insertUser.run('202103', null, 'Antonio', null,       'Ramos',    'BSEd',   '1A', '2005-03-08', 'antonio.ramos@gmail.com');
+        insertUser.run('202104', null, 'Lourdes', 'Bautista', 'Gonzales', 'BSBA',   '4C', '2002-11-30', 'lourdes.gonzales@gmail.com');
+        insertUser.run('202105', null, 'Paolo',   'Mendoza',  'Navarro',  'BSCRIM', '2A', '2004-07-19', 'paolo.navarro@gmail.com');
 
         insertAdmin.run('admin', 'ID Office Admin', 'id_production');
     });

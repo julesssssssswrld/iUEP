@@ -21,7 +21,7 @@ const STATUS_STEPS = ['uploaded', 'received', 'processing', 'completed'];
  */
 function getCurrentStudentId() {
     const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
-    return user?.stu_id || '202100001';
+    return user?.stu_id || '202101';
 }
 
 /* ──────────────────────────────────────────────
@@ -260,6 +260,13 @@ async function handleFormSubmit(e) {
         return; // HTML5 validation will handle this
     }
 
+    // Validate LID# format: LID#: XX-XX-XXX
+    if (!/^LID#:\s?\d{2}-\d{2}-\d{3}$/.test(libraryId)) {
+        alert('Library ID must be in the format: LID#: 00-00-000');
+        DOM.formLib.focus();
+        return;
+    }
+
     // Read files as base64
     const photoBase64 = await fileToBase64(photoFile);
     const corBase64 = await fileToBase64(corFile);
@@ -352,6 +359,17 @@ function initIdProduction() {
 
     // Click photo preview area to trigger file input
     DOM.formPhotoPreview.addEventListener('click', () => DOM.formPhoto.click());
+
+    // Library ID input mask: auto-format to LID#: XX-XX-XXX
+    DOM.formLib.addEventListener('input', (e) => {
+        let raw = e.target.value.replace(/[^0-9]/g, ''); // digits only
+        if (raw.length > 7) raw = raw.slice(0, 7);
+        let formatted = 'LID#: ';
+        if (raw.length > 0) formatted += raw.slice(0, 2);
+        if (raw.length > 2) formatted += '-' + raw.slice(2, 4);
+        if (raw.length > 4) formatted += '-' + raw.slice(4, 7);
+        e.target.value = formatted;
+    });
 
     // Render initial state
     renderIdPage();

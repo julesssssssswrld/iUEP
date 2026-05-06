@@ -20,6 +20,161 @@ app.use(express.static(path.join(__dirname)));
 initDatabase();
 
 /* ----------------------------------------------
+ *  Auth API Routes
+ * ---------------------------------------------- */
+
+/**
+ * POST /api/auth/check-student
+ * Step 1: Check if a student ID exists in the system.
+ * Body: { stuId }
+ * Returns: { exists, maskedEmail? }
+ */
+app.post('/api/auth/check-student', (req, res) => {
+    const db = getDb();
+    const { stuId } = req.body;
+
+    if (!stuId || !/^\d{6}$/.test(stuId)) {
+        return res.status(400).json({ error: 'Student ID must be exactly 6 digits.' });
+    }
+
+    const user = db.prepare('SELECT stu_id, email, username FROM users WHERE stu_id = ?').get(stuId);
+
+    if (!user) {
+        return res.json({ exists: false });
+    }
+
+    if (user.username) {
+        return res.status(409).json({ error: 'This student ID already has a registered account.' });
+    }
+
+    // Mask email: j***@gmail.com
+    let maskedEmail = null;
+    if (user.email) {
+        const [local, domain] = user.email.split('@');
+        maskedEmail = local.charAt(0) + '***@' + domain;
+    }
+
+    res.json({ exists: true, maskedEmail });
+});
+
+/**
+ * POST /api/auth/verify-birthday
+ * Step 2: Verify the student's birthday.
+ * Body: { stuId, birthday } (birthday as YYYY-MM-DD)
+ * Returns: { verified, firstName, lastName, middleName, course, section, maskedEmail }
+ */
+app.post('/api/auth/verify-birthday', (req, res) => {
+    const db = getDb();
+    const { stuId, birthday } = req.body;
+
+    if (!stuId || !birthday) {
+        return res.status(400).json({ error: 'Student ID and birthday are required.' });
+    }
+
+    const user = db.prepare('SELECT * FROM users WHERE stu_id = ?').get(stuId);
+    if (!user) {
+        return res.status(404).json({ error: 'Student not found.' });
+    }
+
+    if (user.birthday !== birthday) {
+        return res.json({ verified: false });
+    }
+
+    let maskedEmail = null;
+    if (user.email) {
+        const [local, domain] = user.email.split('@');
+        maskedEmail = local.charAt(0) + '***@' + domain;
+    }
+
+    res.json({
+        verified: true,
+        firstName: user.first_name,
+        middleName: user.middle_name,
+        lastName: user.last_name,
+        course: user.course,
+        section: user.section,
+        maskedEmail,
+    });
+});
+
+/**
+ * POST /api/auth/register
+ * Step 4: Create account (placeholder — no hashing yet).
+ * Body: { stuId, username, password }
+ */
+app.post('/api/auth/register', (req, res) => {
+    const db = getDb();
+    const { stuId, username, password } = req.body;
+
+    if (!stuId || !username || !password) {
+        return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    if (password.length < 8) {
+        return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+    }
+
+    const user = db.prepare('SELECT * FROM users WHERE stu_id = ?').get(stuId);
+    if (!user) {
+        return res.status(404).json({ error: 'Student not found.' });
+    }
+
+    if (user.username) {
+        return res.status(409).json({ error: 'This student already has an account.' });
+    }
+
+    // Check username uniqueness
+    const existingUsername = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
+    if (existingUsername) {
+        return res.status(409).json({ error: 'Username already taken.' });
+    }
+
+    // Placeholder: store password as-is (NO hashing — will be replaced with bcrypt later)
+    db.prepare('UPDATE users SET username = ?, password_hash = ? WHERE stu_id = ?')
+        .run(username, password, stuId);
+
+    res.status(201).json({ success: true, message: 'Account created successfully.' });
+});
+
+/**
+ * POST /api/auth/login
+ * Placeholder login — validates credentials against DB.
+ * Body: { stuId, password }
+ */
+app.post('/api/auth/login', (req, res) => {
+    const db = getDb();
+    const { stuId, password } = req.body;
+
+    if (!stuId || !password) {
+        return res.status(400).json({ error: 'Student ID and password are required.' });
+    }
+
+    const user = db.prepare('SELECT * FROM users WHERE stu_id = ?').get(stuId);
+    if (!user || !user.username) {
+        return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+
+    // Placeholder: plain-text comparison (will be replaced with bcrypt.compare later)
+    if (user.password_hash !== password) {
+        return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+
+    // Return user profile (no session/JWT yet)
+    res.json({
+        success: true,
+        user: {
+            stuId: user.stu_id,
+            username: user.username,
+            firstName: user.first_name,
+            middleName: user.middle_name,
+            lastName: user.last_name,
+            course: user.course,
+            section: user.section,
+        },
+    });
+});
+
+/* ----------------------------------------------
  *  Student API Routes
  * ---------------------------------------------- */
 
