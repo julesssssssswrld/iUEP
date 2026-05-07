@@ -173,7 +173,7 @@ async function openReview(appId) {
         currentReviewId = app.id;
 
         // Populate fields
-        ADMIN_DOM.reviewPhoto.src = app.photo_base64 || '';
+        ADMIN_DOM.reviewPhoto.src = app.photo_url || app.photo_base64 || '';
         ADMIN_DOM.reviewName.textContent = buildFullName(app);
         ADMIN_DOM.reviewStuId.textContent = app.stu_id || app.student_id;
         ADMIN_DOM.reviewCourse.textContent = app.course || '—';
@@ -182,8 +182,8 @@ async function openReview(appId) {
         ADMIN_DOM.reviewLib.textContent = app.library_id || '—';
         ADMIN_DOM.reviewDate.textContent = formatShortDate(app.submitted_at);
 
-        // COR — set img src. Link click is handled via JS blob conversion.
-        const corSrc = app.cor_base64 || '';
+        // COR — set img src. Link click opens in new tab.
+        const corSrc = app.cor_url || app.cor_base64 || '';
         ADMIN_DOM.reviewCor.src = corSrc;
         ADMIN_DOM.reviewCorLink.dataset.corSrc = corSrc;
 
@@ -225,7 +225,7 @@ async function renderAdminSvgPreview(app) {
         studentId: app.stu_id || app.student_id || '000000',
         course: app.course || 'BSIT',
         college: college,
-        photoBase64: app.photo_base64 || '',
+        photoBase64: app.photo_url || app.photo_base64 || '',
         logoBase64: logoBase64,
     });
 }
@@ -434,10 +434,19 @@ function dataURItoBlob(dataURI) {
     return new Blob([ab], { type: mimeString });
 }
 
-function openDocumentInNewTab(dataUrl) {
-    if (!dataUrl || !dataUrl.startsWith('data:')) return;
+function openDocumentInNewTab(src) {
+    if (!src) return;
+
+    // If it's a local URL path (not a data URI), open directly
+    if (src.startsWith('/') || src.startsWith('http')) {
+        window.open(src, '_blank');
+        return;
+    }
+
+    // Legacy: data URI — convert to blob and open
+    if (!src.startsWith('data:')) return;
     try {
-        const blob = dataURItoBlob(dataUrl);
+        const blob = dataURItoBlob(src);
         const blobUrl = URL.createObjectURL(blob);
         window.open(blobUrl, '_blank');
     } catch (e) {

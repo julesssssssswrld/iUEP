@@ -10,15 +10,24 @@ require('dotenv').config();
 
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
+const sharp = require('sharp');
 const { initDatabase, getDb } = require('./db');
 const { scrapeIfStale, forceScrape } = require('./fb-scraper');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+/** Directory for ID application images (photo + COR). */
+const ID_IMG_DIR = path.join(__dirname, 'uploads', 'id-applications');
+
 // Middleware
 app.use(express.json({ limit: '10mb' })); // Large limit for base64 images
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Serve cached images
 app.use(express.static(path.join(__dirname)));
+
+// Ensure upload directories exist
+if (!fs.existsSync(ID_IMG_DIR)) fs.mkdirSync(ID_IMG_DIR, { recursive: true });
 
 // Initialize database
 initDatabase();
@@ -225,15 +234,21 @@ app.get('/api/id-application/:stuId', (req, res) => {
     `).get(req.params.stuId);
 
     if (!app_) return res.json(null);
+
+    // Add photo_url / cor_url for the frontend (prefer file path, fallback to base64)
+    app_.photo_url = app_.photo_path || app_.photo_base64 || null;
+    app_.cor_url = app_.cor_path || app_.cor_base64 || null;
+
     res.json(app_);
 });
 
 /**
  * POST /api/id-application
  * Submit a new ID application.
+ * Receives base64 images, compresses them with sharp, and saves to disk.
  * Body: { studentId, photoBase64, corBase64, libraryId }
  */
-app.post('/api/id-application', (req, res) => {
+app.post('/api/id-application', async (req, res) => {
     const db = getDb();
     const { studentId, photoBase64, corBase64, libraryId } = req.body;
 
@@ -247,13 +262,44 @@ app.post('/api/id-application', (req, res) => {
         return res.status(404).json({ error: 'Student not found' });
     }
 
-    const result = db.prepare(`
-        INSERT INTO id_applications (student_id, status, photo_base64, cor_base64, library_id)
-        VALUES (?, 'uploaded', ?, ?, ?)
-    `).run(studentId, photoBase64, corBase64, libraryId);
+    try {
+        // Decode base64 → compress → save to disk
+        const timestamp = Date.now();
+        const photoFilename = `${studentId}_photo_${timestamp}.jpg`;
+        const corFilename = `${studentId}_cor_${timestamp}.jpg`;
 
-    const newApp = db.prepare('SELECT * FROM id_applications WHERE id = ?').get(result.lastInsertRowid);
-    res.status(201).json(newApp);
+        // Photo: resize to max 800px wide, JPEG q80
+        const photoBuffer = Buffer.from(photoBase64.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+        await sharp(photoBuffer)
+            .resize({ width: 800, withoutEnlargement: true })
+            .jpeg({ quality: 80 })
+            .toFile(path.join(ID_IMG_DIR, photoFilename));
+
+        // COR: resize to max 1200px wide, JPEG q80
+        const corBuffer = Buffer.from(corBase64.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+        await sharp(corBuffer)
+            .resize({ width: 1200, withoutEnlargement: true })
+            .jpeg({ quality: 80 })
+            .toFile(path.join(ID_IMG_DIR, corFilename));
+
+        const photoPath = `/uploads/id-applications/${photoFilename}`;
+        const corPath = `/uploads/id-applications/${corFilename}`;
+
+        // Insert with file paths (no base64 blobs stored)
+        const result = db.prepare(`
+            INSERT INTO id_applications (student_id, status, photo_path, cor_path, library_id)
+            VALUES (?, 'uploaded', ?, ?, ?)
+        `).run(studentId, photoPath, corPath, libraryId);
+
+        const newApp = db.prepare('SELECT * FROM id_applications WHERE id = ?').get(result.lastInsertRowid);
+        newApp.photo_url = newApp.photo_path;
+        newApp.cor_url = newApp.cor_path;
+        res.status(201).json(newApp);
+
+    } catch (err) {
+        console.error('[Server] Image processing failed:', err.message);
+        res.status(500).json({ error: 'Failed to process uploaded images.' });
+    }
 });
 
 /* ----------------------------------------------
@@ -300,6 +346,11 @@ app.get('/api/admin/applications/:id', (req, res) => {
     `).get(req.params.id);
 
     if (!app_) return res.status(404).json({ error: 'Application not found' });
+
+    // Add photo_url / cor_url for the frontend (prefer file path, fallback to base64)
+    app_.photo_url = app_.photo_path || app_.photo_base64 || null;
+    app_.cor_url = app_.cor_path || app_.cor_base64 || null;
+
     res.json(app_);
 });
 

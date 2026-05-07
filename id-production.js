@@ -149,7 +149,7 @@ async function renderSvgIdCard(app) {
         studentId: user?.stu_id || '000000',
         course: user?.course || app?.course || 'BSIT',
         college: college,
-        photoBase64: app?.photo_base64 || '',
+        photoBase64: app?.photo_url || app?.photo_base64 || '',
         logoBase64: logoBase64,
     };
 
@@ -526,7 +526,7 @@ async function openFullscreenCard() {
         studentId: user?.stu_id || '000000',
         course: user?.course || _currentApp?.course || 'BSIT',
         college: college,
-        photoBase64: _currentApp?.photo_base64 || '',
+        photoBase64: _currentApp?.photo_url || _currentApp?.photo_base64 || '',
         logoBase64: logoBase64,
     });
 

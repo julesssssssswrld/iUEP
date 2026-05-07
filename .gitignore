@@ -18,5 +18,8 @@ Thumbs.db
 iuep.db-shm
 iuep.db-wal
 
+# Uploads (runtime images)
+uploads/
+
 # Context
 UEP-full-courses.txt

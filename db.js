@@ -120,6 +120,19 @@ function runMigrations() {
             status       TEXT DEFAULT 'success'
         );
     `);
+
+    // ── Add file-path columns to id_applications (if not already present) ──
+    // SQLite doesn't support IF NOT EXISTS for ALTER TABLE, so we catch errors.
+    const addColumn = (table, column, type) => {
+        try {
+            db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`);
+        } catch (_) {
+            // Column already exists — ignore
+        }
+    };
+
+    addColumn('id_applications', 'photo_path', 'TEXT');
+    addColumn('id_applications', 'cor_path', 'TEXT');
 }
 
 /* ----------------------------------------------
