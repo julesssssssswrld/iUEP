@@ -11,5 +11,12 @@ iuep.db
 Thumbs.db
 .DS_Store
 
+# Environment
+.env
+
+# Database (include WAL/SHM)
+iuep.db-shm
+iuep.db-wal
+
 # Context
 UEP-full-courses.txt

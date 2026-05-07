@@ -2,119 +2,88 @@
 
 /**
  * @fileoverview Dashboard logic for the iUEP home page.
- * Manages the recent updates feed and department-filtered updates.
- * All post data is defined here as a central data source.
+ * Fetches live posts from the server API (backed by Apify scraper + SQLite)
+ * and manages the department-filtered updates feed.
  */
-
-/* ──────────────────────────────────────────────
- *  Post Data
- * ────────────────────────────────────────────── */
-
-/**
- * @typedef {Object} Post
- * @property {string} id          - Unique post identifier.
- * @property {string} title       - Headline text.
- * @property {string} excerpt     - Short description / body text.
- * @property {string} department  - Department key (matches filter pill data-dept).
- * @property {string} deptLabel   - Human-readable department name.
- * @property {string} date        - Date string (used for display and sorting).
- * @property {string} dateISO     - ISO date for sorting (YYYY-MM-DD).
- * @property {string} image       - Path to the post image.
- * @property {string} link        - External URL for the full post.
- */
-
-/** @type {Post[]} */
-const POSTS = [
-    {
-        id: 'usc-entrance-exam',
-        title: 'ENTRANCE EXAMINATION FOR FIRST YEAR APPLICANTS RESCHEDULING UPDATE',
-        excerpt: 'The Office of Student Affairs-University Testing Center (OSA-UTC) announces the rescheduling of the entrance examination for incoming first-year applicants originally set on November 10, 2025, which was postponed due to Super Typhoon Uwan.',
-        department: 'usc',
-        deptLabel: 'University Student Council',
-        date: 'November 11, 2025',
-        dateISO: '2025-11-11',
-        image: 'Figma/USC-announcement-1.jpg',
-        link: 'https://www.facebook.com/share/p/1Bn9bgkrpL/',
-    },
-    {
-        id: 'cvm-lost-wallet',
-        title: 'CVM: LOST and PAWND ALERT!',
-        excerpt: 'A black wallet belonging to Ms. Krizzell Del Rio, a Second Year DVM Student was lost yesterday, Thursday, November 20, at around 8:15 PM while she was traveling back home to UEP zone 1 in a public tricycle.',
-        department: 'cvm',
-        deptLabel: 'College of Veterinary Medicine',
-        date: 'November 21, 2025',
-        dateISO: '2025-11-21',
-        image: 'Figma/CVM-update.jpg',
-        link: 'https://www.facebook.com/share/p/191rt1Waif/',
-    },
-    {
-        id: 'cssc-lost-phone',
-        title: 'CS: ITEM LOST',
-        excerpt: 'A Green Infinix Phone with a pink butterfly drawing as a wallpaper, was lost at the Academic Building at 9 AM, and the owner of this Axel Rose R. Caranog.',
-        department: 'cssc',
-        deptLabel: 'College of Science Student Council',
-        date: 'November 20, 2025',
-        dateISO: '2025-11-20',
-        image: 'Figma/CS-update.jpg',
-        link: 'https://www.facebook.com/share/p/1BvPRtGL9P/',
-    },
-    {
-        id: 'usc-balik-kampus',
-        title: 'BALIK KAMPUS 2025!',
-        excerpt: 'UEPians, this September 22 is not just another Monday... It\'s a day-long BALIK KAMPUS 2025! From the Kabataan Caravan that fuels your ideas, to the State of the Student Address that sparks vision, the Turnover & Inaugural Ceremonies that mark a new chapter, and the Program & Org Fair that connects passions. Every moment is made for YOU.',
-        department: 'usc',
-        deptLabel: 'University Student Council',
-        date: 'September 20, 2025',
-        dateISO: '2025-09-20',
-        image: 'Figma/USC-balik-kampus.jpg',
-        link: 'https://www.facebook.com/share/p/1BD5ZPtm8o/',
-    },
-    {
-        id: 'cnahs-litmus',
-        title: 'CNAHS: LitMus Night 2025',
-        excerpt: 'CNAHSians, let us come together for a vibrant celebration at LitMus Night 2025 at the UEP Volleyball Court, carrying the illuminating theme "Mockingjay Radiance: Girl on Fire."',
-        department: 'cnahs',
-        deptLabel: 'CNAHS',
-        date: 'November 18, 2025',
-        dateISO: '2025-11-18',
-        image: 'Figma/CNAHS-update.jpg',
-        link: 'https://www.facebook.com/share/p/19y2hkejpa/',
-    },
-    {
-        id: 'coesc-letter',
-        title: 'COE: LETTER OF REQUEST SUBMITTED & RECEIVED',
-        excerpt: 'COESC formally submitted a Letter of Request addressed to the University President requesting essential improvements for the College of Engineering Student Center.',
-        department: 'coesc',
-        deptLabel: 'College of Engineering',
-        date: 'November 14, 2025',
-        dateISO: '2025-11-14',
-        image: 'Figma/COE-update.jpg',
-        link: 'https://www.facebook.com/share/p/1PF95aN5sP/',
-    },
-];
 
 /* ──────────────────────────────────────────────
  *  Card Template (Uniform Horizontal)
  * ────────────────────────────────────────────── */
 
 /**
- * Renders a uniform horizontal feed card.
- * @param {Post} post
+ * Derives a short title from a Facebook post's text.
+ * Uses the first line (up to 80 chars) as the title.
+ * @param {string} text - Full post text.
+ * @returns {string} Derived title.
+ */
+function deriveTitle(text) {
+    if (!text) return 'Untitled Post';
+    const firstLine = text.split('\n').find((line) => line.trim().length > 0) || text;
+    return firstLine.length > 80 ? firstLine.substring(0, 77) + '...' : firstLine;
+}
+
+/**
+ * Formats an ISO date string into a readable date.
+ * @param {string} isoDate - ISO 8601 date string.
+ * @returns {string} Formatted date string.
+ */
+function formatPostDate(isoDate) {
+    if (!isoDate) return '';
+    try {
+        const date = new Date(isoDate);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
+    } catch {
+        return isoDate;
+    }
+}
+
+/**
+ * Truncates text to a maximum length for the excerpt.
+ * @param {string} text
+ * @param {number} max
+ * @returns {string}
+ */
+function truncateExcerpt(text, max = 200) {
+    if (!text || text.length <= max) return text || '';
+    return text.substring(0, max - 3) + '...';
+}
+
+/** Placeholder image when no post image is available */
+const PLACEHOLDER_POST_IMG = 'data:image/svg+xml;base64,' + btoa(`
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
+  <rect fill="#1a2332" width="400" height="300"/>
+  <text fill="#4a5568" font-family="sans-serif" font-size="14" text-anchor="middle" x="200" y="155">No Image Available</text>
+</svg>`);
+
+/**
+ * Renders a uniform horizontal feed card from API post data.
+ * @param {Object} post - Post object from the API.
  * @returns {string} HTML string.
  */
 function renderFeedCard(post) {
+    const title = deriveTitle(post.post_text);
+    const excerpt = truncateExcerpt(post.post_text);
+    const date = formatPostDate(post.post_date);
+    const image = post.image_url || PLACEHOLDER_POST_IMG;
+    const link = post.post_url || '#';
+    const deptLabel = post.dept_label || post.department || 'Unknown';
+
     return `
-    <a href="${post.link}" target="_blank" rel="noopener noreferrer">
+    <a href="${link}" target="_blank" rel="noopener noreferrer">
         <article class="feed-card content-box">
             <div class="feed-card-img">
-                <img src="${post.image}" alt="${post.title}">
+                <img src="${image}" alt="${title}" onerror="this.src='${PLACEHOLDER_POST_IMG}'">
             </div>
             <div class="feed-card-body">
-                <h3>${post.title}</h3>
-                <p class="feed-card-excerpt">${post.excerpt}</p>
+                <h3>${title}</h3>
+                <p class="feed-card-excerpt">${excerpt}</p>
                 <div class="feed-card-meta">
-                    <p class="sub-text">${post.deptLabel}</p>
-                    <p class="sub-text">${post.date}</p>
+                    <p class="sub-text">${deptLabel}</p>
+                    <p class="sub-text">${date}</p>
                 </div>
             </div>
         </article>
@@ -127,7 +96,7 @@ function renderFeedCard(post) {
 
 /**
  * Groups posts by date and renders with date headers.
- * @param {Post[]} posts - Array of posts (already sorted).
+ * @param {Object[]} posts - Array of post objects from the API.
  * @returns {string} HTML string with date-grouped cards.
  */
 function renderGroupedByDate(posts) {
@@ -139,8 +108,9 @@ function renderGroupedByDate(posts) {
     let currentDate = '';
 
     posts.forEach((post) => {
-        if (post.date !== currentDate) {
-            currentDate = post.date;
+        const dateStr = formatPostDate(post.post_date);
+        if (dateStr !== currentDate) {
+            currentDate = dateStr;
             html += `<div class="date-group-header"><span>${currentDate}</span></div>`;
         }
         html += renderFeedCard(post);
@@ -150,26 +120,75 @@ function renderGroupedByDate(posts) {
 }
 
 /* ──────────────────────────────────────────────
- *  Feed Rendering
+ *  Loading & Error States
  * ────────────────────────────────────────────── */
 
+function renderLoadingState() {
+    return `
+    <div class="feed-loading" style="text-align: center; padding: 3rem 1rem;">
+        <div class="loading-spinner" style="
+            width: 40px; height: 40px; margin: 0 auto 1rem;
+            border: 3px solid var(--border-color, #333);
+            border-top-color: var(--uep-blue, #2563eb);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        "></div>
+        <p class="sub-text">Loading campus updates...</p>
+        <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+    </div>`;
+}
+
+function renderErrorState(message) {
+    return `
+    <div class="feed-error" style="text-align: center; padding: 3rem 1rem;">
+        <p class="sub-text" style="color: var(--text-secondary);">
+            ⚠️ ${message || 'Unable to load updates. Please try again later.'}
+        </p>
+    </div>`;
+}
+
+/* ──────────────────────────────────────────────
+ *  Feed Rendering (API-backed)
+ * ────────────────────────────────────────────── */
+
+/** Cached posts from the last successful fetch */
+let cachedPosts = [];
+
 /**
- * Renders the feed with optional department filter.
+ * Fetches posts from the API and renders them.
  * @param {string} [dept='all'] - Department key or 'all'.
  */
-function renderFeed(dept = 'all') {
+async function renderFeed(dept = 'all') {
     const container = document.getElementById('recent-updates-container');
     if (!container) return;
 
-    const filtered = dept === 'all'
-        ? [...POSTS]
-        : POSTS.filter((p) => p.department === dept);
+    // Show loading only on first load (cache empty)
+    if (cachedPosts.length === 0) {
+        container.innerHTML = renderLoadingState();
+    }
 
-    // Sort by date descending, take top 10
-    filtered.sort((a, b) => b.dateISO.localeCompare(a.dateISO));
-    const top10 = filtered.slice(0, 10);
+    try {
+        const url = dept === 'all' ? '/api/posts' : `/api/posts?dept=${encodeURIComponent(dept)}`;
+        const res = await fetch(url);
 
-    container.innerHTML = renderGroupedByDate(top10);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const posts = await res.json();
+        cachedPosts = posts;
+
+        container.innerHTML = renderGroupedByDate(posts);
+    } catch (err) {
+        console.error('[Dashboard] Failed to fetch posts:', err);
+
+        // If we have cached data, keep showing it
+        if (cachedPosts.length > 0) {
+            container.innerHTML = renderGroupedByDate(
+                dept === 'all' ? cachedPosts : cachedPosts.filter((p) => p.department === dept)
+            );
+        } else {
+            container.innerHTML = renderErrorState();
+        }
+    }
 }
 
 /* ──────────────────────────────────────────────

@@ -5,9 +5,13 @@
  * Serves static files and exposes REST API endpoints backed by SQLite.
  */
 
+// Load .env before anything else
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 const { initDatabase, getDb } = require('./db');
+const { scrapeIfStale, forceScrape } = require('./fb-scraper');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -349,6 +353,71 @@ app.get('/api/admin/stats', (req, res) => {
     `).get();
 
     res.json(stats);
+});
+
+/* ----------------------------------------------
+ *  Facebook Posts API Routes
+ * ---------------------------------------------- */
+
+/**
+ * GET /api/posts
+ * Returns scraped FB posts from the database.
+ * Optional query: ?dept=pillar (default: all)
+ * Also triggers a background freshness check — no credits wasted if data is fresh.
+ */
+app.get('/api/posts', (req, res) => {
+    const db = getDb();
+    const { dept } = req.query;
+
+    let query = 'SELECT * FROM fb_posts';
+    const params = [];
+
+    if (dept && dept !== 'all') {
+        query += ' WHERE department = ?';
+        params.push(dept);
+    }
+
+    query += ' ORDER BY post_date DESC LIMIT 10';
+
+    const posts = db.prepare(query).all(...params);
+    res.json(posts);
+
+    // Background freshness check — fire-and-forget (response already sent)
+    scrapeIfStale(dept && dept !== 'all' ? dept : undefined).catch((err) => {
+        console.error('[Server] Background scrape check failed:', err.message);
+    });
+});
+
+/**
+ * GET /api/posts/status
+ * Returns scrape freshness info for the frontend (optional).
+ */
+app.get('/api/posts/status', (req, res) => {
+    const db = getDb();
+    const logs = db.prepare(`
+        SELECT department, scraped_at, post_count, status
+        FROM scrape_log
+        ORDER BY scraped_at DESC
+        LIMIT 10
+    `).all();
+    res.json(logs);
+});
+
+/**
+ * POST /api/admin/scrape
+ * Force-triggers a scrape regardless of freshness.
+ * Body (optional): { department: 'pillar' }
+ */
+app.post('/api/admin/scrape', async (req, res) => {
+    const { department } = req.body || {};
+
+    try {
+        const count = await forceScrape(department || undefined);
+        res.json({ success: true, postsScraped: count });
+    } catch (err) {
+        console.error('[Server] Force scrape failed:', err.message);
+        res.status(500).json({ error: 'Scrape failed', message: err.message });
+    }
 });
 
 /* ----------------------------------------------

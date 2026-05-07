@@ -93,6 +93,32 @@ function runMigrations() {
             course_name  TEXT NOT NULL,
             college      TEXT NOT NULL
         );
+
+        -- Facebook posts scraped via Apify
+        CREATE TABLE IF NOT EXISTS fb_posts (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            fb_post_id   TEXT UNIQUE NOT NULL,
+            department   TEXT NOT NULL,
+            dept_label   TEXT NOT NULL,
+            page_name    TEXT,
+            post_text    TEXT,
+            post_url     TEXT,
+            image_url    TEXT,
+            post_date    TEXT,
+            likes        INTEGER DEFAULT 0,
+            comments     INTEGER DEFAULT 0,
+            shares       INTEGER DEFAULT 0,
+            scraped_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- Scrape log to track freshness (avoids wasting Apify credits)
+        CREATE TABLE IF NOT EXISTS scrape_log (
+            id           INTEGER PRIMARY KEY AUTOINCREMENT,
+            department   TEXT NOT NULL,
+            scraped_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
+            post_count   INTEGER DEFAULT 0,
+            status       TEXT DEFAULT 'success'
+        );
     `);
 }
 
