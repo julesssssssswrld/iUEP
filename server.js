@@ -428,7 +428,7 @@ app.get('/api/posts', (req, res) => {
         params.push(dept);
     }
 
-    query += ' ORDER BY post_date DESC LIMIT 10';
+    query += ' ORDER BY post_date DESC';
 
     const posts = db.prepare(query).all(...params);
     res.json(posts);
