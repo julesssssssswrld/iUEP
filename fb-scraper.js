@@ -37,13 +37,19 @@ const FB_IMG_DIR = path.join(__dirname, 'uploads', 'fb-posts');
  * Add more entries here later to expand to other departments.
  */
 const FB_SOURCES = [
-    {
-        department: 'pillar',
-        deptLabel: 'The Pillar',
-        url: 'https://www.facebook.com/thepillaryueps',
-        maxPosts: 5,
-    },
-    // Future: { department: 'usc', deptLabel: 'University Student Council', url: '...', maxPosts: 5 },
+    { department: 'upmao', deptLabel: 'University Publication and Media Affairs', url: 'https://www.facebook.com/upmao.uepdates', maxPosts: 5 },
+    { department: 'usc', deptLabel: 'University Student Council', url: 'https://www.facebook.com/uepusc', maxPosts: 5 },
+    { department: 'pillar', deptLabel: 'The Pillar', url: 'https://www.facebook.com/thepillaryueps', maxPosts: 5 },
+    { department: 'cs', deptLabel: 'College of Science', url: 'https://www.facebook.com/CSSCmaincampus', maxPosts: 5 },
+    { department: 'coe', deptLabel: 'College of Engineering', url: 'https://www.facebook.com/profile.php?id=61558987494744', maxPosts: 5 },
+    { department: 'cnahs', deptLabel: 'CNAHS', url: 'https://www.facebook.com/UEPCNAHSSC', maxPosts: 5 },
+    { department: 'coed', deptLabel: 'College of Education', url: 'https://www.facebook.com/coedscofficialpage', maxPosts: 5 },
+    { department: 'cba', deptLabel: 'College of Business Administration', url: 'https://www.facebook.com/profile.php?id=61581402380824', maxPosts: 5 },
+    { department: 'cvm', deptLabel: 'College of Veterinary Medicine', url: 'https://www.facebook.com/profile.php?id=100063861617609', maxPosts: 5 },
+    { department: 'cac', deptLabel: 'College of Arts and Communications', url: 'https://www.facebook.com/PitadUEP', maxPosts: 5 },
+    { department: 'ccj', deptLabel: 'College of Criminal Justice', url: 'https://www.facebook.com/profile.php?id=61566404038660', maxPosts: 5 },
+    { department: 'col', deptLabel: 'College of Law', url: 'https://www.facebook.com/uepalas', maxPosts: 5 },
+    { department: 'cafnr', deptLabel: 'CAFNR', url: 'https://www.facebook.com/profile.php?id=61579302993318', maxPosts: 5 }
 ];
 
 /* ──────────────────────────────────────────────
