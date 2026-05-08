@@ -132,23 +132,24 @@ async function renderSvgIdCard(app) {
     const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
     const logoBase64 = await loadLogoBase64();
 
-    // Build the full name in the format: FIRST MIDDLE_INITIAL. LAST
+    const sourceUser = app?.first_name ? app : user;
     let studentName = 'STUDENT NAME';
-    if (user) {
+    if (sourceUser) {
         const parts = [];
-        if (user.first_name) parts.push(user.first_name.toUpperCase());
-        if (user.middle_name) parts.push(user.middle_name.charAt(0).toUpperCase() + '.');
-        if (user.last_name) parts.push(user.last_name.toUpperCase());
+        if (sourceUser.first_name) parts.push(sourceUser.first_name.toUpperCase());
+        if (sourceUser.middle_name) parts.push(sourceUser.middle_name.charAt(0).toUpperCase() + '.');
+        if (sourceUser.last_name) parts.push(sourceUser.last_name.toUpperCase());
         studentName = parts.join(' ') || 'STUDENT NAME';
     }
 
     // Determine college from course (simple mapping)
-    const college = app?.college || getCollegeFromCourse(user?.course || app?.course) || 'COLLEGE OF SCIENCE';
+    const activeCourse = app?.course || user?.course;
+    const college = app?.college || getCollegeFromCourse(activeCourse) || 'COLLEGE OF SCIENCE';
 
     const cardData = {
         studentName: studentName,
-        studentId: user?.stu_id || '000000',
-        course: user?.course || app?.course || 'BSIT',
+        studentId: app?.student_id || user?.stu_id || '000000',
+        course: activeCourse || 'BSIT',
         college: college,
         photoBase64: app?.photo_url || app?.photo_base64 || '',
         logoBase64: logoBase64,
@@ -540,21 +541,23 @@ async function openFullscreenCard() {
     const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
     const logoBase64 = await loadLogoBase64();
 
+    const sourceUser = _currentApp?.first_name ? _currentApp : user;
     let studentName = 'STUDENT NAME';
-    if (user) {
+    if (sourceUser) {
         const parts = [];
-        if (user.first_name) parts.push(user.first_name.toUpperCase());
-        if (user.middle_name) parts.push(user.middle_name.charAt(0).toUpperCase() + '.');
-        if (user.last_name) parts.push(user.last_name.toUpperCase());
+        if (sourceUser.first_name) parts.push(sourceUser.first_name.toUpperCase());
+        if (sourceUser.middle_name) parts.push(sourceUser.middle_name.charAt(0).toUpperCase() + '.');
+        if (sourceUser.last_name) parts.push(sourceUser.last_name.toUpperCase());
         studentName = parts.join(' ') || 'STUDENT NAME';
     }
 
-    const college = _currentApp?.college || getCollegeFromCourse(user?.course || _currentApp?.course) || 'COLLEGE OF SCIENCE';
+    const activeCourse = _currentApp?.course || user?.course;
+    const college = _currentApp?.college || getCollegeFromCourse(activeCourse) || 'COLLEGE OF SCIENCE';
 
     DOM.fullscreenSvgTarget.innerHTML = generateIdCardSVG({
         studentName: studentName,
-        studentId: user?.stu_id || '000000',
-        course: user?.course || _currentApp?.course || 'BSIT',
+        studentId: _currentApp?.student_id || user?.stu_id || '000000',
+        course: activeCourse || 'BSIT',
         college: college,
         photoBase64: _currentApp?.photo_url || _currentApp?.photo_base64 || '',
         logoBase64: logoBase64,
