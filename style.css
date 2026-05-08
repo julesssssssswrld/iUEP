@@ -2121,3 +2121,243 @@ input:checked+.slider::before {
         width: 5rem;
     }
 }
+
+/* ----------------------------------------------
+ *  22. Admin Credential Manager
+ * ---------------------------------------------- */
+
+.admin-form-card {
+    padding: var(--space-xl);
+    margin-bottom: var(--space-xl);
+}
+
+.admin-form-card-title {
+    font-size: var(--font-h2);
+    margin-bottom: var(--space-lg);
+    color: var(--uep-blue);
+}
+
+.admin-form-row {
+    display: flex;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+}
+
+.admin-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    flex: 1;
+    min-width: 10rem;
+}
+
+.admin-form-group label {
+    font-size: var(--font-sm);
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.admin-input {
+    padding: 0.6rem 0.85rem;
+    border: var(--default-border);
+    border-radius: 0.625rem;
+    background: var(--surface);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: var(--font-body);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-input:focus {
+    border-color: var(--uep-blue);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--uep-blue) 12%, transparent);
+}
+
+.admin-form-actions {
+    margin-top: var(--space-md);
+}
+
+/* Inline status messages */
+.admin-inline-message {
+    margin-top: var(--space-md);
+    padding: 0;
+    font-size: var(--font-sm);
+    font-weight: 600;
+    display: none;
+}
+
+.admin-inline-message.show {
+    display: block;
+    padding: 0.5rem 0.85rem;
+    border-radius: 0.5rem;
+}
+
+.admin-inline-message.success {
+    background: color-mix(in srgb, #22c55e 10%, transparent);
+    color: #16a34a;
+}
+
+.admin-inline-message.error {
+    background: color-mix(in srgb, #ef4444 10%, transparent);
+    color: #dc2626;
+}
+
+/* Admin list table (reuses queue table pattern) */
+#admin-table-wrapper {
+    overflow-x: auto;
+}
+
+#admin-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-body);
+}
+
+#admin-list-table th {
+    text-align: left;
+    padding: var(--space-md) var(--space-lg);
+    font-weight: 700;
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: var(--default-border);
+}
+
+#admin-list-table td {
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+#admin-list-table tbody tr:hover {
+    background-color: var(--hover-bg);
+}
+
+.admin-actions-cell {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+/* Role pills */
+.role-pill {
+    display: inline-block;
+    padding: 0.2rem 0.7rem;
+    font-size: var(--font-xs);
+    font-weight: 600;
+    border-radius: 999px;
+}
+
+.role-id_production {
+    background-color: color-mix(in srgb, var(--uep-blue) 15%, transparent);
+    color: var(--uep-blue);
+}
+
+.role-super_admin {
+    background-color: color-mix(in srgb, #f59e0b 15%, transparent);
+    color: #d97706;
+}
+
+/* Small buttons */
+.btn-sm {
+    font-size: var(--font-xs) !important;
+    padding: 0.3rem 0.75rem !important;
+}
+
+/* ----------------------------------------------
+ *  23. Claimed History Page
+ * ---------------------------------------------- */
+
+.history-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+.history-header-row h1 {
+    margin-bottom: 0;
+}
+
+.history-header-row .btn-primary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    white-space: nowrap;
+}
+
+.history-filters {
+    display: flex;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+    flex-wrap: wrap;
+}
+
+.history-filters .admin-form-group {
+    min-width: 8rem;
+}
+
+.history-summary {
+    font-size: var(--font-sm);
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-md);
+}
+
+#history-table-wrapper {
+    overflow-x: auto;
+}
+
+#history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-body);
+}
+
+#history-table th {
+    text-align: left;
+    padding: var(--space-md) var(--space-lg);
+    font-weight: 700;
+    font-size: var(--font-sm);
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: var(--default-border);
+}
+
+#history-table td {
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+#history-table tbody tr:hover {
+    background-color: var(--hover-bg);
+}
+
+/* Admin badge in header */
+.admin-badge {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    font-size: var(--font-xs);
+    font-weight: 700;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, #f59e0b 15%, transparent);
+    color: #d97706;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Export popover */
+.export-popover {
+    max-width: 28rem;
+}
+
+.export-popover .btn-primary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}

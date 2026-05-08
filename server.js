@@ -454,6 +454,135 @@ app.get('/api/admin/stats', (req, res) => {
 });
 
 /* ----------------------------------------------
+ *  Admin Credential Management API Routes
+ * ---------------------------------------------- */
+
+/**
+ * GET /api/admin/admins
+ * List all admin accounts.
+ */
+app.get('/api/admin/admins', (req, res) => {
+    const db = getDb();
+    const admins = db.prepare('SELECT id, username, display_name, role, created_at FROM admins ORDER BY id').all();
+    res.json(admins);
+});
+
+/**
+ * POST /api/admin/admins
+ * Create a new admin account.
+ * Body: { username, displayName, password, role }
+ */
+app.post('/api/admin/admins', (req, res) => {
+    const db = getDb();
+    const { username, displayName, password, role } = req.body;
+
+    if (!username || !displayName || !password) {
+        return res.status(400).json({ error: 'Username, display name, and password are required.' });
+    }
+
+    if (password.length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+    }
+
+    const existing = db.prepare('SELECT id FROM admins WHERE username = ?').get(username);
+    if (existing) {
+        return res.status(409).json({ error: 'Username already taken.' });
+    }
+
+    const result = db.prepare(
+        'INSERT INTO admins (username, password_hash, display_name, role) VALUES (?, ?, ?, ?)'
+    ).run(username, password, displayName, role || 'id_production');
+
+    res.status(201).json({ success: true, id: result.lastInsertRowid });
+});
+
+/**
+ * PATCH /api/admin/admins/:id/password
+ * Update an admin's password (requires current password).
+ * Body: { currentPassword, password }
+ */
+app.patch('/api/admin/admins/:id/password', (req, res) => {
+    const db = getDb();
+    const { currentPassword, password } = req.body;
+
+    if (!password || password.length < 6) {
+        return res.status(400).json({ error: 'New password must be at least 6 characters.' });
+    }
+
+    const admin = db.prepare('SELECT * FROM admins WHERE id = ?').get(req.params.id);
+    if (!admin) return res.status(404).json({ error: 'Admin not found.' });
+
+    // Verify current password
+    if (currentPassword && admin.password_hash !== currentPassword) {
+        return res.status(401).json({ error: 'Current password is incorrect.' });
+    }
+
+    db.prepare('UPDATE admins SET password_hash = ? WHERE id = ?').run(password, req.params.id);
+    res.json({ success: true });
+});
+
+/**
+ * PATCH /api/admin/admins/:id/username
+ * Update an admin's username.
+ * Body: { username }
+ */
+app.patch('/api/admin/admins/:id/username', (req, res) => {
+    const db = getDb();
+    const { username } = req.body;
+
+    if (!username || username.trim().length < 3) {
+        return res.status(400).json({ error: 'Username must be at least 3 characters.' });
+    }
+
+    const admin = db.prepare('SELECT id FROM admins WHERE id = ?').get(req.params.id);
+    if (!admin) return res.status(404).json({ error: 'Admin not found.' });
+
+    const existing = db.prepare('SELECT id FROM admins WHERE username = ? AND id != ?').get(username.trim(), Number(req.params.id));
+    if (existing) {
+        return res.status(409).json({ error: 'Username already taken.' });
+    }
+
+    db.prepare('UPDATE admins SET username = ? WHERE id = ?').run(username.trim(), req.params.id);
+    res.json({ success: true });
+});
+
+/**
+ * DELETE /api/admin/admins/:id
+ * Delete an admin account.
+ */
+app.delete('/api/admin/admins/:id', (req, res) => {
+    const db = getDb();
+    const adminCount = db.prepare('SELECT COUNT(*) AS count FROM admins').get().count;
+
+    if (adminCount <= 1) {
+        return res.status(400).json({ error: 'Cannot delete the last admin account.' });
+    }
+
+    const admin = db.prepare('SELECT id FROM admins WHERE id = ?').get(req.params.id);
+    if (!admin) return res.status(404).json({ error: 'Admin not found.' });
+
+    db.prepare('DELETE FROM admins WHERE id = ?').run(req.params.id);
+    res.json({ success: true });
+});
+
+/**
+ * GET /api/admin/claimed-history
+ * Returns all claimed ID applications with student info.
+ */
+app.get('/api/admin/claimed-history', (req, res) => {
+    const db = getDb();
+    const records = db.prepare(`
+        SELECT a.id, a.student_id, a.status, a.library_id, a.submitted_at, a.updated_at,
+               u.first_name, u.middle_name, u.last_name, u.course, u.year_level, u.section
+        FROM id_applications a
+        JOIN users u ON a.student_id = u.stu_id
+        WHERE a.status = 'claimed'
+        ORDER BY a.updated_at DESC
+    `).all();
+    res.json(records);
+});
+
+/* ----------------------------------------------
  *  Facebook Posts API Routes
  * ---------------------------------------------- */
 
