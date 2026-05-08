@@ -153,6 +153,15 @@ function initAdminSettings() {
             }
         });
     }
+
+    // ── Logout Button ──
+    const logoutBtn = document.getElementById('admin-logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            sessionStorage.removeItem('iUEP_admin_session');
+            window.location.href = 'admin-login.html';
+        });
+    }
 }
 
 // Run after DOM is ready

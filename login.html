@@ -25,35 +25,43 @@
             <p class="auth-subtitle">University of Eastern Philippines</p>
         </div>
 
-        <!-- Status Message -->
-        <div id="login-message" class="auth-message"></div>
+        <!-- Scrollable form area -->
+        <div class="auth-card-body">
+            <!-- Status Message -->
+            <div id="login-message" class="auth-message"></div>
 
-        <!-- Login Form -->
-        <form id="login-form" autocomplete="off">
-            <div class="auth-form-group">
-                <label for="login-stu-id">Student ID</label>
-                <input type="text" id="login-stu-id" class="auth-input" placeholder="6-digit Student ID"
-                    maxlength="6" inputmode="numeric" pattern="\d{6}" required autofocus>
+            <!-- Login Form -->
+            <form id="login-form" autocomplete="off">
+                <div class="auth-form-group">
+                    <label for="login-stu-id">Student ID</label>
+                    <input type="text" id="login-stu-id" class="auth-input" placeholder="6-digit Student ID"
+                        maxlength="6" inputmode="numeric" pattern="\d{6}" required autofocus>
+                </div>
+
+                <div class="auth-form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" class="auth-input" placeholder="Enter your password"
+                        minlength="8" required>
+                </div>
+
+                <div class="auth-forgot">
+                    <a href="#" id="forgot-password-link">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="auth-btn-primary" id="login-submit">Log In</button>
+            </form>
+
+            <div class="auth-guest">
+                <a href="index.html" class="auth-guest-link">Continue as Guest</a>
             </div>
 
-            <div class="auth-form-group">
-                <label for="login-password">Password</label>
-                <input type="password" id="login-password" class="auth-input" placeholder="Enter your password"
-                    minlength="8" required>
+            <div class="auth-footer">
+                Don't have an account? <a href="signup.html">Sign Up</a>
             </div>
-
-            <div class="auth-forgot">
-                <a href="#" id="forgot-password-link">Forgot Password?</a>
-            </div>
-
-            <button type="submit" class="auth-btn-primary" id="login-submit">Log In</button>
-        </form>
-
-        <div class="auth-footer">
-            Don't have an account? <a href="signup.html">Sign Up</a>
         </div>
     </div>
 
+    <script src="utils.js"></script>
     <script src="auth.js"></script>
 </body>
 

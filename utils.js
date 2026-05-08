@@ -156,3 +156,59 @@ const applyTheme = () => {
 
 // Apply theme immediately to prevent flash of unstyled content
 applyTheme();
+
+/* ──────────────────────────────────────────────
+ *  Password Visibility Toggle
+ * ────────────────────────────────────────────── */
+
+/**
+ * SVG paths for the eye icons.
+ */
+const EYE_ICON = 'M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z';
+const EYE_OFF_ICON = 'M792-56 624-222q-35 11-71 16.5t-73 5.5q-146 0-266-81.5T40-500q21-53 55-98.5t75-82.5L56-792l56-56 736 736-56 56ZM480-320q11 0 21-1t20-4L305-541q-3 10-4 20t-1 21q0 75 52.5 127.5T480-320Zm292 18L645-428q7-14 11-28.5t4-43.5q0-75-52.5-127.5T480-680q-29 0-43.5 4T408-665L306-767q36-15 73.5-24t100.5-9q146 0 266 81.5T920-500q-26 64-67 117t-81 81ZM480-392q-45 0-76.5-31.5T372-500l108 108q-1 0-1 0 0 0 0 0Z';
+
+/**
+ * Initializes show/hide password toggles for all password inputs on the page.
+ * Automatically wraps each input in a container and appends an eye icon button.
+ */
+function initPasswordToggles() {
+    const passwordInputs = document.querySelectorAll('input[type="password"]');
+
+    passwordInputs.forEach(input => {
+        // Skip if already wrapped
+        if (input.parentElement.classList.contains('pw-toggle-wrapper')) return;
+
+        // Create wrapper
+        const wrapper = document.createElement('div');
+        wrapper.className = 'pw-toggle-wrapper';
+
+        // Insert wrapper before input, then move input inside
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+
+        // Create toggle button
+        const toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.className = 'pw-toggle-btn';
+        toggleBtn.setAttribute('aria-label', 'Show password');
+        toggleBtn.setAttribute('tabindex', '-1');
+        toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="${EYE_ICON}"/></svg>`;
+
+        wrapper.appendChild(toggleBtn);
+
+        // Toggle handler
+        toggleBtn.addEventListener('click', () => {
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            toggleBtn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+            toggleBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="currentColor"><path d="${isPassword ? EYE_OFF_ICON : EYE_ICON}"/></svg>`;
+        });
+    });
+}
+
+// Auto-init password toggles when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPasswordToggles);
+} else {
+    initPasswordToggles();
+}
