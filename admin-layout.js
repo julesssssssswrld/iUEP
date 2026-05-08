@@ -70,12 +70,8 @@ function buildAdminHeaderHTML() {
             </button>
 
             <div id="user-preview">
-                <div id="user-profile-image-container">
-                    <img src="${PLACEHOLDER_IMG}" alt="Admin" id="user-profile-image">
-                </div>
                 <div class="user-preview-text">
                     <h2>ID Office Admin</h2>
-                    <span class="admin-badge">Admin</span>
                 </div>
             </div>
         </div>

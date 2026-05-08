@@ -97,6 +97,7 @@ function initLogin() {
                     course: result.user.course,
                     year_level: result.user.yearLevel,
                     section: result.user.section,
+                    profile_pic: result.user.profilePic || null,
                 };
                 sessionStorage.setItem('iUEP_current_user', JSON.stringify(sessionUser));
 

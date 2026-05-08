@@ -184,6 +184,7 @@ app.post('/api/auth/login', (req, res) => {
             course: user.course,
             yearLevel: user.year_level,
             section: user.section,
+            profilePic: user.profile_pic || null,
         },
     });
 });
@@ -650,6 +651,24 @@ app.post('/api/admin/scrape', async (req, res) => {
 /* ----------------------------------------------
  *  Student Account Settings API Routes
  * ---------------------------------------------- */
+
+/**
+ * PATCH /api/users/:stuId/profile-pic
+ * Update a student's profile picture (stored as compressed base64 in DB).
+ * Body: { profilePic } (data:image/jpeg;base64,...)
+ */
+app.patch('/api/users/:stuId/profile-pic', (req, res) => {
+    const db = getDb();
+    const { profilePic } = req.body;
+    const { stuId } = req.params;
+
+    const user = db.prepare('SELECT stu_id FROM users WHERE stu_id = ?').get(stuId);
+    if (!user) return res.status(404).json({ error: 'Student not found.' });
+
+    // Allow null/empty to remove the profile pic
+    db.prepare('UPDATE users SET profile_pic = ? WHERE stu_id = ?').run(profilePic || null, stuId);
+    res.json({ success: true });
+});
 
 /**
  * PATCH /api/users/:stuId/username

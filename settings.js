@@ -60,19 +60,44 @@ function hideInlineMsg(el) {
  *  Load Settings
  * ────────────────────────────────────────────── */
 
-function loadSettings() {
+async function loadSettings() {
     const currentUser = (typeof getSessionUser === 'function') ? getSessionUser() : null;
     const savedSettings = getStorage('iUEP_settings', {});
 
-    // Populate fields
-    settingsDOM.username.value = savedSettings.username || currentUser?.username || '';
+    // Pre-fill from session immediately (prevents flash of empty fields)
     settingsDOM.stuId.value = currentUser?.stu_id || '';
     settingsDOM.firstName.value = currentUser?.first_name || '';
     settingsDOM.lastName.value = currentUser?.last_name || '';
+    settingsDOM.username.value = currentUser?.username || '';
 
-    // Profile image
-    const profilePic = savedSettings.profilePic || currentUser?.profile_pic || PLACEHOLDER_IMG;
-    settingsDOM.profileImg.src = profilePic;
+    // Fetch latest user data from DB to ensure username is current
+    if (currentUser?.stu_id) {
+        try {
+            const freshUser = await apiFetch(`/users/${currentUser.stu_id}`);
+            if (freshUser) {
+                settingsDOM.username.value = freshUser.username || '';
+                settingsDOM.firstName.value = freshUser.first_name || '';
+                settingsDOM.lastName.value = freshUser.last_name || '';
+
+                // Sync session with fresh DB data
+                currentUser.username = freshUser.username;
+                currentUser.first_name = freshUser.first_name;
+                currentUser.last_name = freshUser.last_name;
+                currentUser.profile_pic = freshUser.profile_pic || null;
+                setSessionUser(currentUser);
+
+                // Profile image from DB
+                settingsDOM.profileImg.src = freshUser.profile_pic || PLACEHOLDER_IMG;
+            }
+        } catch (err) {
+            console.warn('[Settings] Could not fetch fresh user data:', err.message);
+        }
+    }
+
+    // Fallback profile image from session if API didn't load
+    if (!settingsDOM.profileImg.src || settingsDOM.profileImg.src.endsWith('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')) {
+        settingsDOM.profileImg.src = currentUser?.profile_pic || PLACEHOLDER_IMG;
+    }
 
     // Dark mode toggle
     const theme = localStorage.getItem('theme') || 'light';
@@ -112,11 +137,41 @@ function handleProfileFileChange() {
     const file = settingsDOM.fileInput.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        settingsDOM.profileImg.src = e.target.result;
+    // Compress via canvas to handle PNGs and large images
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+        const MAX_SIZE = 256;
+        let w = img.width;
+        let h = img.height;
+
+        // Scale down to max 256px (profile pic doesn't need to be large)
+        if (w > MAX_SIZE || h > MAX_SIZE) {
+            const ratio = Math.min(MAX_SIZE / w, MAX_SIZE / h);
+            w = Math.round(w * ratio);
+            h = Math.round(h * ratio);
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+
+        // Convert to JPEG at 80% quality (small enough for localStorage)
+        const compressed = canvas.toDataURL('image/jpeg', 0.8);
+        settingsDOM.profileImg.src = compressed;
+
+        URL.revokeObjectURL(url);
     };
-    reader.readAsDataURL(file);
+
+    img.onerror = () => {
+        URL.revokeObjectURL(url);
+        alert('Could not load image. Please try a different file.');
+    };
+
+    img.src = url;
 }
 
 function handleProfileRemove() {
@@ -168,16 +223,19 @@ async function saveSettings() {
             });
         }
 
-        // Save profile pic + username locally
-        const settings = {
-            username: newUsername,
-            profilePic: settingsDOM.profileImg.src,
-        };
-        setStorage('iUEP_settings', settings);
+        // Update profile pic in DB
+        const currentPic = settingsDOM.profileImg.src;
+        const isPlaceholder = !currentPic || currentPic.includes('R0lGODlhAQABAIAAAAAAAP');
+        const picToSave = isPlaceholder ? null : currentPic;
+
+        await apiFetch(`/users/${currentUser.stu_id}/profile-pic`, {
+            method: 'PATCH',
+            body: JSON.stringify({ profilePic: picToSave }),
+        });
 
         // Update session
         currentUser.username = newUsername;
-        currentUser.profile_pic = settings.profilePic;
+        currentUser.profile_pic = picToSave;
         setSessionUser(currentUser);
 
         // Show toast
