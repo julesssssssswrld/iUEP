@@ -362,7 +362,7 @@ app.get('/api/admin/applications/:id', (req, res) => {
 app.patch('/api/admin/applications/:id/status', (req, res) => {
     const db = getDb();
     const { status, rejectionReason } = req.body;
-    const validStatuses = ['uploaded', 'received', 'processing', 'completed', 'rejected'];
+    const validStatuses = ['uploaded', 'received', 'processing', 'completed', 'claimed', 'rejected'];
 
     if (!validStatuses.includes(status)) {
         return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
@@ -399,6 +399,7 @@ app.get('/api/admin/stats', (req, res) => {
             SUM(CASE WHEN status IN ('uploaded', 'received') THEN 1 ELSE 0 END) AS pending,
             SUM(CASE WHEN status = 'processing' THEN 1 ELSE 0 END) AS processing,
             SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed,
+            SUM(CASE WHEN status = 'claimed' THEN 1 ELSE 0 END) AS claimed,
             SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) AS rejected
         FROM id_applications
     `).get();

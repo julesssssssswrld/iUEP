@@ -1257,7 +1257,8 @@ input:checked+.slider::before {
 }
 
 #id-no-record,
-#id-ready-notice {
+#id-ready-notice,
+#id-claimed-notice {
     display: flex;
     align-items: center;
     gap: var(--space-sm);
@@ -1266,7 +1267,8 @@ input:checked+.slider::before {
 }
 
 #id-no-record svg,
-#id-ready-notice svg {
+#id-ready-notice svg,
+#id-claimed-notice svg {
     width: 1.25rem;
     height: 1.25rem;
     flex-shrink: 0;
@@ -1277,6 +1279,14 @@ input:checked+.slider::before {
     background-color: color-mix(in srgb, #22c55e 10%, transparent);
     border-radius: 0.5rem;
     border: 0.0625rem solid #22c55e;
+}
+
+#id-claimed-notice {
+    color: var(--uep-blue);
+    background-color: color-mix(in srgb, var(--uep-blue) 10%, transparent);
+    border-radius: 0.5rem;
+    border: 0.0625rem solid var(--uep-blue);
+    padding: var(--space-sm) var(--space-md);
 }
 
 #id-action-buttons {
@@ -1919,6 +1929,11 @@ input:checked+.slider::before {
 .status-completed {
     background-color: color-mix(in srgb, #22c55e 15%, transparent);
     color: #16a34a;
+}
+
+.status-claimed {
+    background-color: color-mix(in srgb, #0ea5e9 15%, transparent);
+    color: #0284c7;
 }
 
 .status-rejected {

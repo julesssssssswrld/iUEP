@@ -235,6 +235,11 @@ function isStale(department) {
  * @returns {Promise<number>} Number of posts stored.
  */
 async function runScrape(source) {
+    // ---- TEMPORARILY DISABLED TO SAVE CREDITS ----
+    console.log(`[FB-Scraper] Scraper is temporarily disabled. Skipping "${source.deptLabel}".`);
+    return 0;
+    // ----------------------------------------------
+
     const client = getApifyClient();
     if (!client) return 0;
 

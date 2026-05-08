@@ -89,6 +89,11 @@
                                 <div class="step-dot"></div>
                                 <span>Completed</span>
                             </div>
+                            <div class="step-connector"></div>
+                            <div class="id-status-step" data-step="claimed">
+                                <div class="step-dot"></div>
+                                <span>Claimed</span>
+                            </div>
                         </div>
                         <!-- Rejection banner (hidden by default) -->
                         <div id="id-rejection-banner" class="hidden">
@@ -107,12 +112,20 @@
                         <p>No University ID on record. Apply below to get started.</p>
                     </div>
 
-                    <!-- Ready notification -->
+                    <!-- Ready notification (shown only when status is 'completed') -->
                     <div id="id-ready-notice" class="hidden">
                         <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#22c55e">
                             <path d="m424-296 282-282-56-56-226 226-114-114-56 56 170 170Z"/>
                         </svg>
                         <p>Your University ID is <strong>ready for pickup</strong> at the Registrar's Office.</p>
+                    </div>
+
+                    <!-- Claimed notification (shown only when status is 'claimed') -->
+                    <div id="id-claimed-notice" class="hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="var(--uep-blue)">
+                            <path d="m424-296 282-282-56-56-226 226-114-114-56 56 170 170Z"/>
+                        </svg>
+                        <p>Your University ID has been <strong>claimed</strong>.</p>
                     </div>
                 </div>
             </div>

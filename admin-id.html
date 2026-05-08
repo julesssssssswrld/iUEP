@@ -35,6 +35,10 @@
                     <span class="stat-count" id="stat-completed">0</span>
                     <span class="stat-label">Completed</span>
                 </div>
+                <div class="stat-card" data-stat="claimed">
+                    <span class="stat-count" id="stat-claimed">0</span>
+                    <span class="stat-label">Claimed</span>
+                </div>
                 <div class="stat-card" data-stat="rejected">
                     <span class="stat-count" id="stat-rejected">0</span>
                     <span class="stat-label">Rejected</span>
@@ -48,6 +52,7 @@
                 <button class="filter-pill" data-filter="received">Received</button>
                 <button class="filter-pill" data-filter="processing">Processing</button>
                 <button class="filter-pill" data-filter="completed">Completed</button>
+                <button class="filter-pill" data-filter="claimed">Claimed</button>
                 <button class="filter-pill" data-filter="rejected">Rejected</button>
             </div>
 
@@ -163,6 +168,11 @@
                             <div class="id-status-step" data-step="completed">
                                 <div class="step-dot"></div>
                                 <span>Completed</span>
+                            </div>
+                            <div class="step-connector"></div>
+                            <div class="id-status-step" data-step="claimed">
+                                <div class="step-dot"></div>
+                                <span>Claimed</span>
                             </div>
                         </div>
                     </div>

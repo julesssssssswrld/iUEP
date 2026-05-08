@@ -16,7 +16,7 @@
  *  Constants
  * ────────────────────────────────────────────── */
 
-const STATUS_STEPS = ['uploaded', 'received', 'processing', 'completed'];
+const STATUS_STEPS = ['uploaded', 'received', 'processing', 'completed', 'claimed'];
 
 /**
  * Resolves the current student ID.
@@ -50,6 +50,7 @@ function cacheDom() {
         readyNotice: document.getElementById('id-ready-notice'),
         applyBtn: document.getElementById('id-apply-btn'),
         lostBtn: document.getElementById('id-lost-btn'),
+        claimedNotice: document.getElementById('id-claimed-notice'),
         formPopover: document.getElementById('id-application-form'),
         form: document.getElementById('id-form'),
         formClose: document.getElementById('id-form-close'),
@@ -239,6 +240,8 @@ async function renderIdPage() {
         renderNoId();
     } else if (app.status === 'rejected') {
         renderRejected(app);
+    } else if (app.status === 'claimed') {
+        renderClaimed(app);
     } else if (app.status === 'completed') {
         renderCompleted(app);
     } else {
@@ -260,6 +263,7 @@ function renderNoId() {
     // Status — always visible, all steps inactive
     DOM.noRecord.classList.remove('hidden');
     DOM.readyNotice.classList.add('hidden');
+    DOM.claimedNotice.classList.add('hidden');
     DOM.rejectionBanner.classList.add('hidden');
 
     // Buttons — apply enabled, lost disabled
@@ -283,6 +287,7 @@ function renderInProgress(app) {
 
     DOM.noRecord.classList.add('hidden');
     DOM.readyNotice.classList.add('hidden');
+    DOM.claimedNotice.classList.add('hidden');
     DOM.rejectionBanner.classList.add('hidden');
 
     updateStatusBar(app.status);
@@ -306,9 +311,33 @@ function renderCompleted(app) {
 
     DOM.noRecord.classList.add('hidden');
     DOM.readyNotice.classList.remove('hidden');
+    DOM.claimedNotice.classList.add('hidden');
     DOM.rejectionBanner.classList.add('hidden');
 
     updateStatusBar('completed');
+
+    // Apply disabled, lost enabled
+    DOM.applyBtn.disabled = true;
+    DOM.applyBtn.classList.add('btn-disabled');
+    DOM.lostBtn.disabled = false;
+    DOM.lostBtn.classList.remove('btn-disabled');
+}
+
+/** State 4: ID claimed — student already picked it up */
+function renderClaimed(app) {
+    renderSvgIdCard(app);
+    populateCardInfo(app);
+
+    // Make the card clickable for fullscreen view
+    _currentApp = app;
+    DOM.svgTarget.classList.add('id-card-clickable');
+
+    DOM.noRecord.classList.add('hidden');
+    DOM.readyNotice.classList.add('hidden');
+    DOM.claimedNotice.classList.remove('hidden');
+    DOM.rejectionBanner.classList.add('hidden');
+
+    updateStatusBar('claimed');
 
     // Apply disabled, lost enabled
     DOM.applyBtn.disabled = true;
@@ -325,6 +354,7 @@ function renderRejected(app) {
 
     DOM.noRecord.classList.add('hidden');
     DOM.readyNotice.classList.add('hidden');
+    DOM.claimedNotice.classList.add('hidden');
     DOM.rejectionBanner.classList.remove('hidden');
     DOM.rejectionReason.textContent = app.rejection_reason || 'No reason provided.';
 

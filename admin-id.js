@@ -10,12 +10,13 @@
  *  Constants
  * ---------------------------------------------- */
 
-const STATUS_STEPS = ['uploaded', 'received', 'processing', 'completed'];
+const STATUS_STEPS = ['uploaded', 'received', 'processing', 'completed', 'claimed'];
 const STATUS_LABELS = {
     uploaded: 'Uploaded',
     received: 'Received',
     processing: 'Processing',
     completed: 'Completed',
+    claimed: 'Claimed',
     rejected: 'Rejected',
 };
 
@@ -36,6 +37,7 @@ function cacheAdminDom() {
         statPending: document.getElementById('stat-pending'),
         statProcessing: document.getElementById('stat-processing'),
         statCompleted: document.getElementById('stat-completed'),
+        statClaimed: document.getElementById('stat-claimed'),
         statRejected: document.getElementById('stat-rejected'),
         reviewPopover: document.getElementById('admin-review-popover'),
         reviewClose: document.getElementById('admin-review-close'),
@@ -109,6 +111,7 @@ async function loadStats() {
         ADMIN_DOM.statPending.textContent = stats.pending || 0;
         ADMIN_DOM.statProcessing.textContent = stats.processing || 0;
         ADMIN_DOM.statCompleted.textContent = stats.completed || 0;
+        ADMIN_DOM.statClaimed.textContent = stats.claimed || 0;
         ADMIN_DOM.statRejected.textContent = stats.rejected || 0;
     } catch (e) {
         console.error('Failed to load stats:', e);
@@ -289,7 +292,7 @@ function updateReviewStatusBar(currentStatus) {
 
 function configureActionButtons(status) {
     // Advance button
-    if (status === 'completed' || status === 'rejected') {
+    if (status === 'claimed' || status === 'rejected') {
         ADMIN_DOM.advanceBtn.disabled = true;
         ADMIN_DOM.advanceBtn.classList.add('btn-disabled');
     } else {
@@ -300,8 +303,8 @@ function configureActionButtons(status) {
         ADMIN_DOM.advanceBtn.textContent = `Mark as ${nextLabel}`;
     }
 
-    // Reject button
-    if (status === 'completed' || status === 'rejected') {
+    // Reject button — disabled once completed, claimed, or rejected
+    if (status === 'completed' || status === 'claimed' || status === 'rejected') {
         ADMIN_DOM.rejectBtn.disabled = true;
         ADMIN_DOM.rejectBtn.classList.add('btn-disabled');
     } else {
