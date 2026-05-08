@@ -233,9 +233,11 @@ app.get('/api/courses/:code', (req, res) => {
 app.get('/api/id-application/:stuId', (req, res) => {
     const db = getDb();
     const app_ = db.prepare(`
-        SELECT * FROM id_applications
-        WHERE student_id = ?
-        ORDER BY submitted_at DESC
+        SELECT a.*, u.first_name, u.middle_name, u.last_name, u.course, u.year_level, u.section
+        FROM id_applications a
+        JOIN users u ON a.student_id = u.stu_id
+        WHERE a.student_id = ?
+        ORDER BY a.submitted_at DESC
         LIMIT 1
     `).get(req.params.stuId);
 
