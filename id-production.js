@@ -255,10 +255,11 @@ function renderNoId() {
     // Show placeholder (no SVG card until completed)
     showPlaceholder('No University ID on record');
 
-    // Info values
-    DOM.course.textContent = '—';
-    DOM.year.textContent = '—';
-    DOM.section.textContent = '—';
+    // Info values — pull from session user when no application exists
+    const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
+    DOM.course.textContent = user?.course || '—';
+    DOM.year.textContent = user?.year_level || '—';
+    DOM.section.textContent = user?.section || '—';
     DOM.library.textContent = '—';
 
     // Status — always visible, all steps inactive
@@ -382,9 +383,10 @@ function renderRejected(app) {
  * @param {Object} app - Application data.
  */
 function populateCardInfo(app) {
-    DOM.course.textContent = app.course || '—';
-    DOM.year.textContent = app.year_level || '—';
-    DOM.section.textContent = app.section || '—';
+    const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
+    DOM.course.textContent = app.course || user?.course || '—';
+    DOM.year.textContent = app.year_level || user?.year_level || '—';
+    DOM.section.textContent = app.section || user?.section || '—';
     DOM.library.textContent = app.library_id || '—';
 }
 
@@ -421,6 +423,27 @@ function openApplicationForm() {
     DOM.form.reset();
     DOM.formPreviewImg.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
     DOM.formPhotoPreview.querySelector('p').textContent = 'Click to upload photo';
+
+    // Populate student info fields from the current session user
+    const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
+    if (user) {
+        const formFirstName = document.getElementById('id-form-first-name');
+        const formMiddleName = document.getElementById('id-form-middle-name');
+        const formLastName = document.getElementById('id-form-last-name');
+        const formCourse = document.getElementById('id-form-course');
+        const formYear = document.getElementById('id-form-year');
+        const formSection = document.getElementById('id-form-section');
+        if (formFirstName) formFirstName.value = user.first_name || '—';
+        if (formMiddleName) formMiddleName.value = user.middle_name || '—';
+        if (formLastName) formLastName.value = user.last_name || '—';
+        if (formCourse) formCourse.value = user.course || '—';
+        if (formYear) formYear.value = user.year_level || '—';
+        if (formSection) formSection.value = user.section || '—';
+
+        // Re-populate student ID (form.reset() wipes it back to the HTML default)
+        const formStuIdEls = DOM.form.querySelectorAll('.display-stu-id');
+        formStuIdEls.forEach((el) => { el.value = user.stu_id || '000000'; });
+    }
 }
 
 function closeApplicationForm() {

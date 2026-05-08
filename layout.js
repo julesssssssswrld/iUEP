@@ -220,7 +220,7 @@ function updateUserInfo() {
     const defaults = {
         username: currentUser?.username || 'Student',
         fullName: currentUser
-            ? [currentUser.first_name, currentUser.middle_name ? `${currentUser.middle_name.charAt(0)}.` : '', currentUser.last_name].filter(Boolean).join(' ')
+            ? [currentUser.first_name, currentUser.middle_name || '', currentUser.last_name].filter(Boolean).join(' ')
             : 'Student',
         stuId: currentUser?.stu_id || '000000',
         profilePic: currentUser?.profile_pic || PLACEHOLDER_IMG,
@@ -235,6 +235,7 @@ function updateUserInfo() {
     textMappings.forEach(({ selector, text }) => {
         document.querySelectorAll(selector).forEach((el) => {
             if (el.tagName === 'INPUT') {
+                el.value = text;
                 el.placeholder = text;
             } else {
                 el.textContent = text;
