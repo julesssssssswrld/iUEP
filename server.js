@@ -112,7 +112,7 @@ app.post('/api/auth/verify-birthday', (req, res) => {
 
 /**
  * POST /api/auth/register
- * Step 4: Create account (placeholder — no hashing yet).
+ * Step 4: Create account (placeholder â€” no hashing yet).
  * Body: { stuId, username, password }
  */
 app.post('/api/auth/register', (req, res) => {
@@ -142,7 +142,7 @@ app.post('/api/auth/register', (req, res) => {
         return res.status(409).json({ error: 'Username already taken.' });
     }
 
-    // Placeholder: store password as-is (NO hashing — will be replaced with bcrypt later)
+    // Placeholder: store password as-is (NO hashing â€” will be replaced with bcrypt later)
     db.prepare('UPDATE users SET username = ?, password_hash = ?, email = ? WHERE stu_id = ?')
         .run(username, password, email || null, stuId);
 
@@ -151,7 +151,7 @@ app.post('/api/auth/register', (req, res) => {
 
 /**
  * POST /api/auth/login
- * Placeholder login — validates credentials against DB.
+ * Placeholder login â€” validates credentials against DB.
  * Body: { stuId, password }
  */
 app.post('/api/auth/login', (req, res) => {
@@ -194,7 +194,7 @@ app.post('/api/auth/login', (req, res) => {
 
 /**
  * POST /api/auth/admin-login
- * Admin login — validates credentials against the admins table.
+ * Admin login â€” validates credentials against the admins table.
  * Body: { username, password }
  */
 app.post('/api/auth/admin-login', (req, res) => {
@@ -309,7 +309,7 @@ app.post('/api/id-application', async (req, res) => {
     }
 
     try {
-        // Decode base64 → compress → save to disk
+        // Decode base64 â†’ compress â†’ save to disk
         const timestamp = Date.now();
         const photoFilename = `${studentId}_photo_${timestamp}.jpg`;
         const corFilename = `${studentId}_cor_${timestamp}.jpg`;
@@ -590,7 +590,7 @@ app.get('/api/admin/claimed-history', (req, res) => {
  * GET /api/posts
  * Returns scraped FB posts from the database.
  * Optional query: ?dept=pillar (default: all)
- * Also triggers a background freshness check — no credits wasted if data is fresh.
+ * Also triggers a background freshness check â€” no credits wasted if data is fresh.
  */
 app.get('/api/posts', (req, res) => {
     const db = getDb();
@@ -609,7 +609,7 @@ app.get('/api/posts', (req, res) => {
     const posts = db.prepare(query).all(...params);
     res.json(posts);
 
-    // Background freshness check — fire-and-forget (response already sent)
+    // Background freshness check â€” fire-and-forget (response already sent)
     scrapeIfStale(dept && dept !== 'all' ? dept : undefined).catch((err) => {
         console.error('[Server] Background scrape check failed:', err.message);
     });
@@ -645,6 +645,65 @@ app.post('/api/admin/scrape', async (req, res) => {
         console.error('[Server] Force scrape failed:', err.message);
         res.status(500).json({ error: 'Scrape failed', message: err.message });
     }
+});
+
+/* ----------------------------------------------
+ *  Student Account Settings API Routes
+ * ---------------------------------------------- */
+
+/**
+ * PATCH /api/users/:stuId/username
+ * Update a student's username.
+ * Body: { username }
+ */
+app.patch('/api/users/:stuId/username', (req, res) => {
+    const db = getDb();
+    const { username } = req.body;
+    const { stuId } = req.params;
+
+    if (!username || username.trim().length < 3) {
+        return res.status(400).json({ error: 'Username must be at least 3 characters.' });
+    }
+
+    const user = db.prepare('SELECT * FROM users WHERE stu_id = ?').get(stuId);
+    if (!user) return res.status(404).json({ error: 'Student not found.' });
+
+    const existing = db.prepare('SELECT id FROM users WHERE username = ? AND stu_id != ?').get(username.trim(), stuId);
+    if (existing) {
+        return res.status(409).json({ error: 'Username already taken.' });
+    }
+
+    db.prepare('UPDATE users SET username = ? WHERE stu_id = ?').run(username.trim(), stuId);
+    res.json({ success: true });
+});
+
+/**
+ * PATCH /api/users/:stuId/password
+ * Update a student's password (requires current password).
+ * Body: { currentPassword, newPassword }
+ */
+app.patch('/api/users/:stuId/password', (req, res) => {
+    const db = getDb();
+    const { currentPassword, newPassword } = req.body;
+    const { stuId } = req.params;
+
+    if (!currentPassword) {
+        return res.status(400).json({ error: 'Current password is required.' });
+    }
+    if (!newPassword || newPassword.length < 8) {
+        return res.status(400).json({ error: 'New password must be at least 8 characters.' });
+    }
+
+    const user = db.prepare('SELECT * FROM users WHERE stu_id = ?').get(stuId);
+    if (!user) return res.status(404).json({ error: 'Student not found.' });
+
+    // Placeholder: plain-text comparison (will be replaced with bcrypt later)
+    if (user.password_hash !== currentPassword) {
+        return res.status(401).json({ error: 'Current password is incorrect.' });
+    }
+
+    db.prepare('UPDATE users SET password_hash = ? WHERE stu_id = ?').run(newPassword, stuId);
+    res.json({ success: true });
 });
 
 /* ----------------------------------------------
