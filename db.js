@@ -55,11 +55,12 @@ function runMigrations() {
 
         -- Admin accounts
         CREATE TABLE IF NOT EXISTS admins (
-            id           INTEGER PRIMARY KEY AUTOINCREMENT,
-            username     TEXT UNIQUE NOT NULL,
-            display_name TEXT NOT NULL,
-            role         TEXT DEFAULT 'id_production',
-            created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            username      TEXT UNIQUE NOT NULL,
+            password_hash TEXT,
+            display_name  TEXT NOT NULL,
+            role          TEXT DEFAULT 'id_production',
+            created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
         );
 
         -- ID applications
@@ -133,6 +134,7 @@ function runMigrations() {
 
     addColumn('id_applications', 'photo_path', 'TEXT');
     addColumn('id_applications', 'cor_path', 'TEXT');
+    addColumn('admins', 'password_hash', 'TEXT');
 }
 
 /* ----------------------------------------------
@@ -151,8 +153,8 @@ function seedDemoData() {
     `);
 
     const insertAdmin = db.prepare(`
-        INSERT INTO admins (username, display_name, role)
-        VALUES (?, ?, ?)
+        INSERT INTO admins (username, password_hash, display_name, role)
+        VALUES (?, ?, ?, ?)
     `);
 
     const seedUsers = db.transaction(() => {
@@ -162,7 +164,7 @@ function seedDemoData() {
         insertUser.run('202104', null, 'Lourdes', 'Bautista', 'Gonzales', 'BSBA',   '4', 'C', '2002-11-30', 'lourdes.gonzales@gmail.com');
         insertUser.run('202105', null, 'Paolo',   'Mendoza',  'Navarro',  'BSCRIM', '2', 'A', '2004-07-19', 'paolo.navarro@gmail.com');
 
-        insertAdmin.run('admin', 'ID Office Admin', 'id_production');
+        insertAdmin.run('admin', 'admin123', 'ID Office Admin', 'id_production');
     });
 
     seedUsers();

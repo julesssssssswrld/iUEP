@@ -511,3 +511,28 @@ body::after {
         width: 1.5rem;
     }
 }
+
+/* ----------------------------------------------
+ *  14. Admin Login Badge
+ * ---------------------------------------------- */
+
+.admin-login-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.4rem 1rem;
+    margin-bottom: var(--space-lg);
+    border-radius: 2rem;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+    font-size: var(--font-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.admin-login-badge svg {
+    flex-shrink: 0;
+}

@@ -406,6 +406,70 @@ function advanceToStep(step, DOM) {
     }
 }
 
+/* ══════════════════════════════════════════════
+ *  ADMIN LOGIN PAGE
+ * ══════════════════════════════════════════════ */
+
+function initAdminLogin() {
+    const form = document.getElementById('admin-login-form');
+    const usernameInput = document.getElementById('admin-login-username');
+    const passwordInput = document.getElementById('admin-login-password');
+    const submitBtn = document.getElementById('admin-login-submit');
+    const messageEl = document.getElementById('admin-login-message');
+
+    if (!form) return; // Not on admin login page
+
+    // Login submission
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideMessage(messageEl);
+
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value;
+
+        if (!username) {
+            showMessage(messageEl, 'Please enter your admin username.');
+            usernameInput.focus();
+            return;
+        }
+
+        if (!password) {
+            showMessage(messageEl, 'Please enter your password.');
+            passwordInput.focus();
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing in...';
+
+        try {
+            const result = await authFetch('/admin-login', { username, password });
+
+            if (result.success) {
+                showMessage(messageEl, 'Access granted. Redirecting...', 'success');
+
+                // Store admin session
+                const adminSession = {
+                    id: result.admin.id,
+                    username: result.admin.username,
+                    displayName: result.admin.displayName,
+                    role: result.admin.role,
+                    isAdmin: true,
+                };
+                sessionStorage.setItem('iUEP_admin_session', JSON.stringify(adminSession));
+
+                setTimeout(() => {
+                    window.location.href = 'admin-id.html';
+                }, 800);
+            }
+        } catch (err) {
+            showMessage(messageEl, err.message);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Sign In';
+        }
+    });
+}
+
 /* ──────────────────────────────────────────────
  *  Init — detect which page we're on
  * ────────────────────────────────────────────── */
@@ -413,6 +477,7 @@ function advanceToStep(step, DOM) {
 function initAuth() {
     initLogin();
     initSignup();
+    initAdminLogin();
 }
 
 if (document.readyState === 'loading') {

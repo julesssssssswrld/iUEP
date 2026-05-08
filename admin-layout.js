@@ -129,16 +129,58 @@ function updateThemeIcons(theme) {
 }
 
 /* ----------------------------------------------
+ *  Admin Session Guard
+ * ---------------------------------------------- */
+
+function getAdminSession() {
+    try {
+        return JSON.parse(sessionStorage.getItem('iUEP_admin_session'));
+    } catch {
+        return null;
+    }
+}
+
+function requireAdminAuth() {
+    const session = getAdminSession();
+    if (!session || !session.isAdmin) {
+        window.location.href = 'admin-login.html';
+        return null;
+    }
+    return session;
+}
+
+function adminLogout() {
+    sessionStorage.removeItem('iUEP_admin_session');
+    window.location.href = 'admin-login.html';
+}
+
+/* ----------------------------------------------
  *  Injection & Init
  * ---------------------------------------------- */
 
 function loadAdminHeader() {
+    const session = getAdminSession();
+
     if (!document.getElementById('header')) {
         document.body.insertAdjacentHTML('afterbegin', buildAdminHeaderHTML());
+
+        // Update display name from session
+        if (session) {
+            const nameEl = document.querySelector('#user-preview .user-preview-text h2');
+            if (nameEl) nameEl.textContent = session.displayName || 'Admin';
+        }
 
         const toggleBtn = document.getElementById('theme-toggle-btn');
         if (toggleBtn) {
             toggleBtn.addEventListener('click', toggleTheme);
+        }
+
+        // Add logout on admin name click
+        const userPreview = document.getElementById('user-preview');
+        if (userPreview) {
+            userPreview.style.cursor = 'pointer';
+            userPreview.title = 'Click to logout';
+            userPreview.addEventListener('click', adminLogout);
         }
     }
 
@@ -160,6 +202,9 @@ function loadAdminSidebar() {
 }
 
 function initAdminLayout() {
+    // Guard: redirect if not authenticated as admin
+    if (!requireAdminAuth()) return;
+
     loadAdminHeader();
     loadAdminSidebar();
     initTheme();

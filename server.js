@@ -189,6 +189,44 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 /* ----------------------------------------------
+ *  Admin Auth API Routes
+ * ---------------------------------------------- */
+
+/**
+ * POST /api/auth/admin-login
+ * Admin login — validates credentials against the admins table.
+ * Body: { username, password }
+ */
+app.post('/api/auth/admin-login', (req, res) => {
+    const db = getDb();
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password are required.' });
+    }
+
+    const admin = db.prepare('SELECT * FROM admins WHERE username = ?').get(username);
+    if (!admin || !admin.password_hash) {
+        return res.status(401).json({ error: 'Invalid admin credentials.' });
+    }
+
+    // Placeholder: plain-text comparison (will be replaced with bcrypt.compare later)
+    if (admin.password_hash !== password) {
+        return res.status(401).json({ error: 'Invalid admin credentials.' });
+    }
+
+    res.json({
+        success: true,
+        admin: {
+            id: admin.id,
+            username: admin.username,
+            displayName: admin.display_name,
+            role: admin.role,
+        },
+    });
+});
+
+/* ----------------------------------------------
  *  Student API Routes
  * ---------------------------------------------- */
 
