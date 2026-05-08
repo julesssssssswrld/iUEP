@@ -1036,7 +1036,8 @@ input:checked+.slider::before {
 
 #id-fullscreen-svg-target {
     height: 75vh;
-    max-width: calc(100vw - var(--space-2xl)); /* Prevent touching edges on mobile */
+    max-width: calc(100vw - var(--space-2xl));
+    /* Prevent touching edges on mobile */
     aspect-ratio: 54 / 85.6;
     border-radius: 0.75rem;
     overflow: hidden;
@@ -1601,8 +1602,9 @@ input:checked+.slider::before {
         display: none;
     }
 
-    /* User Preview â€” compact */
-    .user-preview-text {
+    /* User Preview — compact */
+    .user-preview-text,
+    #user-preview .theme-icon {
         display: none;
     }
 
@@ -1752,9 +1754,51 @@ input:checked+.slider::before {
     }
 
     #grades-table {
+        background-color: transparent;
+    }
+
+    #grades-table,
+    #grades-table tbody,
+    #grades-table tr,
+    #grades-table td {
         display: block;
-        overflow-x: auto;
-        white-space: nowrap;
+        width: 100%;
+    }
+
+    #grades-table thead {
+        display: none;
+    }
+
+    #grades-table tr {
+        margin-bottom: var(--space-md);
+        border: var(--default-border);
+        border-radius: var(--default-radius);
+        padding: var(--space-sm);
+        background-color: var(--surface);
+    }
+
+    #grades-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+        border: none;
+        padding: 0.5rem;
+    }
+
+    #grades-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        text-align: left;
+        margin-right: 1rem;
+        color: var(--text-secondary);
+        font-size: var(--font-sm);
+    }
+
+    #grades-table .code-column,
+    #grades-table .grade-column {
+        width: 100%;
+        text-align: right;
     }
 
     /* About */
@@ -2056,4 +2100,3 @@ input:checked+.slider::before {
         width: 5rem;
     }
 }
-

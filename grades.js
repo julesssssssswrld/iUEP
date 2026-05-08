@@ -53,9 +53,9 @@ function renderGradesTable() {
 
     tbody.innerHTML = STUDENT_GRADES.map((entry) => `
         <tr>
-            <td class="code-column"><b>${entry.code}</b></td>
-            <td>${entry.description}</td>
-            <td class="grade-column">${entry.grade}</td>
+            <td class="code-column" data-label="Subject Code"><b>${entry.code}</b></td>
+            <td data-label="Description">${entry.description}</td>
+            <td class="grade-column" data-label="Grade">${entry.grade}</td>
         </tr>
     `).join('');
 }
