@@ -22,6 +22,7 @@ function cacheSettingsDom() {
         stuId: document.getElementById('settings-stu-id'),
         firstName: document.getElementById('settings-first-name'),
         lastName: document.getElementById('settings-last-name'),
+        middleName: document.getElementById('settings-middle-name'),
         darkModeToggle: document.getElementById('dark-mode-toggle'),
         saveBtn: document.getElementById('save-settings-btn'),
         savePopover: document.getElementById('save-confirmation'),
@@ -67,6 +68,7 @@ async function loadSettings() {
     // Pre-fill from session immediately (prevents flash of empty fields)
     settingsDOM.stuId.value = currentUser?.stu_id || '';
     settingsDOM.firstName.value = currentUser?.first_name || '';
+    settingsDOM.middleName.value = currentUser?.middle_name || '';
     settingsDOM.lastName.value = currentUser?.last_name || '';
     settingsDOM.username.value = currentUser?.username || '';
 
@@ -77,6 +79,7 @@ async function loadSettings() {
             if (freshUser) {
                 settingsDOM.username.value = freshUser.username || '';
                 settingsDOM.firstName.value = freshUser.first_name || '';
+                settingsDOM.middleName.value = freshUser.middle_name || '';
                 settingsDOM.lastName.value = freshUser.last_name || '';
 
                 // Sync session with fresh DB data

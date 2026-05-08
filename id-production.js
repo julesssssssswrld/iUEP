@@ -472,9 +472,9 @@ async function handleFormSubmit(e) {
         return;
     }
 
-    // Read files as base64
-    const photoBase64 = await fileToBase64(photoFile);
-    const corBase64 = await fileToBase64(corFile);
+    // Compress images to JPEG via canvas (handles PNG transparency)
+    const photoBase64 = await fileToBase64(photoFile, 800);
+    const corBase64 = await fileToBase64(corFile, 1200);
 
     const studentId = getCurrentStudentId();
 
@@ -534,16 +534,50 @@ function handlePhotoPreview() {
  * ────────────────────────────────────────────── */
 
 /**
- * Converts a File to a base64 data URL.
- * @param {File} file
- * @returns {Promise<string>} base64 data URL.
+ * Compresses an image File to a JPEG base64 data URL via canvas.
+ * Handles PNGs (including those with transparency) by drawing onto
+ * a white background before exporting as JPEG.
+ * @param {File} file - The image file to compress.
+ * @param {number} [maxWidth=1200] - Max width to resize to.
+ * @param {number} [quality=0.8] - JPEG quality (0–1).
+ * @returns {Promise<string>} JPEG base64 data URL.
  */
-function fileToBase64(file) {
+function fileToBase64(file, maxWidth = 1200, quality = 0.8) {
     return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+
+        img.onload = () => {
+            let w = img.width;
+            let h = img.height;
+
+            if (w > maxWidth) {
+                const ratio = maxWidth / w;
+                w = maxWidth;
+                h = Math.round(h * ratio);
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+
+            // Fill white background (handles PNG transparency)
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, w, h);
+            ctx.drawImage(img, 0, 0, w, h);
+
+            const result = canvas.toDataURL('image/jpeg', quality);
+            URL.revokeObjectURL(url);
+            resolve(result);
+        };
+
+        img.onerror = () => {
+            URL.revokeObjectURL(url);
+            reject(new Error('Failed to load image for compression.'));
+        };
+
+        img.src = url;
     });
 }
 

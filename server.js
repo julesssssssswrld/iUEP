@@ -303,6 +303,14 @@ app.post('/api/id-application', async (req, res) => {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // Validate that both uploads are images (JPG/PNG only, no PDFs)
+    if (!photoBase64.match(/^data:image\/(jpeg|png|jpg)/)) {
+        return res.status(400).json({ error: 'ID Photo must be a JPG or PNG image.' });
+    }
+    if (!corBase64.match(/^data:image\/(jpeg|png|jpg)/)) {
+        return res.status(400).json({ error: 'COR must be a JPG or PNG image.' });
+    }
+
     // Check if student exists
     const user = db.prepare('SELECT * FROM users WHERE stu_id = ?').get(studentId);
     if (!user) {
@@ -316,14 +324,14 @@ app.post('/api/id-application', async (req, res) => {
         const corFilename = `${studentId}_cor_${timestamp}.jpg`;
 
         // Photo: resize to max 800px wide, JPEG q80
-        const photoBuffer = Buffer.from(photoBase64.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+        const photoBuffer = Buffer.from(photoBase64.replace(/^data:.*?;base64,/, ''), 'base64');
         await sharp(photoBuffer)
             .resize({ width: 800, withoutEnlargement: true })
             .jpeg({ quality: 80 })
             .toFile(path.join(ID_IMG_DIR, photoFilename));
 
         // COR: resize to max 1200px wide, JPEG q80
-        const corBuffer = Buffer.from(corBase64.replace(/^data:image\/\w+;base64,/, ''), 'base64');
+        const corBuffer = Buffer.from(corBase64.replace(/^data:.*?;base64,/, ''), 'base64');
         await sharp(corBuffer)
             .resize({ width: 1200, withoutEnlargement: true })
             .jpeg({ quality: 80 })
