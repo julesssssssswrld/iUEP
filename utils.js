@@ -17,7 +17,9 @@
  * @returns {Promise<*>} Parsed JSON response.
  */
 const apiFetch = async (endpoint, options = {}) => {
-    const res = await fetch(`/api${endpoint}`, {
+    const separator = endpoint.includes('?') ? '&' : '?';
+    const url = `/api${endpoint}${separator}_t=${Date.now()}`;
+    const res = await fetch(url, {
         headers: { 'Content-Type': 'application/json' },
         ...options,
     });

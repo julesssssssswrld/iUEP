@@ -63,19 +63,7 @@ function cacheAdminDom() {
 
 /* ----------------------------------------------
  *  API Helpers
- * ---------------------------------------------- */
-
-async function apiFetch(endpoint, options = {}) {
-    const res = await fetch(`/api${endpoint}`, {
-        headers: { 'Content-Type': 'application/json' },
-        ...options,
-    });
-    if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: res.statusText }));
-        throw new Error(err.error || res.statusText);
-    }
-    return res.json();
-}
+/* ---------------------------------------------- */
 
 /* ----------------------------------------------
  *  UEP Seal Logo Loader (cached)

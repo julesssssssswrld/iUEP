@@ -26,6 +26,12 @@ app.use(express.json({ limit: '10mb' })); // Large limit for base64 images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Serve cached images
 app.use(express.static(path.join(__dirname)));
 
+// Prevent browser caching for all API routes
+app.use('/api', (req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    next();
+});
+
 // Ensure upload directories exist
 if (!fs.existsSync(ID_IMG_DIR)) fs.mkdirSync(ID_IMG_DIR, { recursive: true });
 
