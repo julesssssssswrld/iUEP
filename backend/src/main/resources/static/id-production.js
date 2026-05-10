@@ -220,7 +220,10 @@ function getCollegeFromCourse(course) {
 async function getIdApplication() {
     try {
         const stuId = getCurrentStudentId();
-        return await apiFetch(`/id-application/${stuId}`);
+        const result = await apiFetch(`/id-application/${stuId}`);
+        // Backend returns string "null" when no application exists
+        if (result === null || result === 'null' || result === undefined) return null;
+        return result;
     } catch (e) {
         console.error('Error fetching ID application:', e);
         return null;
@@ -490,6 +493,7 @@ async function handleFormSubmit(e) {
         });
 
         closeApplicationForm();
+        alert('Application submitted successfully! Your ID application is now being processed.');
         await renderIdPage();
     } catch (err) {
         console.error('Failed to submit application:', err);
@@ -508,8 +512,16 @@ async function handleLostId() {
         'This will allow you to submit a new application.'
     );
 
-    if (confirmed) {
+    if (!confirmed) return;
+
+    try {
+        const stuId = getCurrentStudentId();
+        await apiFetch(`/id-application/${stuId}/report-lost`, { method: 'POST' });
+        alert('Your ID has been reported as lost/damaged. You may now submit a new application.');
         await renderIdPage();
+    } catch (err) {
+        console.error('Failed to report lost ID:', err);
+        alert('Failed to report lost ID: ' + err.message);
     }
 }
 

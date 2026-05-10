@@ -61,4 +61,15 @@ public class AuthController {
     public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> body) {
         return ResponseEntity.ok(otpService.verifyOtp(body.get("email"), body.get("code"), body.get("purpose")));
     }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> body) {
+        return ResponseEntity.ok(authService.resetPassword(body.get("stuId"), body.get("newPassword")));
+    }
+
+    /** Look up the masked email for a student ID (for password recovery) */
+    @PostMapping("/lookup-email")
+    public ResponseEntity<?> lookupEmail(@RequestBody Map<String, String> body) {
+        return ResponseEntity.ok(authService.lookupEmail(body.get("stuId")));
+    }
 }

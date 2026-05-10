@@ -58,12 +58,6 @@ function initLogin() {
         stuIdInput.value = stuIdInput.value.replace(/\D/g, '').slice(0, 6);
     });
 
-    // Forgot password placeholder
-    forgotLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        showMessage(messageEl, 'Password recovery will be available soon.', 'info');
-    });
-
     // Login submission
     form.addEventListener('submit', async (e) => {
         e.preventDefault();

@@ -48,6 +48,7 @@ public class SecurityConfig {
                 // Protected write operations
                 .requestMatchers(HttpMethod.PATCH, "/api/users/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/id-application").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/id-application/*/report-lost").authenticated()
                 // Everything else is permissive for now
                 .anyRequest().permitAll()
             )

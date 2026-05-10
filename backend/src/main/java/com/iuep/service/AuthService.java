@@ -191,6 +191,55 @@ public class AuthService {
         response.addCookie(cookie);
     }
 
+    /** Password recovery — reset password after OTP verification */
+    public Map<String, Object> resetPassword(String stuId, String newPassword) {
+        if (stuId == null) {
+            throw ApiException.badRequest("Student ID is required.");
+        }
+        if (newPassword == null || newPassword.length() < 8) {
+            throw ApiException.badRequest("New password must be at least 8 characters.");
+        }
+
+        User user = userRepo.findByStuId(stuId)
+                .orElseThrow(() -> ApiException.notFound("Student not found."));
+
+        if (user.getUsername() == null) {
+            throw ApiException.badRequest("This student does not have an account.");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepo.save(user);
+
+        return Map.of("success", true, "message", "Password has been reset successfully.");
+    }
+
+    /** Look up masked email for a student ID (password recovery) */
+    public Map<String, Object> lookupEmail(String stuId) {
+        if (stuId == null || !stuId.matches("^\\d{6}$")) {
+            throw ApiException.badRequest("Student ID must be exactly 6 digits.");
+        }
+
+        User user = userRepo.findByStuId(stuId)
+                .orElseThrow(() -> ApiException.notFound("No student found with this ID."));
+
+        if (user.getUsername() == null) {
+            throw ApiException.badRequest("This student does not have an account.");
+        }
+
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            throw ApiException.badRequest("No email on file for this student. Contact the registrar.");
+        }
+
+        String[] parts = user.getEmail().split("@");
+        String masked = parts[0].charAt(0) + "***@" + parts[1];
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("found", true);
+        result.put("maskedEmail", masked);
+        result.put("email", user.getEmail()); // Full email needed for OTP sending
+        return result;
+    }
+
     /** Verify password — supports both plain-text (legacy) and BCrypt */
     private boolean verifyPassword(String rawPassword, String storedHash) {
         if (storedHash == null) return false;

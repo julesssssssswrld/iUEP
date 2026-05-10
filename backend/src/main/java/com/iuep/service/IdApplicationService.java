@@ -37,6 +37,8 @@ public class IdApplicationService {
     public Map<String, Object> getLatest(String stuId) {
         var app = appRepo.findFirstByStudentIdOrderBySubmittedAtDesc(stuId);
         if (app.isEmpty()) return null;
+        // Skip 'lost' applications — student should see "No ID" and can re-apply
+        if ("lost".equals(app.get().getStatus())) return null;
         return enrichApplication(app.get());
     }
 
@@ -86,6 +88,27 @@ public class IdApplicationService {
         if (image == null) throw new Exception("Could not read image data");
         int width = Math.min(image.getWidth(), maxWidth);
         Thumbnails.of(image).width(width).outputFormat("jpg").outputQuality(quality).toFile(output);
+    }
+
+    /** Marks a completed/claimed ID as lost so student can re-apply */
+    public Map<String, Object> reportLost(String stuId) {
+        var appOpt = appRepo.findFirstByStudentIdOrderBySubmittedAtDesc(stuId);
+        if (appOpt.isEmpty()) {
+            throw ApiException.notFound("No application found for this student.");
+        }
+
+        IdApplication app = appOpt.get();
+        String status = app.getStatus();
+
+        if (!"completed".equals(status) && !"claimed".equals(status)) {
+            throw ApiException.badRequest("Only completed or claimed IDs can be reported as lost.");
+        }
+
+        app.setStatus("lost");
+        app.setUpdatedBy("student");
+        appRepo.save(app);
+
+        return Map.of("success", true, "message", "ID reported as lost. You may now submit a new application.");
     }
 
     private Map<String, Object> enrichApplication(IdApplication app) {

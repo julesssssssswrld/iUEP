@@ -19,7 +19,8 @@ public class IdApplicationController {
     @GetMapping("/{stuId}")
     public ResponseEntity<?> getLatest(@PathVariable String stuId) {
         var result = service.getLatest(stuId);
-        return ResponseEntity.ok(result); // null is fine — frontend expects it
+        // Return null as JSON null (not empty body) so frontend res.json() works
+        return ResponseEntity.ok(result != null ? result : "null");
     }
 
     @PostMapping
@@ -30,5 +31,11 @@ public class IdApplicationController {
                 body.get("corBase64"),
                 body.get("libraryId"));
         return ResponseEntity.status(201).body(result);
+    }
+
+    /** Report ID as lost/damaged — marks current application and allows re-application */
+    @PostMapping("/{stuId}/report-lost")
+    public ResponseEntity<?> reportLost(@PathVariable String stuId) {
+        return ResponseEntity.ok(service.reportLost(stuId));
     }
 }
