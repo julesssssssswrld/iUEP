@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="iUEP Account Settings - Manage your student profile and preferences.">
+    <title>iUEP | Account Settings</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+    <script src="utils.js"></script>
+</head>
+
+<body data-page="">
+
+    <div class="main">
+        <div class="content" id="settings-content">
+            <h1 id="settings-heading">Account Settings</h1>
+
+            <!-- Profile Section -->
+            <section class="settings-section content-box" id="profile-section">
+                <h2 class="settings-section-title">Profile</h2>
+
+                <div id="settings-profile-row">
+                    <div id="profile-image-container">
+                        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Profile">
+                    </div>
+                    <div id="profile-image-actions">
+                        <button type="button" id="upload-photo-btn" class="btn-secondary">Upload Photo</button>
+                        <button type="button" id="remove-photo-btn" class="btn-secondary btn-danger-text">Remove</button>
+                        <input type="file" id="profile-photo-input" accept="image/*" hidden>
+                    </div>
+                </div>
+
+                <div class="settings-form-grid">
+                    <div class="settings-form-group">
+                        <label for="settings-username">Username</label>
+                        <input type="text" id="settings-username" placeholder="Enter username">
+                    </div>
+                    <div class="settings-form-group">
+                        <label>Student ID</label>
+                        <input type="text" id="settings-stu-id" class="display-stu-id" disabled>
+                    </div>
+                    <div class="settings-form-group">
+                        <label for="settings-first-name">First Name</label>
+                        <input type="text" id="settings-first-name" disabled>
+                    </div>
+                    <div class="settings-form-group">
+                        <label for="settings-middle-name">Middle Name</label>
+                        <input type="text" id="settings-middle-name" disabled>
+                    </div>
+                    <div class="settings-form-group">
+                        <label for="settings-last-name">Last Name</label>
+                        <input type="text" id="settings-last-name" disabled>
+                    </div>
+                </div>
+
+                <p class="settings-notice sub-text">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="var(--text-secondary)">
+                        <path d="M440-280h80v-240h-80v240Zm40-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Z"/>
+                    </svg>
+                    Name and Student ID are managed by the university. Contact an administrator for changes.
+                </p>
+            </section>
+
+            <!-- Change Password Section -->
+            <section class="settings-section content-box" id="password-section">
+                <h2 class="settings-section-title">Change Password</h2>
+
+                <!-- Step 1: Email Verification Gate -->
+                <div id="pw-verify-gate">
+                    <p class="sub-text" style="margin-bottom: var(--space-lg);">
+                        For security, verify your identity via email before changing your password.
+                    </p>
+                    <div class="settings-form-group" style="max-width: 24rem;">
+                        <label>Email on File</label>
+                        <div class="settings-inline-action">
+                            <input type="text" id="pw-email-display" disabled>
+                            <button type="button" id="pw-send-code-btn" class="btn-primary">Send Code</button>
+                        </div>
+                    </div>
+                    <div class="settings-form-group" style="max-width: 24rem; margin-top: var(--space-md);">
+                        <label for="pw-otp-input">Verification Code</label>
+                        <div class="settings-inline-action">
+                            <input type="text" id="pw-otp-input" placeholder="6-digit code" maxlength="6" inputmode="numeric" disabled>
+                            <button type="button" id="pw-verify-otp-btn" class="btn-primary" disabled>Verify</button>
+                        </div>
+                    </div>
+                    <div id="pw-verify-message" class="settings-inline-message"></div>
+                </div>
+
+                <!-- Step 2: Password Change Form (hidden until verified) -->
+                <div id="pw-change-form" style="display: none;">
+                    <div class="settings-form-group" style="max-width: 24rem;">
+                        <label for="pw-current">Current Password</label>
+                        <input type="password" id="pw-current" placeholder="Enter current password">
+                    </div>
+                    <div class="settings-form-group" style="max-width: 24rem; margin-top: var(--space-md);">
+                        <label for="pw-new">New Password</label>
+                        <input type="password" id="pw-new" placeholder="Min. 8 characters" minlength="8">
+                    </div>
+                    <div class="settings-form-group" style="max-width: 24rem; margin-top: var(--space-md);">
+                        <label for="pw-confirm">Confirm New Password</label>
+                        <input type="password" id="pw-confirm" placeholder="Re-enter new password" minlength="8">
+                    </div>
+                    <div style="margin-top: var(--space-lg);">
+                        <button type="button" id="pw-save-btn" class="btn-primary">Update Password</button>
+                    </div>
+                    <div id="pw-change-message" class="settings-inline-message"></div>
+                </div>
+            </section>
+
+            <!-- Preferences Section -->
+            <section class="settings-section content-box" id="preferences-section">
+                <h2 class="settings-section-title">Preferences</h2>
+
+                <div class="settings-toggle-row">
+                    <div class="settings-toggle-info">
+                        <p class="main-text"><strong>Dark Mode</strong></p>
+                        <p class="sub-text">Switch between light and dark theme</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="dark-mode-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Actions -->
+            <div id="settings-actions" style="display: flex; gap: var(--space-md); margin-top: var(--space-xl);">
+                <button type="button" id="save-settings-btn" class="btn-primary">Save Changes</button>
+                <button type="button" class="btn-secondary btn-danger-text" onclick="logoutUser()">Log Out</button>
+            </div>
+
+            <!-- Save Confirmation Popover -->
+            <div class="settings-toast" id="save-confirmation" popover>
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#22c55e">
+                    <path d="m424-296 282-282-56-56-226 226-114-114-56 56 170 170Z"/>
+                </svg>
+                <span>Changes saved successfully!</span>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="settings.js"></script>
+    <script src="layout.js"></script>
+</body>
+
+</html>

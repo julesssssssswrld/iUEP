@@ -1,0 +1,613 @@
+/* ================================================================
+ *  iUEP Portal — Auth Pages Stylesheet
+ *  Standalone styles for login.html and signup.html
+ * ================================================================ */
+
+/* ----------------------------------------------
+ *  1. Design Tokens (mirrored from style.css)
+ * ---------------------------------------------- */
+
+:root {
+    --uep-blue: #17376E;
+    --uep-yellow: #FFD700;
+    --blue-button-hover: color-mix(in srgb, #1737da 75%, white);
+
+    --background: #f7f7f7;
+    --surface: #ffffff;
+    --text-primary: #000000;
+    --text-secondary: rgba(0, 0, 0, 0.5);
+    --border-color: rgba(0, 0, 0, 0.10);
+    --shadow-color: rgba(0, 0, 0, 0.25);
+    --hover-bg: rgba(0, 0, 0, 0.05);
+
+    --default-shadow: 5px 5px 20px -10px var(--shadow-color);
+    --default-radius: 25px;
+    --default-border: 1px solid var(--border-color);
+
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+
+    --font-h1: 1.5rem;
+    --font-h2: 1.125rem;
+    --font-h3: 0.95rem;
+    --font-body: 0.875rem;
+    --font-sm: 0.8rem;
+    --font-xs: 0.7rem;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+    --background: #121212;
+    --surface: #1e1e1e;
+    --text-primary: #e0e0e0;
+    --text-secondary: rgba(255, 255, 255, 0.5);
+    --border-color: rgba(255, 255, 255, 0.10);
+    --shadow-color: rgba(0, 0, 0, 0.6);
+    --hover-bg: rgba(255, 255, 255, 0.08);
+}
+
+/* ----------------------------------------------
+ *  2. Base
+ * ---------------------------------------------- */
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+    overflow: hidden;
+}
+
+html::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(rgba(23, 55, 110, 0.75), rgba(23, 55, 110, 0.75)), url('Figma/DJI_0392-scaled.jpg') no-repeat center center;
+    background-size: cover;
+    z-index: -2;
+}
+
+body {
+    font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+    background: transparent;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    padding: var(--space-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Animated background orbs */
+body::before,
+body::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    animation: float 12s ease-in-out infinite;
+}
+
+body::before {
+    width: 400px;
+    height: 400px;
+    background: var(--uep-yellow);
+    top: -100px;
+    right: -100px;
+}
+
+body::after {
+    width: 300px;
+    height: 300px;
+    background: #4f8ef7;
+    bottom: -80px;
+    left: -80px;
+    animation-delay: -6s;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    33% {
+        transform: translate(30px, -20px) scale(1.05);
+    }
+
+    66% {
+        transform: translate(-20px, 15px) scale(0.95);
+    }
+}
+
+/* ----------------------------------------------
+ *  3. Auth Card (Glassmorphism)
+ * ---------------------------------------------- */
+
+.auth-card {
+    width: min(28rem, 95vw);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 1.5rem;
+    padding: var(--space-2xl);
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Scrollable inner form area */
+.auth-card-body {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin: 0 calc(var(--space-md) * -1);
+    padding: 0 var(--space-md);
+}
+
+.auth-card-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.auth-card-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.auth-card-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+.auth-card-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* ----------------------------------------------
+ *  4. Branding
+ * ---------------------------------------------- */
+
+.auth-branding {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.auth-logo {
+    height: 5.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--space-md);
+}
+
+.auth-logo img {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 16px rgba(255, 255, 255, .5));
+}
+
+.auth-title {
+    font-size: var(--font-h1);
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: var(--space-xs);
+}
+
+.auth-subtitle {
+    font-size: var(--font-sm);
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+}
+
+/* ----------------------------------------------
+ *  5. Form Fields
+ * ---------------------------------------------- */
+
+.auth-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-md);
+}
+
+.auth-form-group label {
+    font-size: var(--font-sm);
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.auth-input {
+    padding: 0.7rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0.75rem;
+    background: rgba(0, 0, 0, 0.2);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: var(--font-body);
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+
+.auth-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.auth-input:focus {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(79, 142, 247, 0.15);
+}
+
+.auth-input:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.auth-input.success {
+    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.08);
+}
+
+.auth-input.error {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.08);
+}
+
+/* Row layout for side-by-side fields */
+.auth-form-row {
+    display: flex;
+    gap: var(--space-md);
+}
+
+.auth-form-row .auth-form-group {
+    flex: 1;
+}
+
+/* ----------------------------------------------
+ *  6. Inline Verify Button (inside input group)
+ * ---------------------------------------------- */
+
+.auth-input-action {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.auth-input-action .auth-input {
+    flex: 1;
+}
+
+.btn-verify {
+    padding: 0.7rem 1.2rem;
+    border: none;
+    border-radius: 0.75rem;
+    background: var(--uep-blue);
+    color: #fff;
+    font-family: inherit;
+    font-size: var(--font-sm);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
+    white-space: nowrap;
+}
+
+.btn-verify:hover {
+    background: var(--blue-button-hover);
+}
+
+.btn-verify:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ----------------------------------------------
+ *  7. Buttons
+ * ---------------------------------------------- */
+
+.auth-btn-primary {
+    width: 100%;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 0.75rem;
+    background: var(--uep-blue);
+    color: #fff;
+    font-family: inherit;
+    font-size: var(--font-body);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    margin-top: var(--space-md);
+}
+
+.auth-btn-primary:hover {
+    background: var(--blue-button-hover);
+    box-shadow: 0 4px 16px rgba(23, 55, 110, 0.4);
+}
+
+.auth-btn-primary:active {
+    transform: scale(0.98);
+}
+
+.auth-btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ----------------------------------------------
+ *  8. Links & Footer
+ * ---------------------------------------------- */
+
+.auth-footer {
+    text-align: center;
+    margin-top: var(--space-lg);
+    font-size: var(--font-sm);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.auth-footer a {
+    color: var(--uep-yellow);
+    text-decoration: none;
+    font-weight: 600;
+    transition: opacity 0.2s;
+}
+
+.auth-footer a:hover {
+    opacity: 0.8;
+}
+
+.auth-guest {
+    text-align: center;
+    margin-top: var(--space-lg);
+}
+
+.auth-guest-link {
+    display: inline-block;
+    padding: 0.55rem 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: var(--font-sm);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.auth-guest-link:hover {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.auth-forgot {
+    text-align: right;
+    margin-bottom: var(--space-md);
+}
+
+.auth-forgot a {
+    font-size: var(--font-xs);
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.auth-forgot a:hover {
+    color: var(--uep-yellow);
+}
+
+/* ----------------------------------------------
+ *  9. Step Indicators (Signup)
+ * ---------------------------------------------- */
+
+.auth-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: var(--space-xl);
+}
+
+.auth-step-dot {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-xs);
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.auth-step-dot.active {
+    border-color: var(--uep-yellow);
+    color: var(--uep-yellow);
+    box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.15);
+}
+
+.auth-step-dot.completed {
+    border-color: #22c55e;
+    background: #22c55e;
+    color: #fff;
+}
+
+.auth-step-connector {
+    width: 2.5rem;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.15);
+    transition: background 0.3s ease;
+}
+
+.auth-step-connector.completed {
+    background: #22c55e;
+}
+
+/* ----------------------------------------------
+ *  10. Section Dividers
+ * ---------------------------------------------- */
+
+.auth-section-label {
+    font-size: var(--font-xs);
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.75);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding-top: var(--space-sm);
+    margin-top: var(--space-sm);
+    margin-bottom: var(--space-sm);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ----------------------------------------------
+ *  11. Toast / Status Message
+ * ---------------------------------------------- */
+
+.auth-message {
+    padding: 0.6rem 1rem;
+    border-radius: 0.5rem;
+    font-size: var(--font-sm);
+    font-weight: 600;
+    margin-bottom: var(--space-md);
+    display: none;
+}
+
+.auth-message.show {
+    display: block;
+}
+
+.auth-message.success {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #4ade80;
+}
+
+.auth-message.error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+.auth-message.info {
+    background: rgba(79, 142, 247, 0.15);
+    border: 1px solid rgba(79, 142, 247, 0.3);
+    color: #93bbfd;
+}
+
+/* ----------------------------------------------
+ *  12. Required asterisk
+ * ---------------------------------------------- */
+
+.required {
+    color: #f87171;
+}
+
+/* ----------------------------------------------
+ *  13. Responsive
+ * ---------------------------------------------- */
+
+@media (max-width: 480px) {
+    body {
+        padding: var(--space-md);
+    }
+
+    .auth-card {
+        padding: var(--space-xl) var(--space-lg);
+        border-radius: 1rem;
+    }
+
+    .auth-form-row {
+        flex-direction: column;
+    }
+
+    .auth-steps {
+        gap: 0;
+    }
+
+    .auth-step-connector {
+        width: 1.5rem;
+    }
+}
+
+/* ----------------------------------------------
+ *  14. Admin Login Badge
+ * ---------------------------------------------- */
+
+.admin-login-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.4rem 1rem;
+    margin-bottom: var(--space-lg);
+    border-radius: 2rem;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+    font-size: var(--font-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.admin-login-badge svg {
+    flex-shrink: 0;
+}
+
+/* ----------------------------------------------
+ *  15. Password Visibility Toggle
+ * ---------------------------------------------- */
+
+.pw-toggle-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.pw-toggle-wrapper input {
+    flex: 1;
+    padding-right: 2.5rem;
+}
+
+.pw-toggle-btn {
+    position: absolute;
+    right: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    border-radius: 0.375rem;
+    transition: color 0.2s, background-color 0.2s;
+    opacity: 0.8;
+}
+
+.pw-toggle-btn:hover {
+    color: #ffffff;
+    opacity: 1;
+}

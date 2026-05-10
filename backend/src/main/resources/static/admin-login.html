@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="iUEP Admin Login — Authorized personnel access only.">
+    <title>iUEP | Admin Access</title>
+    <link rel="stylesheet" href="auth.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="auth-card">
+        <!-- Branding -->
+        <div class="auth-branding">
+            <div class="auth-logo">
+                <img src="Figma/iUEP Logo 2 - Transparent.png" alt="iUEP Logo">
+            </div>
+            <h1 class="auth-title">iUEP Admin</h1>
+            <p class="auth-subtitle">Authorized Personnel Only</p>
+        </div>
+
+        <!-- Admin Badge -->
+        <div class="admin-login-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 -960 960 960" width="16px" fill="currentColor">
+                <path d="M480-440q-59 0-99.5-40.5T340-580q0-59 40.5-99.5T480-720q59 0 99.5 40.5T620-580q0 59-40.5 99.5T480-440Zm0-80q26 0 43-17t17-43q0-26-17-43t-43-17q-26 0-43 17t-17 43q0 26 17 43t43 17Zm0 440q-139-35-229.5-159.5T160-516v-244l320-120 320 120v244q0 152-90.5 276.5T480-80Zm0-400Zm0-315-240 90v189q0 54 15 105t41 96q42-21 88-33t96-12q50 0 96 12t88 33q26-45 41-96t15-105v-189l-240-90Zm0 515q-36 0-70 8t-65 22q29 30 63 52t72 34q38-12 72-34t63-52q-31-14-65-22t-70-8Z"/>
+            </svg>
+            <span>Administrative Access</span>
+        </div>
+
+        <!-- Scrollable form area -->
+        <div class="auth-card-body">
+            <!-- Status Message -->
+            <div id="admin-login-message" class="auth-message"></div>
+
+            <!-- Login Form -->
+            <form id="admin-login-form" autocomplete="off">
+                <div class="auth-form-group">
+                    <label for="admin-login-username">Admin Username</label>
+                    <input type="text" id="admin-login-username" class="auth-input" placeholder="Enter admin username"
+                        required autofocus>
+                </div>
+
+                <div class="auth-form-group">
+                    <label for="admin-login-password">Password</label>
+                    <input type="password" id="admin-login-password" class="auth-input" placeholder="Enter admin password"
+                        required>
+                </div>
+
+                <button type="submit" class="auth-btn-primary" id="admin-login-submit">Sign In</button>
+            </form>
+
+            <div class="auth-footer">
+                <a href="login.html">← Back to Student Portal</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="utils.js"></script>
+    <script src="auth.js"></script>
+</body>
+
+</html>
