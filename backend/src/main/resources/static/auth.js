@@ -251,8 +251,8 @@ function initSignup() {
         }
     });
 
-    // ── Step 3: Email Verification (Placeholder) ──
-    DOM.sendCodeBtn.addEventListener('click', () => {
+    // ── Step 3: Email Verification (Real OTP) ──
+    DOM.sendCodeBtn.addEventListener('click', async () => {
         hideMessage(DOM.messageEl);
         const email = DOM.emailInput.value.trim();
 
@@ -262,12 +262,24 @@ function initSignup() {
             return;
         }
 
-        showMessage(DOM.messageEl, 'Verification code sent to your email! (Placeholder — any 6-digit code will work)', 'info');
-        DOM.emailInput.disabled = true;
-        DOM.sendCodeBtn.textContent = 'Resend';
-        DOM.otpInput.disabled = false;
-        DOM.verifyOtpBtn.disabled = false;
-        DOM.otpInput.focus();
+        DOM.sendCodeBtn.disabled = true;
+        DOM.sendCodeBtn.textContent = 'Sending...';
+
+        try {
+            await authFetch('/send-otp', { email, purpose: 'signup' });
+
+            showMessage(DOM.messageEl, 'Verification code sent to your email!', 'info');
+            DOM.emailInput.disabled = true;
+            DOM.sendCodeBtn.textContent = 'Resend';
+            DOM.sendCodeBtn.disabled = false;
+            DOM.otpInput.disabled = false;
+            DOM.verifyOtpBtn.disabled = false;
+            DOM.otpInput.focus();
+        } catch (err) {
+            showMessage(DOM.messageEl, err.message || 'Failed to send code.');
+            DOM.sendCodeBtn.disabled = false;
+            DOM.sendCodeBtn.textContent = 'Send Code';
+        }
     });
 
     // Enforce digits-only on OTP
@@ -275,7 +287,7 @@ function initSignup() {
         DOM.otpInput.value = DOM.otpInput.value.replace(/\D/g, '').slice(0, 6);
     });
 
-    DOM.verifyOtpBtn.addEventListener('click', () => {
+    DOM.verifyOtpBtn.addEventListener('click', async () => {
         hideMessage(DOM.messageEl);
         const code = DOM.otpInput.value.trim();
 
@@ -285,16 +297,30 @@ function initSignup() {
             return;
         }
 
-        // Placeholder — accept any 6-digit code
-        signupState.emailVerified = true;
-        DOM.otpInput.disabled = true;
-        DOM.otpInput.classList.add('success');
-        DOM.sendCodeBtn.disabled = true;
-        DOM.verifyOtpBtn.textContent = '✓';
         DOM.verifyOtpBtn.disabled = true;
+        DOM.verifyOtpBtn.textContent = 'Verifying...';
 
-        showMessage(DOM.messageEl, 'Email verified! Set up your account below.', 'success');
-        advanceToStep(4, DOM);
+        try {
+            await authFetch('/verify-otp', {
+                email: DOM.emailInput.value.trim(),
+                code,
+                purpose: 'signup',
+            });
+
+            signupState.emailVerified = true;
+            DOM.otpInput.disabled = true;
+            DOM.otpInput.classList.add('success');
+            DOM.sendCodeBtn.disabled = true;
+            DOM.verifyOtpBtn.textContent = '✓';
+            DOM.verifyOtpBtn.disabled = true;
+
+            showMessage(DOM.messageEl, 'Email verified! Set up your account below.', 'success');
+            advanceToStep(4, DOM);
+        } catch (err) {
+            showMessage(DOM.messageEl, err.message || 'Invalid or expired code.');
+            DOM.verifyOtpBtn.disabled = false;
+            DOM.verifyOtpBtn.textContent = 'Verify';
+        }
     });
 
     // ── Step 4: Account Setup (Submit) ──

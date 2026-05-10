@@ -112,10 +112,14 @@ async function loadSettings() {
     }
 }
 
+/** Cached full email for OTP sending */
+let _settingsUserEmail = null;
+
 async function loadMaskedEmail(stuId) {
     try {
         const user = await apiFetch(`/users/${stuId}`);
         if (user?.email) {
+            _settingsUserEmail = user.email;
             const [local, domain] = user.email.split('@');
             settingsDOM.pwEmailDisplay.value = local.charAt(0) + '***@' + domain;
         } else {
@@ -264,22 +268,37 @@ async function saveSettings() {
  *  Password Change — Email Verification Gate
  * ────────────────────────────────────────────── */
 
-function handleSendCode() {
+async function handleSendCode() {
     hideInlineMsg(settingsDOM.pwVerifyMessage);
 
-    if (settingsDOM.pwEmailDisplay.value.includes('No email') || settingsDOM.pwEmailDisplay.value.includes('Unable')) {
+    if (!_settingsUserEmail) {
         showInlineMsg(settingsDOM.pwVerifyMessage, 'No email on file. Contact an administrator.');
         return;
     }
 
-    showInlineMsg(settingsDOM.pwVerifyMessage, 'Verification code sent! (Placeholder — any 6-digit code works)', 'info');
-    settingsDOM.pwOtpInput.disabled = false;
-    settingsDOM.pwVerifyOtpBtn.disabled = false;
-    settingsDOM.pwSendCodeBtn.textContent = 'Resend';
-    settingsDOM.pwOtpInput.focus();
+    settingsDOM.pwSendCodeBtn.disabled = true;
+    settingsDOM.pwSendCodeBtn.textContent = 'Sending...';
+
+    try {
+        await apiFetch('/auth/send-otp', {
+            method: 'POST',
+            body: JSON.stringify({ email: _settingsUserEmail, purpose: 'password_change' }),
+        });
+
+        showInlineMsg(settingsDOM.pwVerifyMessage, 'Verification code sent to your email!', 'info');
+        settingsDOM.pwOtpInput.disabled = false;
+        settingsDOM.pwVerifyOtpBtn.disabled = false;
+        settingsDOM.pwSendCodeBtn.textContent = 'Resend';
+        settingsDOM.pwSendCodeBtn.disabled = false;
+        settingsDOM.pwOtpInput.focus();
+    } catch (err) {
+        showInlineMsg(settingsDOM.pwVerifyMessage, err.message || 'Failed to send code.');
+        settingsDOM.pwSendCodeBtn.disabled = false;
+        settingsDOM.pwSendCodeBtn.textContent = 'Send Code';
+    }
 }
 
-function handleVerifyOtp() {
+async function handleVerifyOtp() {
     hideInlineMsg(settingsDOM.pwVerifyMessage);
     const code = settingsDOM.pwOtpInput.value.trim();
 
@@ -289,16 +308,29 @@ function handleVerifyOtp() {
         return;
     }
 
-    // Placeholder — accept any 6-digit code
-    settingsDOM.pwOtpInput.disabled = true;
     settingsDOM.pwVerifyOtpBtn.disabled = true;
-    settingsDOM.pwSendCodeBtn.disabled = true;
-    showInlineMsg(settingsDOM.pwVerifyMessage, 'Identity verified! You can now change your password.', 'success');
+    settingsDOM.pwVerifyOtpBtn.textContent = 'Verifying...';
 
-    // Show password form
-    settingsDOM.pwVerifyGate.style.display = 'none';
-    settingsDOM.pwChangeForm.style.display = '';
-    settingsDOM.pwCurrent.focus();
+    try {
+        await apiFetch('/auth/verify-otp', {
+            method: 'POST',
+            body: JSON.stringify({ email: _settingsUserEmail, code, purpose: 'password_change' }),
+        });
+
+        settingsDOM.pwOtpInput.disabled = true;
+        settingsDOM.pwVerifyOtpBtn.disabled = true;
+        settingsDOM.pwSendCodeBtn.disabled = true;
+        showInlineMsg(settingsDOM.pwVerifyMessage, 'Identity verified! You can now change your password.', 'success');
+
+        // Show password form
+        settingsDOM.pwVerifyGate.style.display = 'none';
+        settingsDOM.pwChangeForm.style.display = '';
+        settingsDOM.pwCurrent.focus();
+    } catch (err) {
+        showInlineMsg(settingsDOM.pwVerifyMessage, err.message || 'Invalid or expired code.');
+        settingsDOM.pwVerifyOtpBtn.disabled = false;
+        settingsDOM.pwVerifyOtpBtn.textContent = 'Verify';
+    }
 }
 
 async function handlePasswordSave() {
