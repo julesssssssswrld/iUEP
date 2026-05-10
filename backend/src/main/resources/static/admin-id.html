@@ -177,6 +177,12 @@
                         </div>
                     </div>
 
+                    <!-- Lost Reason (shown only for lost_requested) -->
+                    <div id="admin-lost-section" class="hidden" style="margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-left: 4px solid var(--danger-color); border-radius: var(--radius-md);">
+                        <h4 style="color: var(--danger-color); margin-bottom: 0.5rem; font-size: 0.9rem;">Replacement Request Reason</h4>
+                        <p id="admin-lost-reason" style="font-size: 0.95rem; color: var(--text-primary); line-height: 1.5;"></p>
+                    </div>
+
                     <!-- Rejection Reason (shown only during reject action) -->
                     <div id="admin-reject-section" class="hidden">
                         <div class="id-form-group">
@@ -195,6 +201,11 @@
 
         </div>
     </div>
+
+    <!-- WebSockets -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="ws-client.js"></script>
 
     <script src="admin-id.js"></script>
     <script src="admin-layout.js"></script>

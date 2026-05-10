@@ -18,6 +18,9 @@ const STATUS_LABELS = {
     completed: 'Completed',
     claimed: 'Claimed',
     rejected: 'Rejected',
+    lost_requested: 'Lost Request',
+    lost: 'Lost',
+    lost_declined: 'Declined',
 };
 
 let currentFilter = 'all';
@@ -58,6 +61,8 @@ function cacheAdminDom() {
         rejectSection: document.getElementById('admin-reject-section'),
         rejectReason: document.getElementById('admin-reject-reason'),
         svgTarget: document.getElementById('admin-review-svg-target'),
+        lostSection: document.getElementById('admin-lost-section'),
+        lostReason: document.getElementById('admin-lost-reason'),
     };
 }
 
@@ -188,6 +193,14 @@ async function openReview(appId) {
         ADMIN_DOM.rejectSection.classList.add('hidden');
         ADMIN_DOM.rejectReason.value = '';
 
+        // Handle lost_requested specific UI
+        if (app.status === 'lost_requested') {
+            ADMIN_DOM.lostSection.classList.remove('hidden');
+            ADMIN_DOM.lostReason.textContent = app.lost_reason || 'No reason provided.';
+        } else {
+            ADMIN_DOM.lostSection.classList.add('hidden');
+        }
+
         // Render SVG ID card preview
         renderAdminSvgPreview(app);
 
@@ -257,6 +270,13 @@ function updateReviewStatusBar(currentStatus) {
     const connectors = ADMIN_DOM.reviewPopover.querySelectorAll('.step-connector');
     const currentIdx = STATUS_STEPS.indexOf(currentStatus);
 
+    // Hide dots for lost requested/declined since it doesn't fit the linear flow
+    if (currentStatus === 'lost_requested' || currentStatus === 'lost_declined' || currentStatus === 'lost') {
+        steps.forEach(s => s.classList.remove('active', 'completed', 'rejected'));
+        connectors.forEach(c => c.classList.remove('active', 'rejected'));
+        return;
+    }
+
     steps.forEach((step, i) => {
         step.classList.remove('active', 'completed', 'rejected');
         if (currentStatus === 'rejected') {
@@ -280,9 +300,13 @@ function updateReviewStatusBar(currentStatus) {
 
 function configureActionButtons(status) {
     // Advance button
-    if (status === 'claimed' || status === 'rejected') {
+    if (status === 'claimed' || status === 'rejected' || status === 'lost' || status === 'lost_declined') {
         ADMIN_DOM.advanceBtn.disabled = true;
         ADMIN_DOM.advanceBtn.classList.add('btn-disabled');
+    } else if (status === 'lost_requested') {
+        ADMIN_DOM.advanceBtn.disabled = false;
+        ADMIN_DOM.advanceBtn.classList.remove('btn-disabled');
+        ADMIN_DOM.advanceBtn.textContent = 'Approve Replacement';
     } else {
         ADMIN_DOM.advanceBtn.disabled = false;
         ADMIN_DOM.advanceBtn.classList.remove('btn-disabled');
@@ -291,13 +315,14 @@ function configureActionButtons(status) {
         ADMIN_DOM.advanceBtn.textContent = `Mark as ${nextLabel}`;
     }
 
-    // Reject button — disabled once completed, claimed, or rejected
-    if (status === 'completed' || status === 'claimed' || status === 'rejected') {
+    // Reject button — disabled once completed, claimed, or rejected/lost
+    if (status === 'completed' || status === 'claimed' || status === 'rejected' || status === 'lost' || status === 'lost_declined') {
         ADMIN_DOM.rejectBtn.disabled = true;
         ADMIN_DOM.rejectBtn.classList.add('btn-disabled');
     } else {
         ADMIN_DOM.rejectBtn.disabled = false;
         ADMIN_DOM.rejectBtn.classList.remove('btn-disabled');
+        ADMIN_DOM.rejectBtn.textContent = status === 'lost_requested' ? 'Decline Request' : 'Reject';
     }
 }
 
@@ -310,10 +335,14 @@ async function advanceStatus() {
 
     try {
         const app = await apiFetch(`/admin/applications/${currentReviewId}`);
-        const currentIdx = STATUS_STEPS.indexOf(app.status);
-        if (currentIdx < 0 || currentIdx >= STATUS_STEPS.length - 1) return;
-
-        const nextStatus = STATUS_STEPS[currentIdx + 1];
+        let nextStatus;
+        if (app.status === 'lost_requested') {
+            nextStatus = 'lost';
+        } else {
+            const currentIdx = STATUS_STEPS.indexOf(app.status);
+            if (currentIdx < 0 || currentIdx >= STATUS_STEPS.length - 1) return;
+            nextStatus = STATUS_STEPS[currentIdx + 1];
+        }
 
         await apiFetch(`/admin/applications/${currentReviewId}/status`, {
             method: 'PATCH',
@@ -350,9 +379,12 @@ async function handleReject() {
     }
 
     try {
+        const app = await apiFetch(`/admin/applications/${currentReviewId}`);
+        const nextStatus = app.status === 'lost_requested' ? 'lost_declined' : 'rejected';
+
         await apiFetch(`/admin/applications/${currentReviewId}/status`, {
             method: 'PATCH',
-            body: JSON.stringify({ status: 'rejected', rejectionReason: reason }),
+            body: JSON.stringify({ status: nextStatus, rejectionReason: reason }),
         });
 
         rejectMode = false;
@@ -487,3 +519,9 @@ if (document.readyState === 'loading') {
 } else {
     initAdminId();
 }
+
+// Listen for real-time WebSocket updates
+document.addEventListener('adminDataUpdated', (e) => {
+    console.log('Real-time admin update received:', e.detail);
+    if (typeof refreshData === 'function') refreshData();
+});

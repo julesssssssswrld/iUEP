@@ -65,6 +65,11 @@ function cacheDom() {
         fullscreenPopover: document.getElementById('id-fullscreen-popover'),
         fullscreenSvgTarget: document.getElementById('id-fullscreen-svg-target'),
         fullscreenClose: document.getElementById('id-fullscreen-close'),
+        lostPopover: document.getElementById('id-lost-popover'),
+        lostClose: document.getElementById('id-lost-close'),
+        lostCancel: document.getElementById('id-lost-cancel'),
+        lostForm: document.getElementById('id-lost-form'),
+        lostReason: document.getElementById('id-lost-reason')
     };
 }
 
@@ -159,6 +164,27 @@ async function renderSvgIdCard(app) {
 }
 
 /**
+ * Tries to fetch and render the persistent digital ID.
+ * If not found, renders a placeholder with the fallback message.
+ */
+async function loadPersistentDigitalId(fallbackMessage = 'No University ID on record') {
+    try {
+        const stuId = getCurrentStudentId();
+        const app = await apiFetch(`/id-application/${stuId}/digital-id`);
+        if (app && app !== 'null') {
+            renderSvgIdCard(app);
+            _currentApp = app;
+            DOM.svgTarget.classList.add('id-card-clickable');
+        } else {
+            showPlaceholder(fallbackMessage);
+        }
+    } catch (e) {
+        console.error('Error fetching digital ID:', e);
+        showPlaceholder(fallbackMessage);
+    }
+}
+
+/**
  * Shows a placeholder card in the SVG target area.
  * Same dimensions as the SVG card for visual uniformity.
  * @param {string} message - Message to display in the placeholder.
@@ -248,6 +274,10 @@ async function renderIdPage() {
         renderClaimed(app);
     } else if (app.status === 'completed') {
         renderCompleted(app);
+    } else if (app.status === 'lost_requested') {
+        renderLostRequested(app);
+    } else if (app.status === 'lost_declined') {
+        renderLostDeclined(app);
     } else {
         renderInProgress(app);
     }
@@ -255,8 +285,8 @@ async function renderIdPage() {
 
 /** State 1: No ID on record */
 function renderNoId() {
-    // Show placeholder (no SVG card until completed)
-    showPlaceholder('No University ID on record');
+    // Attempt to load digital ID from ledger, otherwise show placeholder
+    loadPersistentDigitalId('No University ID on record');
 
     // Info values — pull from session user when no application exists
     const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
@@ -284,10 +314,10 @@ function renderNoId() {
     DOM.connectors.forEach((c) => c.classList.remove('active'));
 }
 
-/** State 2: Application in progress (uploaded/received/processing) */
+/** State 2 & 3: Application uploaded or processing */
 function renderInProgress(app) {
-    // Show placeholder while processing (no SVG card until completed)
-    showPlaceholder('ID application in progress...');
+    // Attempt to load digital ID from ledger, otherwise show placeholder
+    loadPersistentDigitalId('ID application in progress...');
     populateCardInfo(app);
 
     DOM.noRecord.classList.add('hidden');
@@ -353,8 +383,8 @@ function renderClaimed(app) {
 
 /** Rejected state */
 function renderRejected(app) {
-    // Show placeholder (rejected, no SVG card)
-    showPlaceholder('Application was rejected');
+    // Attempt to load digital ID from ledger, otherwise show placeholder
+    loadPersistentDigitalId('Application was rejected');
     populateCardInfo(app);
 
     DOM.noRecord.classList.add('hidden');
@@ -378,6 +408,53 @@ function renderRejected(app) {
     DOM.applyBtn.classList.remove('btn-disabled');
     DOM.lostBtn.disabled = true;
     DOM.lostBtn.classList.add('btn-disabled');
+}
+
+/** Lost Requested state */
+function renderLostRequested(app) {
+    loadPersistentDigitalId('Replacement Request Pending');
+    populateCardInfo(app);
+
+    DOM.noRecord.classList.add('hidden');
+    DOM.readyNotice.classList.add('hidden');
+    DOM.claimedNotice.classList.add('hidden');
+    DOM.rejectionBanner.classList.remove('hidden'); // Repurpose banner for pending lost
+    DOM.rejectionBanner.querySelector('h3').textContent = 'Replacement Request Pending';
+    DOM.rejectionReason.textContent = 'Your request is awaiting admin approval. Reason: ' + (app.lost_reason || '');
+
+    // Reset status bar (all gray)
+    DOM.statusSteps.forEach((step) => step.classList.remove('active', 'completed', 'rejected'));
+    DOM.connectors.forEach((c) => c.classList.remove('active', 'rejected'));
+
+    // Both disabled
+    DOM.applyBtn.disabled = true;
+    DOM.applyBtn.classList.add('btn-disabled');
+    DOM.lostBtn.disabled = true;
+    DOM.lostBtn.disabled = true;
+    DOM.lostBtn.classList.add('btn-disabled');
+}
+
+/** Lost Declined state */
+function renderLostDeclined(app) {
+    loadPersistentDigitalId('Replacement Request Declined');
+    populateCardInfo(app);
+
+    DOM.noRecord.classList.add('hidden');
+    DOM.readyNotice.classList.add('hidden');
+    DOM.claimedNotice.classList.add('hidden');
+    DOM.rejectionBanner.classList.remove('hidden');
+    DOM.rejectionBanner.querySelector('h3').textContent = 'Replacement Request Declined';
+    DOM.rejectionReason.textContent = app.rejection_reason || 'No reason provided.';
+
+    // Reset status bar
+    DOM.statusSteps.forEach((step) => step.classList.remove('active', 'completed', 'rejected'));
+    DOM.connectors.forEach((c) => c.classList.remove('active', 'rejected'));
+
+    // Apply disabled, lost re-enabled (they can try requesting again)
+    DOM.applyBtn.disabled = true;
+    DOM.applyBtn.classList.add('btn-disabled');
+    DOM.lostBtn.disabled = false;
+    DOM.lostBtn.classList.remove('btn-disabled');
 }
 
 /**
@@ -453,6 +530,25 @@ function closeApplicationForm() {
     DOM.formPopover.hidePopover();
 }
 
+function showToast(message, isError = false) {
+    const toast = document.getElementById('id-toast');
+    if (!toast) {
+        alert(message); // Fallback
+        return;
+    }
+    toast.textContent = message;
+    toast.style.color = isError ? '#ef4444' : 'var(--text-primary)';
+    
+    try {
+        toast.showPopover();
+        setTimeout(() => {
+            try { toast.hidePopover(); } catch (e) {}
+        }, 3000);
+    } catch (e) {
+        alert(message); // Fallback if popover not supported
+    }
+}
+
 /**
  * Handles form submission — reads files, saves to localStorage.
  * @param {Event} e - Submit event.
@@ -470,7 +566,7 @@ async function handleFormSubmit(e) {
 
     // Validate LID# format: LID#: XX-XX-XXX
     if (!/^LID#:\s?\d{2}-\d{2}-\d{3}$/.test(libraryId)) {
-        alert('Library ID must be in the format: LID#: 00-00-000');
+        showToast('Library ID must be in the format: LID#: 00-00-000', true);
         DOM.formLib.focus();
         return;
     }
@@ -493,35 +589,46 @@ async function handleFormSubmit(e) {
         });
 
         closeApplicationForm();
-        alert('Application submitted successfully! Your ID application is now being processed.');
+        showToast('Application submitted successfully!');
         await renderIdPage();
     } catch (err) {
         console.error('Failed to submit application:', err);
-        alert('Failed to submit application. Please try again.');
+        showToast('Failed to submit application. Please try again.', true);
     }
 }
 
 /**
  * Handles the "Report Lost / Damaged" flow.
- * For now, simply re-renders the page to allow a new application.
- * A future version could hit an API endpoint to flag the ID as lost.
+ * Opens the popover form for the student to provide a reason.
  */
-async function handleLostId() {
-    const confirmed = confirm(
-        'Report your University ID as lost or damaged?\n\n' +
-        'This will allow you to submit a new application.'
-    );
+function handleLostId() {
+    if (DOM.lostPopover) {
+        DOM.lostPopover.showPopover();
+        DOM.lostReason.value = '';
+    }
+}
 
-    if (!confirmed) return;
+function closeLostForm() {
+    if (DOM.lostPopover) DOM.lostPopover.hidePopover();
+}
+
+async function handleLostFormSubmit(e) {
+    e.preventDefault();
+    const reason = DOM.lostReason.value.trim();
+    if (!reason) return;
 
     try {
         const stuId = getCurrentStudentId();
-        await apiFetch(`/id-application/${stuId}/report-lost`, { method: 'POST' });
-        alert('Your ID has been reported as lost/damaged. You may now submit a new application.');
+        await apiFetch(`/id-application/${stuId}/report-lost`, {
+            method: 'POST',
+            body: JSON.stringify({ reason })
+        });
+        closeLostForm();
+        showToast('Replacement request submitted. Awaiting admin approval.');
         await renderIdPage();
     } catch (err) {
         console.error('Failed to report lost ID:', err);
-        alert('Failed to report lost ID: ' + err.message);
+        alert('Failed to submit request: ' + err.message);
     }
 }
 
@@ -663,6 +770,11 @@ async function initIdProduction() {
     // Click photo preview area to trigger file input
     DOM.formPhotoPreview.addEventListener('click', () => DOM.formPhoto.click());
 
+    // Lost ID form binding
+    if (DOM.lostClose) DOM.lostClose.addEventListener('click', closeLostForm);
+    if (DOM.lostCancel) DOM.lostCancel.addEventListener('click', closeLostForm);
+    if (DOM.lostForm) DOM.lostForm.addEventListener('submit', handleLostFormSubmit);
+
     // Library ID input mask: auto-format to LID#: XX-XX-XXX
     DOM.formLib.addEventListener('input', (e) => {
         let raw = e.target.value.replace(/[^0-9]/g, ''); // digits only
@@ -687,3 +799,9 @@ if (document.readyState === 'loading') {
 } else {
     initIdProduction();
 }
+
+// Listen for real-time WebSocket updates
+document.addEventListener('idStatusUpdated', (e) => {
+    console.log('Real-time ID status update received:', e.detail);
+    renderIdPage();
+});

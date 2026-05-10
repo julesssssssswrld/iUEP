@@ -23,6 +23,12 @@ public class IdApplicationController {
         return ResponseEntity.ok(result != null ? result : "null");
     }
 
+    @GetMapping("/{stuId}/digital-id")
+    public ResponseEntity<?> getDigitalId(@PathVariable String stuId) {
+        var result = service.getDigitalId(stuId);
+        return ResponseEntity.ok(result != null ? result : "null");
+    }
+
     @PostMapping
     public ResponseEntity<?> submit(@RequestBody Map<String, String> body) {
         var result = service.submit(
@@ -35,7 +41,7 @@ public class IdApplicationController {
 
     /** Report ID as lost/damaged — marks current application and allows re-application */
     @PostMapping("/{stuId}/report-lost")
-    public ResponseEntity<?> reportLost(@PathVariable String stuId) {
-        return ResponseEntity.ok(service.reportLost(stuId));
+    public ResponseEntity<?> reportLost(@PathVariable String stuId, @RequestBody Map<String, String> body) {
+        return ResponseEntity.ok(service.reportLost(stuId, body.get("reason")));
     }
 }

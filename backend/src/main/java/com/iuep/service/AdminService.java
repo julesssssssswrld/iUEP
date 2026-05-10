@@ -36,9 +36,9 @@ public class AdminService {
     public List<Map<String, Object>> listApplications(String status) {
         List<IdApplication> apps;
         if (status == null || "all".equals(status)) {
-            apps = appRepo.findAllOrderBySubmittedAtDesc();
+            apps = appRepo.findAllOrderByIdDesc();
         } else {
-            apps = appRepo.findByStatusOrderBySubmittedAtDesc(status);
+            apps = appRepo.findByStatusOrderByIdDesc(status);
         }
         return apps.stream().map(this::enrichApplication).toList();
     }
@@ -50,7 +50,7 @@ public class AdminService {
     }
 
     public Map<String, Object> updateApplicationStatus(Long id, String status, String rejectionReason) {
-        List<String> valid = List.of("uploaded", "received", "processing", "completed", "claimed", "rejected");
+        List<String> valid = List.of("uploaded", "received", "processing", "completed", "claimed", "rejected", "lost", "lost_declined");
         if (!valid.contains(status)) {
             throw ApiException.badRequest("Invalid status. Must be one of: " + String.join(", ", valid));
         }
@@ -63,8 +63,9 @@ public class AdminService {
         app.setUpdatedBy("admin");
         appRepo.save(app);
 
-        // Send WebSocket notification
+        // Send WebSocket notifications
         notificationService.notifyStatusUpdate(app.getStudentId(), status);
+        notificationService.notifyAdmins("status_update", Map.of("studentId", app.getStudentId(), "status", status));
 
         return enrichApplication(app);
     }
@@ -81,7 +82,7 @@ public class AdminService {
     }
 
     public List<Map<String, Object>> claimedHistory() {
-        return appRepo.findByStatusOrderBySubmittedAtDesc("claimed")
+        return appRepo.findByStatusOrderByIdDesc("claimed")
                 .stream().map(this::enrichApplication).toList();
     }
 

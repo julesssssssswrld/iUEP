@@ -8,6 +8,7 @@ import com.iuep.repository.UserRepository;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -18,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -25,23 +27,34 @@ public class IdApplicationService {
 
     private final IdApplicationRepository appRepo;
     private final UserRepository userRepo;
+    private final NotificationService notificationService;
 
     @Value("${app.upload-dir}")
     private String uploadDir;
 
-    public IdApplicationService(IdApplicationRepository appRepo, UserRepository userRepo) {
+    public IdApplicationService(IdApplicationRepository appRepo, UserRepository userRepo, NotificationService notificationService) {
         this.appRepo = appRepo;
         this.userRepo = userRepo;
+        this.notificationService = notificationService;
     }
 
     public Map<String, Object> getLatest(String stuId) {
-        var app = appRepo.findFirstByStudentIdOrderBySubmittedAtDesc(stuId);
+        var app = appRepo.findFirstByStudentIdOrderByIdDesc(stuId);
         if (app.isEmpty()) return null;
-        // Skip 'lost' applications — student should see "No ID" and can re-apply
-        if ("lost".equals(app.get().getStatus())) return null;
         return enrichApplication(app.get());
     }
 
+    public Map<String, Object> getDigitalId(String stuId) {
+        List<IdApplication> apps = appRepo.findByStudentId(stuId);
+        for (IdApplication app : apps) {
+            if (List.of("completed", "claimed").contains(app.getStatus())) {
+                return enrichApplication(app);
+            }
+        }
+        return null;
+    }
+
+    @Transactional
     public Map<String, Object> submit(String studentId, String photoBase64, String corBase64, String libraryId) {
         if (studentId == null || photoBase64 == null || corBase64 == null || libraryId == null) {
             throw ApiException.badRequest("Missing required fields");
@@ -65,7 +78,18 @@ public class IdApplicationService {
             compressAndSave(photoBase64, idImgDir.resolve(photoFilename).toFile(), 800, 0.8f);
             compressAndSave(corBase64, idImgDir.resolve(corFilename).toFile(), 1200, 0.8f);
 
+            // Ledger cleanup: delete only unfinalized active applications to prevent spam.
+            // Keep all terminal states ('completed', 'claimed', 'rejected', 'lost', 'lost_requested', 'lost_declined')
+            List<IdApplication> existingApps = appRepo.findByStudentId(studentId);
             IdApplication app = new IdApplication();
+            for (IdApplication existing : existingApps) {
+                String s = existing.getStatus();
+                // Delete only active in-progress applications so they only have 1 active at a time
+                if (List.of("uploaded", "received", "processing").contains(s)) {
+                    appRepo.delete(existing);
+                }
+            }
+
             app.setStudentId(studentId);
             app.setStatus("uploaded");
             app.setPhotoPath("/uploads/id-applications/" + photoFilename);
@@ -73,11 +97,15 @@ public class IdApplicationService {
             app.setLibraryId(libraryId);
             appRepo.save(app);
 
+            // Notify admins of new submission
+            notificationService.notifyAdmins("new_submission", Map.of("studentId", studentId));
+
             return enrichApplication(app);
         } catch (ApiException e) {
             throw e;
         } catch (Exception e) {
-            throw ApiException.badRequest("Failed to process uploaded images: " + e.getMessage());
+            e.printStackTrace(); // Log the actual error for debugging
+            throw new RuntimeException("Failed to save ID application", e);
         }
     }
 
@@ -90,25 +118,30 @@ public class IdApplicationService {
         Thumbnails.of(image).width(width).outputFormat("jpg").outputQuality(quality).toFile(output);
     }
 
-    /** Marks a completed/claimed ID as lost so student can re-apply */
-    public Map<String, Object> reportLost(String stuId) {
-        var appOpt = appRepo.findFirstByStudentIdOrderBySubmittedAtDesc(stuId);
+    /** Requests a replacement for a claimed ID */
+    public Map<String, Object> reportLost(String stuId, String reason) {
+        var appOpt = appRepo.findFirstByStudentIdOrderByIdDesc(stuId);
         if (appOpt.isEmpty()) {
             throw ApiException.notFound("No application found for this student.");
         }
 
-        IdApplication app = appOpt.get();
-        String status = app.getStatus();
-
-        if (!"completed".equals(status) && !"claimed".equals(status)) {
-            throw ApiException.badRequest("Only completed or claimed IDs can be reported as lost.");
+        IdApplication activeApp = appOpt.get();
+        if (!"claimed".equals(activeApp.getStatus()) && !"lost_declined".equals(activeApp.getStatus())) {
+            throw ApiException.badRequest("Only fully claimed IDs or declined requests can be reported as lost or damaged.");
         }
 
-        app.setStatus("lost");
-        app.setUpdatedBy("student");
-        appRepo.save(app);
+        // Create a new ledger entry for the request
+        IdApplication lostRequest = new IdApplication();
+        lostRequest.setStudentId(stuId);
+        lostRequest.setStatus("lost_requested");
+        lostRequest.setLostReason(reason);
+        lostRequest.setUpdatedBy("student");
+        appRepo.save(lostRequest);
 
-        return Map.of("success", true, "message", "ID reported as lost. You may now submit a new application.");
+        // Notify admins of lost ID request
+        notificationService.notifyAdmins("status_update", Map.of("studentId", stuId, "status", "lost_requested"));
+
+        return Map.of("success", true, "message", "Replacement request submitted. Awaiting admin approval.");
     }
 
     private Map<String, Object> enrichApplication(IdApplication app) {
@@ -122,6 +155,7 @@ public class IdApplicationService {
         map.put("cor_base64", app.getCorBase64());
         map.put("library_id", app.getLibraryId());
         map.put("rejection_reason", app.getRejectionReason());
+        map.put("lost_reason", app.getLostReason());
         map.put("submitted_at", app.getSubmittedAt());
         map.put("updated_at", app.getUpdatedAt());
         map.put("photo_url", app.getPhotoPath() != null ? app.getPhotoPath() : app.getPhotoBase64());

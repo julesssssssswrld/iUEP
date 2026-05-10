@@ -280,3 +280,9 @@ searchInput.addEventListener('input', () => {
  * ────────────────────────────────────────────── */
 
 loadHistory();
+
+// Listen for real-time WebSocket updates
+document.addEventListener('adminDataUpdated', (e) => {
+    console.log('Real-time admin update received:', e.detail);
+    if (typeof loadHistory === 'function') loadHistory();
+});

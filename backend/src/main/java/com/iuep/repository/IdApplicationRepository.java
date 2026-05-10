@@ -9,12 +9,14 @@ import java.util.Optional;
 
 public interface IdApplicationRepository extends JpaRepository<IdApplication, Long> {
 
-    Optional<IdApplication> findFirstByStudentIdOrderBySubmittedAtDesc(String studentId);
+    Optional<IdApplication> findFirstByStudentIdOrderByIdDesc(String studentId);
 
-    List<IdApplication> findByStatusOrderBySubmittedAtDesc(String status);
+    List<IdApplication> findByStudentId(String studentId);
 
-    @Query("SELECT a FROM IdApplication a ORDER BY a.submittedAt DESC")
-    List<IdApplication> findAllOrderBySubmittedAtDesc();
+    List<IdApplication> findByStatusOrderByIdDesc(String status);
+
+    @Query("SELECT a FROM IdApplication a ORDER BY a.id DESC")
+    List<IdApplication> findAllOrderByIdDesc();
 
     List<IdApplication> findByStatusIn(List<String> statuses);
 

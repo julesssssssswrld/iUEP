@@ -225,8 +225,39 @@
                 </div>
             </div>
 
+            <!-- Lost ID Popover -->
+            <div id="id-lost-popover" class="id-form-popover" popover="manual">
+                <div id="id-form-header">
+                    <h2 style="color: var(--danger-color)">Request Replacement ID</h2>
+                    <button id="id-lost-close" class="btn-icon" aria-label="Close">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="var(--text-primary)">
+                            <path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/>
+                        </svg>
+                    </button>
+                </div>
+                <form id="id-lost-form" class="id-form-body">
+                    <p style="margin-bottom: 1.5rem; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;">
+                        If your ID was lost or damaged, you can request a replacement. Once approved, your current card will be invalidated and you'll need to submit new requirements.
+                    </p>
+                    <div class="id-form-group">
+                        <label for="id-lost-reason">Reason for Replacement <span class="required">*</span></label>
+                        <textarea id="id-lost-reason" rows="3" placeholder="e.g., Wallet was stolen, card snapped in half..." required></textarea>
+                    </div>
+                    <div class="id-form-actions" style="margin-top: 1.5rem">
+                        <button type="button" id="id-lost-cancel" class="btn-secondary">Cancel</button>
+                        <button type="submit" class="btn-danger">Submit Request</button>
+                    </div>
+                </form>
+            </div>
+
         </div>
     </div>
+    <div id="id-toast" class="settings-toast" popover="manual"></div>
+
+    <!-- WebSockets -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <script src="ws-client.js"></script>
 
     <script src="id-production.js"></script>
     <script src="layout.js"></script>

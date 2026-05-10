@@ -35,6 +35,9 @@ public class IdApplication {
     @Column(name = "rejection_reason")
     private String rejectionReason;
 
+    @Column(name = "lost_reason")
+    private String lostReason;
+
     @Column(name = "submitted_at")
     private LocalDateTime submittedAt;
 
@@ -82,6 +85,9 @@ public class IdApplication {
 
     public String getRejectionReason() { return rejectionReason; }
     public void setRejectionReason(String rejectionReason) { this.rejectionReason = rejectionReason; }
+
+    public String getLostReason() { return lostReason; }
+    public void setLostReason(String lostReason) { this.lostReason = lostReason; }
 
     public LocalDateTime getSubmittedAt() { return submittedAt; }
     public void setSubmittedAt(LocalDateTime submittedAt) { this.submittedAt = submittedAt; }
