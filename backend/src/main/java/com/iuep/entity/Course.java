@@ -1,5 +1,6 @@
 package com.iuep.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 
 @Entity
@@ -8,9 +9,11 @@ public class Course {
 
     @Id
     @Column(name = "course_code")
+    @JsonProperty("course_code")
     private String courseCode;
 
     @Column(name = "course_name", nullable = false)
+    @JsonProperty("course_name")
     private String courseName;
 
     @Column(nullable = false)

@@ -1,25 +1,33 @@
-# Dependencies
-node_modules/
+# ── Java / Maven ──
+target/
+*.class
+*.jar
+*.war
+.mvn/wrapper/maven-wrapper.jar
 
-# Database
-iuep.db
-
-# IDE
+# ── IDE ──
 .vscode/
+.idea/
+*.iml
 
-# OS
+# ── OS ──
 Thumbs.db
 .DS_Store
 
-# Environment
-.env
-
-# Database (include WAL/SHM)
+# ── Database ──
+iuep.db
 iuep.db-shm
 iuep.db-wal
 
-# Uploads (runtime images)
+# ── Uploads (runtime images) ──
 uploads/
 
-# Context
+# ── Environment / Secrets ──
+.env
+
+# ── Node.js (legacy) ──
+node_modules/
+package-lock.json
+
+# ── Context ──
 UEP-full-courses.txt
