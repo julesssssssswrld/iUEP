@@ -42,7 +42,21 @@ public class OtpService {
         }
         if (purpose == null) purpose = "signup";
 
+        // Anti-spam: reject if too many active (unverified, unexpired) OTPs exist
+        long activeCount = otpRepo.countByEmailAndPurposeAndVerifiedFalseAndExpiresAtAfter(
+                email, purpose, LocalDateTime.now());
+        if (activeCount >= 5) {
+            throw ApiException.badRequest("Too many verification attempts. Please wait before requesting a new code.");
+        }
+
         String code = String.format("%06d", random.nextInt(1_000_000));
+
+        // Invalidate all older unverified OTPs for this email+purpose
+        otpRepo.findAllByEmailAndPurposeAndVerifiedFalse(email, purpose)
+                .forEach(old -> {
+                    old.setVerified(true); // mark as consumed
+                    otpRepo.save(old);
+                });
 
         OtpCode otp = new OtpCode();
         otp.setEmail(email);

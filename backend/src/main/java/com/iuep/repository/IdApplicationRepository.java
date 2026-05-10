@@ -37,4 +37,6 @@ public interface IdApplicationRepository extends JpaRepository<IdApplication, Lo
 
     @Query("SELECT COUNT(a) FROM IdApplication a WHERE a.status = 'rejected'")
     long countRejected();
+
+    boolean existsByPhotoPathOrCorPath(String photoPath, String corPath);
 }

@@ -87,24 +87,36 @@ public class AuthService {
         if (stuId == null || username == null || password == null) {
             throw ApiException.badRequest("All fields are required.");
         }
+
+        // Username validation: 3-20 chars, alphanumeric + underscores only
+        String trimmedUsername = username.trim();
+        if (trimmedUsername.length() < 3 || trimmedUsername.length() > 20) {
+            throw ApiException.badRequest("Username must be 3-20 characters.");
+        }
+        if (!trimmedUsername.matches("^[a-zA-Z0-9_]+$")) {
+            throw ApiException.badRequest("Username may only contain letters, numbers, and underscores.");
+        }
+
+        // Password strength
         if (password.length() < 8) {
             throw ApiException.badRequest("Password must be at least 8 characters.");
         }
 
-        User user = userRepo.findByStuId(stuId)
+        String trimmedStuId = stuId.trim();
+        User user = userRepo.findByStuId(trimmedStuId)
                 .orElseThrow(() -> ApiException.notFound("Student not found."));
 
         if (user.getUsername() != null) {
             throw ApiException.conflict("This student already has an account.");
         }
 
-        if (userRepo.findByUsername(username).isPresent()) {
+        if (userRepo.findByUsername(trimmedUsername).isPresent()) {
             throw ApiException.conflict("Username already taken.");
         }
 
-        user.setUsername(username);
+        user.setUsername(trimmedUsername);
         user.setPasswordHash(passwordEncoder.encode(password));
-        if (email != null) user.setEmail(email);
+        if (email != null) user.setEmail(email.trim().toLowerCase());
         userRepo.save(user);
 
         return Map.of("success", true, "message", "Account created successfully.");
@@ -116,7 +128,8 @@ public class AuthService {
             throw ApiException.badRequest("Student ID and password are required.");
         }
 
-        User user = userRepo.findByStuId(stuId)
+        String trimmedStuId = stuId.trim();
+        User user = userRepo.findByStuId(trimmedStuId)
                 .orElseThrow(() -> ApiException.unauthorized("Invalid credentials."));
 
         if (user.getUsername() == null) {
