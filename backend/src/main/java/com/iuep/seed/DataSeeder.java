@@ -2,10 +2,8 @@ package com.iuep.seed;
 
 import com.iuep.entity.Admin;
 import com.iuep.entity.Course;
-import com.iuep.entity.User;
 import com.iuep.repository.AdminRepository;
 import com.iuep.repository.CourseRepository;
-import com.iuep.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -16,14 +14,11 @@ import org.springframework.stereotype.Component;
 public class DataSeeder implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(DataSeeder.class);
-    private final UserRepository userRepo;
     private final AdminRepository adminRepo;
     private final CourseRepository courseRepo;
     private final PasswordEncoder passwordEncoder;
 
-    public DataSeeder(UserRepository userRepo, AdminRepository adminRepo,
-                      CourseRepository courseRepo, PasswordEncoder passwordEncoder) {
-        this.userRepo = userRepo;
+    public DataSeeder(AdminRepository adminRepo, CourseRepository courseRepo, PasswordEncoder passwordEncoder) {
         this.adminRepo = adminRepo;
         this.courseRepo = courseRepo;
         this.passwordEncoder = passwordEncoder;
@@ -31,21 +26,13 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        seedDemoUsers();
+        seedAdmin();
         seedCourses();
     }
 
-    private void seedDemoUsers() {
-        if (userRepo.count() > 0) return;
-        log.info("[Seeder] Seeding demo users...");
-
-        seedUser("202101", "Juan", "Dela", "Cruz", "BSIT", "3", "A", "2003-06-15", "juandelacruz@gmail.com");
-        seedUser("202102", "Maria", "Santos", "Reyes", "BSCS", "2", "B", "2004-01-22", "maria.reyes@gmail.com");
-        seedUser("202103", "Antonio", null, "Ramos", "BSEd", "1", "A", "2005-03-08", "antonio.ramos@gmail.com");
-        seedUser("202104", "Lourdes", "Bautista", "Gonzales", "BSBA", "4", "C", "2002-11-30", "lourdes.gonzales@gmail.com");
-        seedUser("202105", "Paolo", "Mendoza", "Navarro", "BSCRIM", "2", "A", "2004-07-19", "paolo.navarro@gmail.com");
-
+    private void seedAdmin() {
         if (adminRepo.count() == 0) {
+            log.info("[Seeder] Seeding default admin account...");
             Admin admin = new Admin();
             admin.setUsername("admin");
             admin.setPasswordHash(passwordEncoder.encode("admin123"));
@@ -53,21 +40,6 @@ public class DataSeeder implements CommandLineRunner {
             admin.setRole("id_production");
             adminRepo.save(admin);
         }
-    }
-
-    private void seedUser(String stuId, String first, String middle, String last,
-                          String course, String year, String section, String birthday, String email) {
-        User u = new User();
-        u.setStuId(stuId);
-        u.setFirstName(first);
-        u.setMiddleName(middle);
-        u.setLastName(last);
-        u.setCourse(course);
-        u.setYearLevel(year);
-        u.setSection(section);
-        u.setBirthday(birthday);
-        u.setEmail(email);
-        userRepo.save(u);
     }
 
     private void seedCourses() {

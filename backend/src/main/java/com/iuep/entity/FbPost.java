@@ -1,6 +1,7 @@
 package com.iuep.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
 
 @Entity
@@ -11,27 +12,34 @@ public class FbPost {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonProperty("fb_post_id")
     @Column(name = "fb_post_id", unique = true, nullable = false)
     private String fbPostId;
 
     @Column(nullable = false)
     private String department;
 
+    @JsonProperty("dept_label")
     @Column(name = "dept_label", nullable = false)
     private String deptLabel;
 
+    @JsonProperty("page_name")
     @Column(name = "page_name")
     private String pageName;
 
+    @JsonProperty("post_text")
     @Column(name = "post_text", columnDefinition = "TEXT")
     private String postText;
 
+    @JsonProperty("post_url")
     @Column(name = "post_url")
     private String postUrl;
 
+    @JsonProperty("image_url")
     @Column(name = "image_url")
     private String imageUrl;
 
+    @JsonProperty("post_date")
     @Column(name = "post_date")
     private String postDate;
 
@@ -44,6 +52,7 @@ public class FbPost {
     @Column(columnDefinition = "INTEGER DEFAULT 0")
     private Integer shares = 0;
 
+    @JsonProperty("scraped_at")
     @Column(name = "scraped_at")
     private LocalDateTime scrapedAt;
 

@@ -61,7 +61,8 @@ public class ScraperService {
 
     private boolean isStale(String department) {
         var latest = logRepo.findFirstByDepartmentAndStatusOrderByScrapedAtDesc(department, "success");
-        if (latest.isEmpty()) return true;
+        if (latest.isEmpty())
+            return true;
         long hours = ChronoUnit.HOURS.between(latest.get().getScrapedAt(), LocalDateTime.now());
         return hours >= STALE_HOURS;
     }
