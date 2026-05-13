@@ -1488,6 +1488,7 @@ input:checked+.slider::before {
     background-color: color-mix(in srgb, #22c55e 10%, transparent);
     border-radius: 0.5rem;
     border: 0.0625rem solid #22c55e;
+    padding: var(--space-sm) var(--space-md);
 }
 
 #id-claimed-notice {

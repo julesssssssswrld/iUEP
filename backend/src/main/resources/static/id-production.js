@@ -359,11 +359,11 @@ function renderCompleted(app) {
 
     updateStatusBar('completed');
 
-    // Apply disabled, lost enabled
+    // Apply disabled, lost disabled
     DOM.applyBtn.disabled = true;
     DOM.applyBtn.classList.add('btn-disabled');
-    DOM.lostBtn.disabled = false;
-    DOM.lostBtn.classList.remove('btn-disabled');
+    DOM.lostBtn.disabled = true;
+    DOM.lostBtn.classList.add('btn-disabled');
 }
 
 /** State 4: ID claimed — student already picked it up */
@@ -427,7 +427,7 @@ function renderLostRequested(app) {
     DOM.readyNotice.classList.add('hidden');
     DOM.claimedNotice.classList.add('hidden');
     DOM.rejectionBanner.classList.remove('hidden'); // Repurpose banner for pending lost
-    DOM.rejectionBanner.querySelector('h3').textContent = 'Replacement Request Pending';
+    DOM.rejectionBanner.querySelector('strong').textContent = 'Replacement Request Pending:';
     DOM.rejectionReason.textContent = 'Your request is awaiting admin approval. Reason: ' + (app.lost_reason || '');
 
     // Reset status bar (all gray)
@@ -450,7 +450,7 @@ function renderLostDeclined(app) {
     DOM.readyNotice.classList.add('hidden');
     DOM.claimedNotice.classList.add('hidden');
     DOM.rejectionBanner.classList.remove('hidden');
-    DOM.rejectionBanner.querySelector('h3').textContent = 'Replacement Request Declined';
+    DOM.rejectionBanner.querySelector('strong').textContent = 'Replacement Request Declined:';
     DOM.rejectionReason.textContent = app.rejection_reason || 'No reason provided.';
 
     // Reset status bar
@@ -473,7 +473,7 @@ function renderLostApproved(app) {
     DOM.readyNotice.classList.add('hidden');
     DOM.claimedNotice.classList.add('hidden');
     DOM.rejectionBanner.classList.remove('hidden');
-    DOM.rejectionBanner.querySelector('h3').textContent = 'ID Marked as Lost/Damaged';
+    DOM.rejectionBanner.querySelector('strong').textContent = 'ID Marked as Lost/Damaged:';
     DOM.rejectionReason.textContent = 'Your previous ID has been invalidated. You may now apply for a replacement.';
 
     // Reset status bar
