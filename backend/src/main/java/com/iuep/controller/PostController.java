@@ -25,7 +25,11 @@ public class PostController {
 
     @GetMapping("/api/posts/status")
     public ResponseEntity<?> scrapeStatus() {
-        return ResponseEntity.ok(scraperService.getScrapeStatus());
+        return ResponseEntity.ok(Map.of(
+            "scraperEnabled", scraperService.isScraperEnabled(),
+            "departments", scraperService.getDepartmentKeys(),
+            "recentLogs", scraperService.getScrapeStatus()
+        ));
     }
 
     @PostMapping("/api/admin/scrape")
