@@ -11,7 +11,6 @@
  * ────────────────────────────────────────────── */
 
 const YEAR_LABELS = { 1: '1st Year', 2: '2nd Year', 3: '3rd Year', 4: '4th Year', 5: '5th Year' };
-const ALL_SEMESTERS = ['1st Semester', '2nd Semester', 'Summer'];
 
 /* ──────────────────────────────────────────────
  *  Auth Check
@@ -177,25 +176,20 @@ function updateSemesterDropdown() {
 
         // For the student's current year, disable semesters they haven't reached
         // For past years, all semesters should be available if they have data
-        const isCurrentYear = selectedYear === studentMaxYear;
-        const shouldDisable = isCurrentYear ? !hasData : !hasData;
-
-        opt.disabled = shouldDisable;
-        opt.classList.toggle('grade-option-disabled', shouldDisable);
+        opt.disabled = !hasData;
+        opt.classList.toggle('grade-option-disabled', !hasData);
     });
 }
 
 /**
- * Determines the current academic semester based on the date.
- * June-October → 1st Semester, November-March → 2nd Semester, April-May → Summer
- * @returns {string}
+ * Finds the latest enabled semester option.
+ * @returns {HTMLOptionElement|undefined}
  */
-function getCurrentSemester() {
-    const month = new Date().getMonth() + 1; // 1-12
-    if (month >= 6 && month <= 10) return '1st Semester';
-    if (month >= 11 || month <= 3) return '2nd Semester';
-    return 'Summer';
+function getLatestEnabledSemester() {
+    return Array.from(semesterSelect.options).reverse().find(opt => !opt.disabled);
 }
+
+
 
 /* ──────────────────────────────────────────────
  *  Filter Handlers
@@ -218,11 +212,11 @@ function initFilterHandlers(stuId) {
         // Reload grades for the new year (and refresh semester availability)
         // First load without semester filter to get available semesters for this year
         loadGrades(stuId, selectedYear, null).then(() => {
-            // After loading, auto-select the first available semester
-            const firstAvailable = Array.from(semesterSelect.options).find(opt => !opt.disabled);
-            if (firstAvailable) {
-                semesterSelect.value = firstAvailable.value;
-                loadGrades(stuId, selectedYear, firstAvailable.value);
+            // After loading, auto-select the latest available semester
+            const latestAvailable = getLatestEnabledSemester();
+            if (latestAvailable) {
+                semesterSelect.value = latestAvailable.value;
+                loadGrades(stuId, selectedYear, latestAvailable.value);
             }
         });
     });
@@ -231,11 +225,11 @@ function initFilterHandlers(stuId) {
         const selectedYear = parseInt(yearSelect.value, 10);
         const selectedSemester = semesterSelect.value;
 
-        // If user selects a disabled semester, revert to first available
+        // If user selects a disabled semester, revert to latest available
         const selectedOpt = semesterSelect.options[semesterSelect.selectedIndex];
         if (selectedOpt.disabled) {
-            const firstAvailable = Array.from(semesterSelect.options).find(opt => !opt.disabled);
-            if (firstAvailable) semesterSelect.value = firstAvailable.value;
+            const latestAvailable = getLatestEnabledSemester();
+            if (latestAvailable) semesterSelect.value = latestAvailable.value;
             return;
         }
 
@@ -265,18 +259,19 @@ function initGradesPage() {
 
     // Parse user's year level to set defaults
     const userYearStr = user.year_level || user.yearLevel || '1st Year';
+    studentMaxYear = parseUserYearLevel(userYearStr);
+    
     // Set default year and initialize handlers before loading
     if (yearSelect) yearSelect.value = studentMaxYear;
     initFilterHandlers(stuId);
 
-    // Initial load with defaults: fetch year data, then auto-select the first available semester
+    // Initial load with defaults: fetch year data, then auto-select the latest available semester
     loadGrades(stuId, studentMaxYear, null).then(() => {
         if (semesterSelect) {
-            // Find the first option that isn't disabled (i.e. has grades)
-            const firstAvailable = Array.from(semesterSelect.options).find(opt => !opt.disabled);
-            if (firstAvailable) {
-                semesterSelect.value = firstAvailable.value;
-                loadGrades(stuId, studentMaxYear, firstAvailable.value);
+            const latestAvailable = getLatestEnabledSemester();
+            if (latestAvailable) {
+                semesterSelect.value = latestAvailable.value;
+                loadGrades(stuId, studentMaxYear, latestAvailable.value);
             }
         }
     });
@@ -289,13 +284,7 @@ function initGradesPage() {
  */
 function parseUserYearLevel(str) {
     if (!str) return 1;
-    const trimmed = str.trim().toLowerCase();
-    if (trimmed.startsWith('1')) return 1;
-    if (trimmed.startsWith('2')) return 2;
-    if (trimmed.startsWith('3')) return 3;
-    if (trimmed.startsWith('4')) return 4;
-    if (trimmed.startsWith('5')) return 5;
-    const match = trimmed.match(/\d/);
+    const match = String(str).trim().match(/\d/);
     return match ? parseInt(match[0], 10) : 1;
 }
 
