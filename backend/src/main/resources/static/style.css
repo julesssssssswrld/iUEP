@@ -1,5 +1,5 @@
 /* ================================================================
- *  iUEP Portal â€” Main Stylesheet
+ *  iUEP Connect - Main Stylesheet
  *  University of Eastern Philippines Student Portal
  * ================================================================ */
 
@@ -1828,26 +1828,39 @@ input:checked+.slider::before {
         height: 2.25rem;
     }
 
-    /* Bottom Navigation (Sidebar transforms) */
+    /* Bottom Navigation — Floating Glassmorphism Pill */
     #left-nav {
         position: fixed;
-        bottom: 0;
-        left: 0;
+        bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
         top: auto;
-        width: 100%;
+        width: auto;
         height: auto;
-        padding: var(--space-xs) 0;
-        background-color: var(--surface);
-        border-top: var(--default-border);
+        padding: 0.5rem 1.25rem;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        border: 1px solid rgba(0, 0, 0, 0.025);
+        border-radius: 999px;
         z-index: 1002;
-        box-shadow: 0 -5px 20px -10px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08),
+                    0 1px 4px rgba(0, 0, 0, 0.06);
         justify-content: center;
         align-items: center;
     }
 
+    [data-theme="dark"] #left-nav {
+        background: rgba(15, 23, 42, 0.68);
+        border-color: rgba(255, 255, 255, 0.10);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.30),
+                    0 1px 4px rgba(0, 0, 0, 0.15);
+    }
+
     #nav-button-container {
         flex-direction: row;
-        justify-content: space-around;
+        justify-content: center;
+        gap: 0.75rem;
         background-color: transparent;
     }
 
@@ -1859,11 +1872,22 @@ input:checked+.slider::before {
     .nav-item {
         flex-direction: column;
         margin-bottom: 0;
-        gap: 2px;
-        padding: var(--space-xs);
+        gap: 0;
+        padding: 0.5rem 0.65rem;
         justify-content: center;
         align-items: center;
         width: auto;
+        border-radius: 50%;
+        transition: background-color 0.2s ease;
+        position: relative;
+    }
+
+    .nav-item:hover {
+        background-color: rgba(0, 0, 0, 0.06);
+    }
+
+    [data-theme="dark"] .nav-item:hover {
+        background-color: rgba(255, 255, 255, 0.08);
     }
 
     .nav-icons {
@@ -1871,17 +1895,30 @@ input:checked+.slider::before {
         height: 1.5rem;
     }
 
+    /* Hide labels — icons only in pill nav */
     .nav-item h2 {
-        font-size: 0.6rem;
-        font-weight: 500;
+        display: none;
+    }
+
+    /* Active indicator dot below icon */
+    .nav-item:has(#current-page)::after {
+        content: '';
+        position: absolute;
+        bottom: 0.15rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background-color: var(--uep-blue);
     }
 
     /* Main Layout */
     .main {
         flex-direction: column;
         padding-left: 0;
-        padding-bottom: 4rem;
-        /* space for bottom nav */
+        padding-bottom: 5rem;
+        /* space for floating pill nav */
     }
 
     .content {
@@ -1925,21 +1962,7 @@ input:checked+.slider::before {
         font-size: 0.75rem;
     }
 
-    /* ID Production â€” Stack */
-    #id-card-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    #id-card-left {
-        width: 100%;
-        justify-content: center;
-    }
-
-    #id-card-divider {
-        width: 100%;
-        height: 0.1rem;
-    }
+    /* ID Production -- see consolidated block at end of file */
 
     .id-form-row {
         flex-direction: column;
@@ -2038,19 +2061,6 @@ input:checked+.slider::before {
 #admin-page-heading {
     font-size: var(--font-h1);
     margin-bottom: var(--space-xl);
-}
-
-/* Admin badge in header */
-.admin-badge {
-    display: inline-block;
-    padding: 0.15rem 0.6rem;
-    font-size: var(--font-xs);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #fff;
-    background-color: var(--uep-blue);
-    border-radius: 999px;
 }
 
 /* Stats Bar */
@@ -2545,19 +2555,6 @@ input:checked+.slider::before {
     background-color: var(--hover-bg);
 }
 
-/* Admin badge in header */
-.admin-badge {
-    display: inline-block;
-    padding: 0.1rem 0.5rem;
-    font-size: var(--font-xs);
-    font-weight: 700;
-    border-radius: 999px;
-    background-color: color-mix(in srgb, #f59e0b 15%, transparent);
-    color: #d97706;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
 /* Export popover */
 .export-popover {
     max-width: 28rem;
@@ -2636,206 +2633,12 @@ input:checked+.slider::before {
 }
 
 /* ──────────────────────────────────────────────
- *  Mobile Scaling for ID Production
+ *  Mobile Scaling for ID Production (consolidated)
  * ────────────────────────────────────────────── */
 @media (max-width: 768px) {
     #id-card-container {
         flex-direction: column;
-        padding: var(--space-lg);
-        gap: var(--space-lg);
-    }
-
-    #id-card-divider {
-        width: 100%;
-        height: 0.1rem;
-    }
-
-    #id-card-right {
-        width: 100%;
-        gap: var(--space-md);
-    }
-
-    .id-info-row {
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-
-    .id-info-label {
-        min-width: unset;
-    }
-
-    #id-status-bar {
-        overflow-x: auto;
-        padding-bottom: var(--space-xs);
-        scrollbar-width: none;
-    }
-
-    #id-status-bar::-webkit-scrollbar {
-        display: none;
-    }
-
-    #id-action-buttons {
-        flex-direction: column;
-    }
-
-    #id-action-buttons button {
-        width: 100%;
-    }
-
-}
-
-.history-header-row .btn-primary {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    white-space: nowrap;
-}
-
-.history-filters {
-    display: flex;
-    gap: var(--space-md);
-    margin-bottom: var(--space-lg);
-    flex-wrap: wrap;
-}
-
-.history-filters .admin-form-group {
-    min-width: 8rem;
-}
-
-.history-summary {
-    font-size: var(--font-sm);
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-bottom: var(--space-md);
-}
-
-#history-table-wrapper {
-    overflow-x: auto;
-}
-
-#history-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: var(--font-body);
-}
-
-#history-table th {
-    text-align: left;
-    padding: var(--space-md) var(--space-lg);
-    font-weight: 700;
-    font-size: var(--font-sm);
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    border-bottom: var(--default-border);
-}
-
-#history-table td {
-    padding: var(--space-md) var(--space-lg);
-    border-bottom: 1px solid var(--border-color);
-    vertical-align: middle;
-}
-
-#history-table tbody tr:hover {
-    background-color: var(--hover-bg);
-}
-
-/* Admin badge in header */
-.admin-badge {
-    display: inline-block;
-    padding: 0.1rem 0.5rem;
-    font-size: var(--font-xs);
-    font-weight: 700;
-    border-radius: 999px;
-    background-color: color-mix(in srgb, #f59e0b 15%, transparent);
-    color: #d97706;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-/* Export popover */
-.export-popover {
-    max-width: 28rem;
-}
-
-.export-popover .btn-primary {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-}
-
-
-/* ----------------------------------------------
- *  24. Password Visibility Toggle
- * ---------------------------------------------- */
-
-.pw-toggle-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.pw-toggle-wrapper input {
-    flex: 1;
-    padding-right: 2.5rem;
-}
-
-.pw-toggle-btn {
-    position: absolute;
-    right: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.25rem;
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    cursor: pointer;
-    border-radius: 0.375rem;
-    transition: color 0.2s, background-color 0.2s;
-    opacity: 0.6;
-}
-
-.pw-toggle-btn:hover {
-    color: var(--text-primary);
-    background-color: var(--hover-bg);
-    opacity: 1;
-}
-
-/* ----------------------------------------------
- *  25. Admin Logout Button
- * ---------------------------------------------- */
-
-.btn-danger {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-sm);
-    padding: 0.65rem 1.5rem;
-    border-radius: 10px;
-    border: none;
-    background-color: #ef4444;
-    color: white;
-    font-weight: 600;
-    font-size: var(--font-body);
-    font-family: inherit;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.btn-danger:hover {
-    background-color: #dc2626;
-}
-
-.admin-logout-card {
-    border: 1px solid color-mix(in srgb, #ef4444 20%, transparent);
-}
-
-/* ──────────────────────────────────────────────
- *  Mobile Scaling for ID Production
- * ────────────────────────────────────────────── */
-@media (max-width: 768px) {
-    #id-card-container {
-        flex-direction: column;
+        align-items: center;
         padding: var(--space-lg);
         gap: var(--space-lg);
     }
@@ -2886,5 +2689,8 @@ input:checked+.slider::before {
         width: 100%;
         max-width: 280px;
         margin: 0 auto;
+        justify-content: center;
     }
 }
+
+
