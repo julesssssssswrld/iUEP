@@ -42,10 +42,25 @@
                 </div>
             </div>
 
-            <div style="margin-bottom: 1rem;">
-                <select id="semester-select" style="padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-primary); font-family: inherit; font-size: 0.9rem; cursor: pointer;">
-                    <option value="">All Semesters</option>
-                </select>
+            <!-- Grade Filter Bar -->
+            <div class="grade-filter-bar">
+                <div class="grade-filter-group">
+                    <label for="grade-year-select" class="grade-filter-label">Year Level</label>
+                    <select id="grade-year-select" class="grade-select">
+                        <option value="1">1st Year</option>
+                        <option value="2">2nd Year</option>
+                        <option value="3">3rd Year</option>
+                        <option value="4">4th Year</option>
+                    </select>
+                </div>
+                <div class="grade-filter-group">
+                    <label for="grade-semester-select" class="grade-filter-label">Semester</label>
+                    <select id="grade-semester-select" class="grade-select">
+                        <option value="1st Semester">1st Semester</option>
+                        <option value="2nd Semester">2nd Semester</option>
+                        <option value="Summer">Summer</option>
+                    </select>
+                </div>
             </div>
 
             <table id="grades-table">

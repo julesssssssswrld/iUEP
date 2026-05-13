@@ -1,46 +1,70 @@
 package com.iuep.seed;
 
-import com.iuep.entity.Admin;
-import com.iuep.entity.Course;
-import com.iuep.entity.StudentGrade;
-import com.iuep.entity.User;
-import com.iuep.repository.AdminRepository;
-import com.iuep.repository.CourseRepository;
-import com.iuep.repository.GradeRepository;
-import com.iuep.repository.UserRepository;
+import com.iuep.entity.*;
+import com.iuep.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
 import java.util.*;
 
 @Component
 public class DataSeeder implements CommandLineRunner {
-
     private static final Logger log = LoggerFactory.getLogger(DataSeeder.class);
     private final AdminRepository adminRepo;
     private final CourseRepository courseRepo;
     private final UserRepository userRepo;
     private final GradeRepository gradeRepo;
+    private final SubjectRepository subjectRepo;
     private final PasswordEncoder passwordEncoder;
 
     public DataSeeder(AdminRepository adminRepo, CourseRepository courseRepo,
                       UserRepository userRepo, GradeRepository gradeRepo,
-                      PasswordEncoder passwordEncoder) {
+                      SubjectRepository subjectRepo, PasswordEncoder passwordEncoder) {
         this.adminRepo = adminRepo;
         this.courseRepo = courseRepo;
         this.userRepo = userRepo;
         this.gradeRepo = gradeRepo;
+        this.subjectRepo = subjectRepo;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
-        seedAdmin();
+        seedDemoUsers();
         seedCourses();
+        seedSubjects();
         seedGrades();
+    }
+
+    private void seedDemoUsers() {
+        if (userRepo.count() > 0) return;
+        log.info("[Seeder] Seeding demo users...");
+
+        seedUser("240475", "Jules Ian", "Cajandab", "Tomacas", "BSIT", "2", "C", "2006-06-08", "tomacasjulesiancajandab@gmail.com");
+        seedUser("235828", "Kent Jeanne", "Saradogan", "De Leon", "BSIT", "2", "C", "2000-11-21", "Lampake000@gmail.com");
+        seedUser("244556", "Keniel Drew", "D", "De Asis", "BSIT", "2", "C", null, "kenielddeasis@gmail.com");
+        seedUser("244530", "Jovan", "Pabia", "Atencio", "BSIT", "2", "C", "2006-02-05", "Jovanatencio17@gmail.com");
+        seedUser("240456", "Jose Manuel", "Morado", "Cardeno", "BSIT", "2", "C", null, null);
+
+        // Seed admin alongside users
+        seedAdmin();
+    }
+
+    private void seedUser(String stuId, String first, String middle, String last,
+                          String course, String year, String section, String birthday, String email) {
+        User u = new User();
+        u.setStuId(stuId);
+        u.setFirstName(first);
+        u.setMiddleName(middle);
+        u.setLastName(last);
+        u.setCourse(course);
+        u.setYearLevel(year);
+        u.setSection(section);
+        u.setBirthday(birthday);
+        u.setEmail(email);
+        userRepo.save(u);
     }
 
     private void seedAdmin() {
@@ -58,7 +82,6 @@ public class DataSeeder implements CommandLineRunner {
     private void seedCourses() {
         if (courseRepo.count() > 0) return;
         log.info("[Seeder] Seeding course data...");
-
         sc("BSBIO","BS in Biology","COLLEGE OF SCIENCE");
         sc("BSCHEM","BS in Chemistry","COLLEGE OF SCIENCE");
         sc("BSES","BS in Environmental Science","COLLEGE OF SCIENCE");
@@ -105,245 +128,290 @@ public class DataSeeder implements CommandLineRunner {
         courseRepo.save(c);
     }
 
-    /* ────────────────────────────────────────────────────────
-     *  Grade Seeding — realistic subjects per course
-     * ──────────────────────────────────────────────────────── */
+    // ── Subject Seeding ──
+
+    private void seedSubjects() {
+        if (subjectRepo.count() > 0) return;
+        log.info("[Seeder] Seeding subject catalog...");
+        // GE subjects
+        ss("GE 1","Understanding the Self"); ss("GE 2","Readings in Philippine History");
+        ss("GE 3","The Contemporary World"); ss("GE 4","Mathematics in the Modern World");
+        ss("GE 5","Purposive Communication"); ss("GE 6","Art Appreciation");
+        ss("GE 7","Science, Technology and Society"); ss("GE 8","Ethics");
+        ss("PE 1","PATHFit 1"); ss("PE 2","PATHFit 2"); ss("PE 3","PATHFit 3"); ss("PE 4","PATHFit 4");
+        ss("NSTP 1","National Service Training Program 1"); ss("NSTP 2","National Service Training Program 2");
+        ss("FIL101","Komunikasyon sa Akademikong Filipino"); ss("FIL102","Pagbasa at Pagsulat");
+        // BSIT
+        ss("CC101","Introduction to Computing"); ss("CC102","Computer Programming 1");
+        ss("IT101","IT Fundamentals"); ss("MS101","Discrete Mathematics");
+        ss("CC103","Computer Programming 2"); ss("CC104","Data Structures and Algorithms");
+        ss("PT101","Platform Technologies"); ss("HCI101","Human Computer Interaction 1");
+        ss("IT201","Information Management"); ss("IT202","Networking 1");
+        ss("CC105","Object-Oriented Programming"); ss("WD101","Web Development");
+        ss("IT203","Networking 2"); ss("IT204","Systems Integration and Architecture");
+        ss("SE101","Software Engineering"); ss("IT205","Web Systems and Technologies");
+        ss("IT301","Capstone Project 1"); ss("IT302","Systems Administration");
+        ss("IT303","Information Assurance and Security"); ss("IT304","Multimedia Systems");
+        ss("IT305","Capstone Project 2"); ss("IT306","Practicum");
+        // Engineering
+        ss("CE101","Engineering Drawing"); ss("MATH101","Calculus 1");
+        ss("PHYS101","Physics for Engineers 1"); ss("CHEM101","General Chemistry");
+        ss("CE102","Engineering Mechanics: Statics"); ss("MATH102","Calculus 2");
+        ss("PHYS102","Physics for Engineers 2"); ss("CE103","Surveying 1");
+        ss("MATH201","Differential Equations"); ss("CE201","Strength of Materials");
+        ss("CE202","Fluid Mechanics"); ss("CE203","Surveying 2");
+        ss("CE301","Structural Analysis"); ss("CE302","Geotechnical Engineering");
+        ss("ENGR101","Engineering Drawing and Graphics"); ss("ENGR102","Computer Fundamentals and Programming");
+        ss("ENGR103","Engineering Mechanics");
+        // BSN
+        ss("NUR101","Fundamentals of Nursing 1"); ss("ANAT101","Anatomy and Physiology 1");
+        ss("MICRO101","Microbiology and Parasitology"); ss("NUR102","Fundamentals of Nursing 2");
+        ss("ANAT102","Anatomy and Physiology 2"); ss("PHARM101","Pharmacology");
+        ss("NUR103","Health Assessment"); ss("NUR201","Medical-Surgical Nursing 1");
+        ss("NUR202","Maternal and Child Nursing"); ss("NUR203","Community Health Nursing 1");
+        ss("NUR301","Medical-Surgical Nursing 2"); ss("NUR302","Mental Health Nursing");
+        // Criminology
+        ss("CRIM101","Introduction to Criminology"); ss("CRIM102","Criminal Law 1 (RPC Book 1)");
+        ss("CRIM103","Law Enforcement Administration"); ss("SOC101","Introduction to Sociology");
+        ss("CRIM104","Criminal Law 2 (RPC Book 2)"); ss("CRIM105","Criminalistics 1");
+        ss("CRIM106","Crime Detection and Investigation"); ss("CRIM107","Correctional Administration");
+        ss("CRIM201","Criminal Procedure"); ss("CRIM202","Criminalistics 2");
+        ss("CRIM203","Juvenile Delinquency"); ss("CRIM301","Thesis Writing");
+        // Business
+        ss("ACC101","Financial Accounting 1"); ss("MGT101","Principles of Management");
+        ss("ECON101","Microeconomics"); ss("BUS101","Business Mathematics");
+        ss("ACC102","Financial Accounting 2"); ss("MKT101","Principles of Marketing");
+        ss("ECON102","Macroeconomics"); ss("BUS102","Business Law and Ethics");
+        ss("MGT201","Operations Management"); ss("FIN101","Financial Management");
+        ss("MGT301","Strategic Management"); ss("BUS301","Business Research");
+        // Education
+        ss("ED101","The Child and Adolescent Learner"); ss("ED102","The Teaching Profession");
+        ss("ED103","Facilitating Learner-Centered Teaching"); ss("ED104","Technology for Teaching and Learning 1");
+        ss("ED105","Assessment in Learning 1"); ss("ED106","Foundation of Education");
+        ss("ED107","The Teacher and the Community"); ss("ED201","Curriculum Development");
+        ss("ED202","Assessment in Learning 2"); ss("ED301","Practice Teaching");
+        // Generic
+        ss("SCI101","General Biology"); ss("ENG101","Technical Writing");
+        ss("SCI102","General Chemistry"); ss("ENG102","Literature");
+        ss("STAT101","Elementary Statistics"); ss("SOC102","Society and Culture");
+        ss("SCI201","Ecology"); ss("RES101","Methods of Research");
+    }
+
+    private void ss(String code, String desc) {
+        Subject s = new Subject(code, desc);
+        subjectRepo.save(s);
+    }
+
+    // ── Grade Seeding ──
 
     private void seedGrades() {
-        // Only seed if no grades exist yet
         List<User> allUsers = userRepo.findAll();
         if (allUsers.isEmpty()) return;
-
-        // Check if we already seeded grades for any user
         boolean anySeeded = allUsers.stream().anyMatch(u -> gradeRepo.existsByStuId(u.getStuId()));
         if (anySeeded) return;
 
         log.info("[Seeder] Seeding grade data for {} students...", allUsers.size());
-
-        Random rng = new Random(42); // fixed seed for reproducible data
+        Random rng = new Random(42);
+        Map<String, Subject> subjectMap = new HashMap<>();
+        subjectRepo.findAll().forEach(s -> subjectMap.put(s.getSubjectCode(), s));
 
         for (User user : allUsers) {
             String course = user.getCourse() != null ? user.getCourse().toUpperCase() : "";
-            String yearLevel = user.getYearLevel() != null ? user.getYearLevel() : "2nd Year";
+            int maxYear = parseYearLevel(user.getYearLevel());
+            String[][] ayMap = {{"2022-2023"},{"2023-2024"},{"2024-2025"},{"2025-2026"}};
 
-            // Determine which subject sets to use
-            List<String[]> firstSem = getSubjectsForSemester(course, yearLevel, "1st Semester");
-            List<String[]> secondSem = getSubjectsForSemester(course, yearLevel, "2nd Semester");
-
-            // Seed 1st semester grades
-            for (String[] subj : firstSem) {
-                saveGrade(user.getStuId(), subj[0], subj[1], randomGrade(rng), "1st Semester", "2025-2026");
-            }
-
-            // Seed 2nd semester grades
-            for (String[] subj : secondSem) {
-                saveGrade(user.getStuId(), subj[0], subj[1], randomGrade(rng), "2nd Semester", "2025-2026");
+            for (int yr = 1; yr <= maxYear; yr++) {
+                String ay = yr <= ayMap.length ? ayMap[yr-1][0] : "2025-2026";
+                boolean isCurrentYear = (yr == maxYear);
+                // 1st Semester always seeded for completed years and current year
+                for (String[] subj : getSubjects(course, yr, "1st Semester")) {
+                    Subject s = subjectMap.get(subj[0]);
+                    if (s != null) saveGrade(user.getStuId(), s, randomGrade(rng), "1st Semester", ay, yr);
+                }
+                // 2nd Semester only for completed years
+                if (!isCurrentYear) {
+                    for (String[] subj : getSubjects(course, yr, "2nd Semester")) {
+                        Subject s = subjectMap.get(subj[0]);
+                        if (s != null) saveGrade(user.getStuId(), s, randomGrade(rng), "2nd Semester", ay, yr);
+                    }
+                }
             }
         }
-
         log.info("[Seeder] Grade seeding complete.");
     }
 
-    private void saveGrade(String stuId, String code, String desc, String grade, String semester, String ay) {
+    private void saveGrade(String stuId, Subject subject, String grade, String semester, String ay, int yearLevel) {
         StudentGrade g = new StudentGrade();
         g.setStuId(stuId);
-        g.setSubjectCode(code);
-        g.setDescription(desc);
+        g.setSubject(subject);
         g.setGrade(grade);
         g.setSemester(semester);
         g.setAcademicYear(ay);
+        g.setYearLevel(yearLevel);
         gradeRepo.save(g);
     }
 
     private String randomGrade(Random rng) {
-        // Weighted distribution: mostly passing grades, rare INC/DRP
-        String[] pool = {
-            "1.00", "1.00", "1.25", "1.25", "1.25",
-            "1.50", "1.50", "1.50", "1.75", "1.75",
-            "1.75", "2.00", "2.00", "2.00", "2.25",
-            "2.25", "2.50", "2.50", "2.75", "3.00",
-            "INC", "DRP"
-        };
+        String[] pool = {"1.00","1.00","1.25","1.25","1.25","1.50","1.50","1.50",
+            "1.75","1.75","1.75","2.00","2.00","2.00","2.25","2.25",
+            "2.50","2.50","2.75","3.00","INC","DRP"};
         return pool[rng.nextInt(pool.length)];
     }
 
-    /**
-     * Returns a list of [subjectCode, description] pairs appropriate
-     * for the student's course program and year level.
-     */
-    private List<String[]> getSubjectsForSemester(String course, String yearLevel, String semester) {
+    private int parseYearLevel(String yearLevel) {
+        if (yearLevel == null) return 2;
+        String t = yearLevel.trim().toLowerCase();
+        if (t.startsWith("1")) return 1;
+        if (t.startsWith("2")) return 2;
+        if (t.startsWith("3")) return 3;
+        if (t.startsWith("4")) return 4;
+        return 2;
+    }
+
+    private List<String[]> getSubjects(String course, int year, String semester) {
         List<String[]> subjects = new ArrayList<>();
-
-        // Add GE (general education) subjects common to all programs
+        // GE subjects vary by year
         if ("1st Semester".equals(semester)) {
-            subjects.add(new String[]{"GE 1", "Understanding the Self"});
-            subjects.add(new String[]{"GE 3", "The Contemporary World"});
-            subjects.add(new String[]{"PE 1", "PATHFit 1"});
-            subjects.add(new String[]{"NSTP 1", "National Service Training Program 1"});
+            switch (year) {
+                case 1 -> { subjects.add(s("GE 1")); subjects.add(s("GE 3")); subjects.add(s("PE 1")); subjects.add(s("NSTP 1")); }
+                case 2 -> { subjects.add(s("GE 5")); subjects.add(s("GE 7")); subjects.add(s("PE 3")); }
+                case 3 -> { subjects.add(s("GE 8")); }
+            }
         } else {
-            subjects.add(new String[]{"GE 2", "Readings in Philippine History"});
-            subjects.add(new String[]{"GE 4", "Mathematics in the Modern World"});
-            subjects.add(new String[]{"PE 2", "PATHFit 2"});
-            subjects.add(new String[]{"NSTP 2", "National Service Training Program 2"});
+            switch (year) {
+                case 1 -> { subjects.add(s("GE 2")); subjects.add(s("GE 4")); subjects.add(s("PE 2")); subjects.add(s("NSTP 2")); }
+                case 2 -> { subjects.add(s("GE 6")); subjects.add(s("PE 4")); }
+            }
         }
-
-        // Add major/professional subjects based on course
+        // Major subjects
         switch (course) {
-            case "BSIT":
-                addBsitSubjects(subjects, yearLevel, semester);
-                break;
-            case "BSCE":
-                addBsceSubjects(subjects, yearLevel, semester);
-                break;
-            case "BSN":
-                addBsnSubjects(subjects, yearLevel, semester);
-                break;
-            case "BSCRIM":
-                addBscrimSubjects(subjects, yearLevel, semester);
-                break;
-            case "BSBA": case "BSA": case "BSENTREP":
-                addBusinessSubjects(subjects, yearLevel, semester);
-                break;
-            case "BEED": case "BSED": case "BPED":
-                addEducationSubjects(subjects, yearLevel, semester);
-                break;
-            case "BSEE": case "BSME": case "BSABE": case "BET":
-                addEngineeringSubjects(subjects, yearLevel, semester);
-                break;
-            default:
-                // Generic science/arts subjects for any unlisted course
-                addGenericSubjects(subjects, yearLevel, semester);
-                break;
+            case "BSIT" -> addBsitSubjects(subjects, year, semester);
+            case "BSCE" -> addBsceSubjects(subjects, year, semester);
+            case "BSN" -> addBsnSubjects(subjects, year, semester);
+            case "BSCRIM" -> addBscrimSubjects(subjects, year, semester);
+            case "BSBA","BSA","BSENTREP" -> addBusinessSubjects(subjects, year, semester);
+            case "BEED","BSED","BPED" -> addEducationSubjects(subjects, year, semester);
+            case "BSEE","BSME","BSABE","BET" -> addEngineeringSubjects(subjects, year, semester);
+            default -> addGenericSubjects(subjects, year, semester);
         }
-
         return subjects;
     }
 
-    // ── BSIT subjects ──
+    private String[] s(String code) { return new String[]{code}; }
 
-    private void addBsitSubjects(List<String[]> list, String yearLevel, String semester) {
-        if ("1st Semester".equals(semester)) {
-            list.add(new String[]{"CC101", "Introduction to Computing"});
-            list.add(new String[]{"CC102", "Computer Programming 1"});
-            list.add(new String[]{"IT101", "IT Fundamentals"});
-            list.add(new String[]{"MS101", "Discrete Mathematics"});
+    private void addBsitSubjects(List<String[]> list, int year, String sem) {
+        if ("1st Semester".equals(sem)) {
+            switch (year) {
+                case 1 -> { list.add(s("CC101")); list.add(s("CC102")); list.add(s("IT101")); list.add(s("MS101")); }
+                case 2 -> { list.add(s("IT201")); list.add(s("IT202")); list.add(s("CC105")); list.add(s("WD101")); }
+                case 3 -> { list.add(s("IT301")); list.add(s("IT302")); list.add(s("IT303")); list.add(s("IT304")); }
+                case 4 -> { list.add(s("IT305")); list.add(s("IT306")); }
+            }
         } else {
-            list.add(new String[]{"CC103", "Computer Programming 2"});
-            list.add(new String[]{"CC104", "Data Structures and Algorithms"});
-            list.add(new String[]{"PT101", "Platform Technologies"});
-            list.add(new String[]{"HCI101", "Human Computer Interaction 1"});
+            switch (year) {
+                case 1 -> { list.add(s("CC103")); list.add(s("CC104")); list.add(s("PT101")); list.add(s("HCI101")); }
+                case 2 -> { list.add(s("IT203")); list.add(s("IT204")); list.add(s("SE101")); list.add(s("IT205")); }
+                case 3 -> { list.add(s("IT305")); list.add(s("IT306")); }
+            }
         }
     }
 
-    // ── BSCE subjects ──
-
-    private void addBsceSubjects(List<String[]> list, String yearLevel, String semester) {
-        if ("1st Semester".equals(semester)) {
-            list.add(new String[]{"CE101", "Engineering Drawing"});
-            list.add(new String[]{"MATH101", "Calculus 1"});
-            list.add(new String[]{"PHYS101", "Physics for Engineers 1"});
-            list.add(new String[]{"CHEM101", "General Chemistry"});
+    private void addBsceSubjects(List<String[]> list, int year, String sem) {
+        if ("1st Semester".equals(sem)) {
+            switch (year) {
+                case 1 -> { list.add(s("CE101")); list.add(s("MATH101")); list.add(s("PHYS101")); list.add(s("CHEM101")); }
+                case 2 -> { list.add(s("MATH201")); list.add(s("CE201")); list.add(s("CE202")); }
+                case 3 -> { list.add(s("CE301")); list.add(s("CE302")); }
+            }
         } else {
-            list.add(new String[]{"CE102", "Engineering Mechanics: Statics"});
-            list.add(new String[]{"MATH102", "Calculus 2"});
-            list.add(new String[]{"PHYS102", "Physics for Engineers 2"});
-            list.add(new String[]{"CE103", "Surveying 1"});
+            switch (year) {
+                case 1 -> { list.add(s("CE102")); list.add(s("MATH102")); list.add(s("PHYS102")); list.add(s("CE103")); }
+                case 2 -> { list.add(s("CE203")); list.add(s("CE301")); }
+            }
         }
     }
 
-    // ── BSN subjects ──
-
-    private void addBsnSubjects(List<String[]> list, String yearLevel, String semester) {
-        if ("1st Semester".equals(semester)) {
-            list.add(new String[]{"NUR101", "Fundamentals of Nursing 1"});
-            list.add(new String[]{"ANAT101", "Anatomy and Physiology 1"});
-            list.add(new String[]{"MICRO101", "Microbiology and Parasitology"});
-            list.add(new String[]{"CHEM101", "Biochemistry"});
+    private void addBsnSubjects(List<String[]> list, int year, String sem) {
+        if ("1st Semester".equals(sem)) {
+            switch (year) {
+                case 1 -> { list.add(s("NUR101")); list.add(s("ANAT101")); list.add(s("MICRO101")); list.add(s("CHEM101")); }
+                case 2 -> { list.add(s("NUR201")); list.add(s("NUR202")); }
+                case 3 -> { list.add(s("NUR301")); list.add(s("NUR302")); }
+            }
         } else {
-            list.add(new String[]{"NUR102", "Fundamentals of Nursing 2"});
-            list.add(new String[]{"ANAT102", "Anatomy and Physiology 2"});
-            list.add(new String[]{"PHARM101", "Pharmacology"});
-            list.add(new String[]{"NUR103", "Health Assessment"});
+            switch (year) {
+                case 1 -> { list.add(s("NUR102")); list.add(s("ANAT102")); list.add(s("PHARM101")); list.add(s("NUR103")); }
+                case 2 -> { list.add(s("NUR203")); }
+            }
         }
     }
 
-    // ── BSCRIM subjects ──
-
-    private void addBscrimSubjects(List<String[]> list, String yearLevel, String semester) {
-        if ("1st Semester".equals(semester)) {
-            list.add(new String[]{"CRIM101", "Introduction to Criminology"});
-            list.add(new String[]{"CRIM102", "Criminal Law 1 (RPC Book 1)"});
-            list.add(new String[]{"CRIM103", "Law Enforcement Administration"});
-            list.add(new String[]{"SOC101", "Introduction to Sociology"});
+    private void addBscrimSubjects(List<String[]> list, int year, String sem) {
+        if ("1st Semester".equals(sem)) {
+            switch (year) {
+                case 1 -> { list.add(s("CRIM101")); list.add(s("CRIM102")); list.add(s("CRIM103")); list.add(s("SOC101")); }
+                case 2 -> { list.add(s("CRIM201")); list.add(s("CRIM202")); list.add(s("CRIM203")); }
+                case 3 -> { list.add(s("CRIM301")); }
+            }
         } else {
-            list.add(new String[]{"CRIM104", "Criminal Law 2 (RPC Book 2)"});
-            list.add(new String[]{"CRIM105", "Criminalistics 1"});
-            list.add(new String[]{"CRIM106", "Crime Detection and Investigation"});
-            list.add(new String[]{"CRIM107", "Correctional Administration"});
+            switch (year) {
+                case 1 -> { list.add(s("CRIM104")); list.add(s("CRIM105")); list.add(s("CRIM106")); list.add(s("CRIM107")); }
+            }
         }
     }
 
-    // ── Business subjects (BSBA, BSA, BSENTREP) ──
-
-    private void addBusinessSubjects(List<String[]> list, String yearLevel, String semester) {
-        if ("1st Semester".equals(semester)) {
-            list.add(new String[]{"ACC101", "Financial Accounting 1"});
-            list.add(new String[]{"MGT101", "Principles of Management"});
-            list.add(new String[]{"ECON101", "Microeconomics"});
-            list.add(new String[]{"BUS101", "Business Mathematics"});
+    private void addBusinessSubjects(List<String[]> list, int year, String sem) {
+        if ("1st Semester".equals(sem)) {
+            switch (year) {
+                case 1 -> { list.add(s("ACC101")); list.add(s("MGT101")); list.add(s("ECON101")); list.add(s("BUS101")); }
+                case 2 -> { list.add(s("MGT201")); list.add(s("FIN101")); }
+                case 3 -> { list.add(s("MGT301")); list.add(s("BUS301")); }
+            }
         } else {
-            list.add(new String[]{"ACC102", "Financial Accounting 2"});
-            list.add(new String[]{"MKT101", "Principles of Marketing"});
-            list.add(new String[]{"ECON102", "Macroeconomics"});
-            list.add(new String[]{"BUS102", "Business Law and Ethics"});
+            switch (year) {
+                case 1 -> { list.add(s("ACC102")); list.add(s("MKT101")); list.add(s("ECON102")); list.add(s("BUS102")); }
+            }
         }
     }
 
-    // ── Education subjects (BEED, BSED, BPED) ──
-
-    private void addEducationSubjects(List<String[]> list, String yearLevel, String semester) {
-        if ("1st Semester".equals(semester)) {
-            list.add(new String[]{"ED101", "The Child and Adolescent Learner"});
-            list.add(new String[]{"ED102", "The Teaching Profession"});
-            list.add(new String[]{"ED103", "Facilitating Learner-Centered Teaching"});
-            list.add(new String[]{"FIL101", "Komunikasyon sa Akademikong Filipino"});
+    private void addEducationSubjects(List<String[]> list, int year, String sem) {
+        if ("1st Semester".equals(sem)) {
+            switch (year) {
+                case 1 -> { list.add(s("ED101")); list.add(s("ED102")); list.add(s("ED103")); list.add(s("FIL101")); }
+                case 2 -> { list.add(s("ED201")); list.add(s("ED202")); }
+                case 3 -> { list.add(s("ED301")); }
+            }
         } else {
-            list.add(new String[]{"ED104", "Technology for Teaching and Learning 1"});
-            list.add(new String[]{"ED105", "Assessment in Learning 1"});
-            list.add(new String[]{"ED106", "Foundation of Education"});
-            list.add(new String[]{"ED107", "The Teacher and the Community"});
+            switch (year) {
+                case 1 -> { list.add(s("ED104")); list.add(s("ED105")); list.add(s("ED106")); list.add(s("ED107")); }
+            }
         }
     }
 
-    // ── Engineering subjects (BSEE, BSME, BSABE, BET) ──
-
-    private void addEngineeringSubjects(List<String[]> list, String yearLevel, String semester) {
-        if ("1st Semester".equals(semester)) {
-            list.add(new String[]{"MATH101", "Calculus 1"});
-            list.add(new String[]{"PHYS101", "Physics for Engineers 1"});
-            list.add(new String[]{"CHEM101", "General Chemistry for Engineers"});
-            list.add(new String[]{"ENGR101", "Engineering Drawing and Graphics"});
+    private void addEngineeringSubjects(List<String[]> list, int year, String sem) {
+        if ("1st Semester".equals(sem)) {
+            switch (year) {
+                case 1 -> { list.add(s("MATH101")); list.add(s("PHYS101")); list.add(s("CHEM101")); list.add(s("ENGR101")); }
+                case 2 -> { list.add(s("MATH201")); list.add(s("CE201")); }
+            }
         } else {
-            list.add(new String[]{"MATH102", "Calculus 2"});
-            list.add(new String[]{"PHYS102", "Physics for Engineers 2"});
-            list.add(new String[]{"ENGR102", "Computer Fundamentals and Programming"});
-            list.add(new String[]{"ENGR103", "Engineering Mechanics"});
+            switch (year) {
+                case 1 -> { list.add(s("MATH102")); list.add(s("PHYS102")); list.add(s("ENGR102")); list.add(s("ENGR103")); }
+            }
         }
     }
 
-    // ── Generic subjects for unlisted courses ──
-
-    private void addGenericSubjects(List<String[]> list, String yearLevel, String semester) {
-        if ("1st Semester".equals(semester)) {
-            list.add(new String[]{"SCI101", "General Biology"});
-            list.add(new String[]{"ENG101", "Technical Writing"});
-            list.add(new String[]{"FIL101", "Komunikasyon sa Akademikong Filipino"});
-            list.add(new String[]{"SOC101", "Society and Culture"});
+    private void addGenericSubjects(List<String[]> list, int year, String sem) {
+        if ("1st Semester".equals(sem)) {
+            switch (year) {
+                case 1 -> { list.add(s("SCI101")); list.add(s("ENG101")); list.add(s("FIL101")); list.add(s("SOC101")); }
+                case 2 -> { list.add(s("SCI201")); list.add(s("RES101")); }
+            }
         } else {
-            list.add(new String[]{"SCI102", "General Chemistry"});
-            list.add(new String[]{"ENG102", "Literature"});
-            list.add(new String[]{"FIL102", "Pagbasa at Pagsulat"});
-            list.add(new String[]{"STAT101", "Elementary Statistics"});
+            switch (year) {
+                case 1 -> { list.add(s("SCI102")); list.add(s("ENG102")); list.add(s("FIL102")); list.add(s("STAT101")); }
+                case 2 -> { list.add(s("SOC102")); }
+            }
         }
     }
 }

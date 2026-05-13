@@ -17,8 +17,8 @@ public class GradeController {
     @GetMapping("/{stuId}")
     public ResponseEntity<?> getGrades(
             @PathVariable String stuId,
-            @RequestParam(required = false) String semester,
-            @RequestParam(required = false) String academicYear) {
-        return ResponseEntity.ok(gradeService.getGrades(stuId, semester, academicYear));
+            @RequestParam(required = false) Integer yearLevel,
+            @RequestParam(required = false) String semester) {
+        return ResponseEntity.ok(gradeService.getGrades(stuId, yearLevel, semester));
     }
 }

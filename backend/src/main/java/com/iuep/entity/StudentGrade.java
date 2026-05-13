@@ -13,11 +13,9 @@ public class StudentGrade {
     @Column(name = "stu_id", nullable = false)
     private String stuId;
 
-    @Column(name = "subject_code", nullable = false)
-    private String subjectCode;
-
-    @Column(nullable = false)
-    private String description;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "subject_id", nullable = false)
+    private Subject subject;
 
     @Column(nullable = false)
     private String grade;
@@ -28,6 +26,10 @@ public class StudentGrade {
     @Column(name = "academic_year", nullable = false)
     private String academicYear;
 
+    /** Year level when this grade was earned (1–5) */
+    @Column(name = "year_level", nullable = false)
+    private int yearLevel;
+
     // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -35,11 +37,8 @@ public class StudentGrade {
     public String getStuId() { return stuId; }
     public void setStuId(String stuId) { this.stuId = stuId; }
 
-    public String getSubjectCode() { return subjectCode; }
-    public void setSubjectCode(String subjectCode) { this.subjectCode = subjectCode; }
-
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public Subject getSubject() { return subject; }
+    public void setSubject(Subject subject) { this.subject = subject; }
 
     public String getGrade() { return grade; }
     public void setGrade(String grade) { this.grade = grade; }
@@ -49,4 +48,7 @@ public class StudentGrade {
 
     public String getAcademicYear() { return academicYear; }
     public void setAcademicYear(String academicYear) { this.academicYear = academicYear; }
+
+    public int getYearLevel() { return yearLevel; }
+    public void setYearLevel(int yearLevel) { this.yearLevel = yearLevel; }
 }

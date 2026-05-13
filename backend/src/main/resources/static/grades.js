@@ -2,8 +2,16 @@
 
 /**
  * @fileoverview Grades page — fetches student grades from the API
- * and renders them with a semester filter dropdown.
+ * and renders them with Year Level + Semester filter dropdowns.
+ * Grays out year levels / semesters the student hasn't reached yet.
  */
+
+/* ──────────────────────────────────────────────
+ *  Constants
+ * ────────────────────────────────────────────── */
+
+const YEAR_LABELS = { 1: '1st Year', 2: '2nd Year', 3: '3rd Year', 4: '4th Year', 5: '5th Year' };
+const ALL_SEMESTERS = ['1st Semester', '2nd Semester', 'Summer'];
 
 /* ──────────────────────────────────────────────
  *  Auth Check
@@ -30,18 +38,37 @@ function checkGradesAuth() {
 }
 
 /* ──────────────────────────────────────────────
+ *  DOM References
+ * ────────────────────────────────────────────── */
+
+let yearSelect, semesterSelect;
+
+/* ──────────────────────────────────────────────
+ *  Dropdown State
+ * ────────────────────────────────────────────── */
+
+/** Student's current year level (integer) — drives graying logic */
+let studentMaxYear = 1;
+
+/** Years that have grade data in the DB */
+let availableYears = [];
+
+/** Semesters with data for the currently selected year */
+let availableSemesters = [];
+
+/* ──────────────────────────────────────────────
  *  Fetch & Render
  * ────────────────────────────────────────────── */
 
 /**
- * Fetches grades from the backend and renders the table + semester dropdown.
+ * Fetches grades from the backend and renders the table.
+ * Also updates dropdown availability metadata.
  * @param {string} stuId - Student ID
- * @param {string} [semester] - Optional semester filter
- * @param {string} [academicYear] - Optional AY filter
+ * @param {number} [yearLevel] - Year level filter
+ * @param {string} [semester] - Semester filter
  */
-async function loadGrades(stuId, semester, academicYear) {
+async function loadGrades(stuId, yearLevel, semester) {
     const tbody = document.getElementById('grades-tbody');
-    const select = document.getElementById('semester-select');
     if (!tbody) return;
 
     // Show loading state
@@ -55,23 +82,20 @@ async function loadGrades(stuId, semester, academicYear) {
     try {
         let endpoint = `/grades/${stuId}`;
         const params = [];
+        if (yearLevel != null) params.push(`yearLevel=${yearLevel}`);
         if (semester) params.push(`semester=${encodeURIComponent(semester)}`);
-        if (academicYear) params.push(`academicYear=${encodeURIComponent(academicYear)}`);
         if (params.length) endpoint += '?' + params.join('&');
 
         const data = await apiFetch(endpoint);
 
-        // Populate semester dropdown (only on first load or if empty)
-        if (select && select.options.length <= 1 && data.semesters && data.semesters.length) {
-            // Clear existing options except the first "All Semesters"
-            select.innerHTML = '<option value="">All Semesters</option>';
-            data.semesters.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s;
-                opt.textContent = s;
-                select.appendChild(opt);
-            });
-        }
+        // Update state from API response
+        if (data.studentYearLevel != null) studentMaxYear = data.studentYearLevel;
+        if (data.availableYears) availableYears = data.availableYears;
+        if (data.availableSemesters) availableSemesters = data.availableSemesters;
+
+        // Update dropdown graying
+        updateYearDropdown();
+        updateSemesterDropdown();
 
         renderGradesTable(data.grades || []);
     } catch (err) {
@@ -97,7 +121,7 @@ function renderGradesTable(grades) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="3" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-                    No grades available for this semester.
+                    No grades available for this period.
                 </td>
             </tr>`;
         return;
@@ -113,23 +137,109 @@ function renderGradesTable(grades) {
 }
 
 /* ──────────────────────────────────────────────
- *  Semester Filter Handler
+ *  Dropdown Logic
  * ────────────────────────────────────────────── */
 
-function initSemesterFilter(stuId) {
-    const select = document.getElementById('semester-select');
-    if (!select) return;
+/**
+ * Updates the Year dropdown — grays out years beyond the student's enrollment.
+ */
+function updateYearDropdown() {
+    if (!yearSelect) return;
 
-    select.addEventListener('change', () => {
-        const val = select.value;
-        if (!val) {
-            // "All Semesters" selected
-            loadGrades(stuId);
-        } else {
-            // Value format: "1st Semester | 2025-2026"
-            const parts = val.split(' | ');
-            loadGrades(stuId, parts[0], parts[1]);
+    Array.from(yearSelect.options).forEach((opt) => {
+        const val = parseInt(opt.value, 10);
+        const isFuture = val > studentMaxYear;
+        opt.disabled = isFuture;
+        opt.classList.toggle('grade-option-disabled', isFuture);
+    });
+}
+
+/**
+ * Updates the Semester dropdown — grays out semesters without data
+ * for the currently selected year level.
+ */
+function updateSemesterDropdown() {
+    if (!semesterSelect) return;
+
+    Array.from(semesterSelect.options).forEach((opt) => {
+        const selectedYear = parseInt(yearSelect.value, 10);
+        const isFutureYear = selectedYear > studentMaxYear;
+
+        // If it's a future year, disable all semesters
+        if (isFutureYear) {
+            opt.disabled = true;
+            opt.classList.add('grade-option-disabled');
+            return;
         }
+
+        // For current/past years, check if this semester has data
+        const hasData = availableSemesters.includes(opt.value);
+
+        // For the student's current year, disable semesters they haven't reached
+        // For past years, all semesters should be available if they have data
+        const isCurrentYear = selectedYear === studentMaxYear;
+        const shouldDisable = isCurrentYear ? !hasData : !hasData;
+
+        opt.disabled = shouldDisable;
+        opt.classList.toggle('grade-option-disabled', shouldDisable);
+    });
+}
+
+/**
+ * Determines the current academic semester based on the date.
+ * June-October → 1st Semester, November-March → 2nd Semester, April-May → Summer
+ * @returns {string}
+ */
+function getCurrentSemester() {
+    const month = new Date().getMonth() + 1; // 1-12
+    if (month >= 6 && month <= 10) return '1st Semester';
+    if (month >= 11 || month <= 3) return '2nd Semester';
+    return 'Summer';
+}
+
+/* ──────────────────────────────────────────────
+ *  Filter Handlers
+ * ────────────────────────────────────────────── */
+
+function initFilterHandlers(stuId) {
+    yearSelect = document.getElementById('grade-year-select');
+    semesterSelect = document.getElementById('grade-semester-select');
+    if (!yearSelect || !semesterSelect) return;
+
+    yearSelect.addEventListener('change', () => {
+        const selectedYear = parseInt(yearSelect.value, 10);
+
+        // If user selects a disabled (future) year, revert
+        if (selectedYear > studentMaxYear) {
+            yearSelect.value = studentMaxYear;
+            return;
+        }
+
+        // Reload grades for the new year (and refresh semester availability)
+        // First load without semester filter to get available semesters for this year
+        loadGrades(stuId, selectedYear, null).then(() => {
+            // After loading, auto-select the first available semester
+            const firstAvailable = Array.from(semesterSelect.options).find(opt => !opt.disabled);
+            if (firstAvailable) {
+                semesterSelect.value = firstAvailable.value;
+                loadGrades(stuId, selectedYear, firstAvailable.value);
+            }
+        });
+    });
+
+    semesterSelect.addEventListener('change', () => {
+        const selectedYear = parseInt(yearSelect.value, 10);
+        const selectedSemester = semesterSelect.value;
+
+        // If user selects a disabled semester, revert to first available
+        const selectedOpt = semesterSelect.options[semesterSelect.selectedIndex];
+        if (selectedOpt.disabled) {
+            const firstAvailable = Array.from(semesterSelect.options).find(opt => !opt.disabled);
+            if (firstAvailable) semesterSelect.value = firstAvailable.value;
+            return;
+        }
+
+        loadGrades(stuId, selectedYear, selectedSemester);
     });
 }
 
@@ -150,8 +260,38 @@ function initGradesPage() {
         dateEl.textContent = formatDate();
     }
 
-    initSemesterFilter(stuId);
-    loadGrades(stuId);
+    yearSelect = document.getElementById('grade-year-select');
+    semesterSelect = document.getElementById('grade-semester-select');
+
+    // Parse user's year level to set defaults
+    const userYearStr = user.year_level || user.yearLevel || '1st Year';
+    studentMaxYear = parseUserYearLevel(userYearStr);
+
+    // Set default dropdown values
+    if (yearSelect) yearSelect.value = studentMaxYear;
+    if (semesterSelect) semesterSelect.value = getCurrentSemester();
+
+    initFilterHandlers(stuId);
+
+    // Initial load with defaults
+    loadGrades(stuId, studentMaxYear, getCurrentSemester());
+}
+
+/**
+ * Parses "1st Year", "2nd Year", etc. to an integer.
+ * @param {string} str
+ * @returns {number}
+ */
+function parseUserYearLevel(str) {
+    if (!str) return 1;
+    const trimmed = str.trim().toLowerCase();
+    if (trimmed.startsWith('1')) return 1;
+    if (trimmed.startsWith('2')) return 2;
+    if (trimmed.startsWith('3')) return 3;
+    if (trimmed.startsWith('4')) return 4;
+    if (trimmed.startsWith('5')) return 5;
+    const match = trimmed.match(/\d/);
+    return match ? parseInt(match[0], 10) : 1;
 }
 
 if (document.readyState === 'loading') {

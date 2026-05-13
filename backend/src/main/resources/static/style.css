@@ -584,6 +584,89 @@ a {
     text-align: center;
 }
 
+/* Grade Filter Bar */
+.grade-filter-bar {
+    display: flex;
+    gap: var(--space-lg);
+    margin-top: var(--space-lg);
+    align-items: flex-end;
+}
+
+.grade-filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.grade-filter-label {
+    font-size: var(--font-xs);
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.grade-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding: 0.6rem 2.25rem 0.6rem 1rem;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-color);
+    background-color: var(--surface);
+    color: var(--text-primary);
+    font-family: Montserrat, Arial, sans-serif;
+    font-size: var(--font-body);
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 12px;
+    min-width: 10rem;
+}
+
+.grade-select:hover {
+    border-color: var(--uep-blue);
+}
+
+.grade-select:focus {
+    outline: none;
+    border-color: var(--uep-blue);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--uep-blue) 15%, transparent);
+}
+
+/* Disabled option styling (grayed out for unenrolled periods) */
+.grade-select option.grade-option-disabled {
+    color: var(--text-secondary);
+    opacity: 0.45;
+    font-style: italic;
+}
+
+.grade-select option:disabled {
+    color: var(--text-secondary);
+    opacity: 0.45;
+    font-style: italic;
+}
+
+/* Dark mode arrow adjustment */
+[data-theme="dark"] .grade-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+
+/* Responsive: stack vertically on small screens */
+@media (max-width: 480px) {
+    .grade-filter-bar {
+        flex-direction: column;
+        gap: var(--space-md);
+    }
+
+    .grade-select {
+        width: 100%;
+    }
+}
+
 /* ----------------------------------------------
  *  13. Dashboard — Home Layout & Date Groups
  * ---------------------------------------------- */

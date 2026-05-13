@@ -2,7 +2,6 @@ package com.iuep.service;
 
 import com.iuep.entity.Admin;
 import com.iuep.entity.IdApplication;
-import com.iuep.entity.User;
 import com.iuep.exception.GlobalExceptionHandler.ApiException;
 import com.iuep.repository.AdminRepository;
 import com.iuep.repository.IdApplicationRepository;
@@ -20,15 +19,17 @@ public class AdminService {
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
     private final NotificationService notificationService;
+    private final IdApplicationMapper appMapper;
 
     public AdminService(AdminRepository adminRepo, IdApplicationRepository appRepo,
                         UserRepository userRepo, PasswordEncoder passwordEncoder,
-                        NotificationService notificationService) {
+                        NotificationService notificationService, IdApplicationMapper appMapper) {
         this.adminRepo = adminRepo;
         this.appRepo = appRepo;
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.notificationService = notificationService;
+        this.appMapper = appMapper;
     }
 
     // ── Application Management ──
@@ -40,13 +41,13 @@ public class AdminService {
         } else {
             apps = appRepo.findByStatusOrderByIdDesc(status);
         }
-        return apps.stream().map(this::enrichApplication).toList();
+        return apps.stream().map(appMapper::toMap).toList();
     }
 
     public Map<String, Object> getApplication(Long id) {
         IdApplication app = appRepo.findById(id)
                 .orElseThrow(() -> ApiException.notFound("Application not found"));
-        return enrichApplication(app);
+        return appMapper.toMap(app);
     }
 
     public Map<String, Object> updateApplicationStatus(Long id, String status, String rejectionReason) {
@@ -67,7 +68,7 @@ public class AdminService {
         notificationService.notifyStatusUpdate(app.getStudentId(), status);
         notificationService.notifyAdmins("status_update", Map.of("studentId", app.getStudentId(), "status", status));
 
-        return enrichApplication(app);
+        return appMapper.toMap(app);
     }
 
     public Map<String, Object> getStats() {
@@ -83,7 +84,7 @@ public class AdminService {
 
     public List<Map<String, Object>> claimedHistory() {
         return appRepo.findByStatusOrderByIdDesc("claimed")
-                .stream().map(this::enrichApplication).toList();
+                .stream().map(appMapper::toMap).toList();
     }
 
     // ── Admin Credential Management ──
@@ -168,40 +169,5 @@ public class AdminService {
         adminRepo.findById(id).orElseThrow(() -> ApiException.notFound("Admin not found."));
         adminRepo.deleteById(id);
         return Map.of("success", true);
-    }
-
-    // ── Helpers ──
-
-    private Map<String, Object> enrichApplication(IdApplication app) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("id", app.getId());
-        map.put("student_id", app.getStudentId());
-        map.put("status", app.getStatus());
-        map.put("photo_base64", app.getPhotoBase64());
-        map.put("cor_base64", app.getCorBase64());
-        map.put("photo_path", app.getPhotoPath());
-        map.put("cor_path", app.getCorPath());
-        map.put("library_id", app.getLibraryId());
-        map.put("rejection_reason", app.getRejectionReason());
-        map.put("submitted_at", app.getSubmittedAt());
-        map.put("updated_at", app.getUpdatedAt());
-        map.put("updated_by", app.getUpdatedBy());
-
-        // photo_url / cor_url for frontend compatibility
-        map.put("photo_url", app.getPhotoPath() != null ? app.getPhotoPath() : app.getPhotoBase64());
-        map.put("cor_url", app.getCorPath() != null ? app.getCorPath() : app.getCorBase64());
-
-        // Enrich with student info
-        userRepo.findByStuId(app.getStudentId()).ifPresent(user -> {
-            map.put("first_name", user.getFirstName());
-            map.put("middle_name", user.getMiddleName());
-            map.put("last_name", user.getLastName());
-            map.put("course", user.getCourse());
-            map.put("year_level", user.getYearLevel());
-            map.put("section", user.getSection());
-            map.put("stu_id", user.getStuId());
-        });
-
-        return map;
     }
 }

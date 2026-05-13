@@ -127,13 +127,12 @@ async function loadLogoBase64() {
 }
 
 /**
- * Renders the SVG ID card into the target div using current session user data
- * and (optionally) application data.
- * @param {Object|null} app - Application data (photo, course, etc.)
+ * Builds the card data object from app/user data for SVG rendering.
+ * Shared between renderSvgIdCard() and openFullscreenCard().
+ * @param {Object|null} app - Application data
+ * @returns {Promise<Object>} Card data for generateIdCardSVG()
  */
-async function renderSvgIdCard(app) {
-    if (!DOM.svgTarget || typeof generateIdCardSVG !== 'function') return;
-
+async function buildCardData(app) {
     const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
     const logoBase64 = await loadLogoBase64();
 
@@ -147,20 +146,27 @@ async function renderSvgIdCard(app) {
         studentName = parts.join(' ') || 'STUDENT NAME';
     }
 
-    // Determine college from course (simple mapping)
     const activeCourse = app?.course || user?.course;
     const college = app?.college || getCollegeFromCourse(activeCourse) || 'COLLEGE OF SCIENCE';
 
-    const cardData = {
-        studentName: studentName,
+    return {
+        studentName,
         studentId: app?.student_id || user?.stu_id || '000000',
         course: activeCourse || 'BSIT',
-        college: college,
+        college,
         photoBase64: app?.photo_url || app?.photo_base64 || '',
-        logoBase64: logoBase64,
+        logoBase64,
     };
+}
 
-    DOM.svgTarget.innerHTML = generateIdCardSVG(cardData);
+/**
+ * Renders the SVG ID card into the target div using current session user data
+ * and (optionally) application data.
+ * @param {Object|null} app - Application data (photo, course, etc.)
+ */
+async function renderSvgIdCard(app) {
+    if (!DOM.svgTarget || typeof generateIdCardSVG !== 'function') return;
+    DOM.svgTarget.innerHTML = generateIdCardSVG(await buildCardData(app));
 }
 
 /**
@@ -278,6 +284,8 @@ async function renderIdPage() {
         renderLostRequested(app);
     } else if (app.status === 'lost_declined') {
         renderLostDeclined(app);
+    } else if (app.status === 'lost') {
+        renderLostApproved(app);
     } else {
         renderInProgress(app);
     }
@@ -430,7 +438,6 @@ function renderLostRequested(app) {
     DOM.applyBtn.disabled = true;
     DOM.applyBtn.classList.add('btn-disabled');
     DOM.lostBtn.disabled = true;
-    DOM.lostBtn.disabled = true;
     DOM.lostBtn.classList.add('btn-disabled');
 }
 
@@ -455,6 +462,29 @@ function renderLostDeclined(app) {
     DOM.applyBtn.classList.add('btn-disabled');
     DOM.lostBtn.disabled = false;
     DOM.lostBtn.classList.remove('btn-disabled');
+}
+
+/** Lost Approved state — admin confirmed the ID is lost, student can re-apply */
+function renderLostApproved(app) {
+    loadPersistentDigitalId('ID Reported as Lost/Damaged');
+    populateCardInfo(app);
+
+    DOM.noRecord.classList.add('hidden');
+    DOM.readyNotice.classList.add('hidden');
+    DOM.claimedNotice.classList.add('hidden');
+    DOM.rejectionBanner.classList.remove('hidden');
+    DOM.rejectionBanner.querySelector('h3').textContent = 'ID Marked as Lost/Damaged';
+    DOM.rejectionReason.textContent = 'Your previous ID has been invalidated. You may now apply for a replacement.';
+
+    // Reset status bar
+    DOM.statusSteps.forEach((step) => step.classList.remove('active', 'completed', 'rejected'));
+    DOM.connectors.forEach((c) => c.classList.remove('active', 'rejected'));
+
+    // Enable apply (for replacement), disable lost
+    DOM.applyBtn.disabled = false;
+    DOM.applyBtn.classList.remove('btn-disabled');
+    DOM.lostBtn.disabled = true;
+    DOM.lostBtn.classList.add('btn-disabled');
 }
 
 /**
@@ -713,32 +743,7 @@ let _currentApp = null;
 async function openFullscreenCard() {
     if (!_currentApp || !DOM.fullscreenPopover) return;
 
-    // Render the card into the fullscreen target
-    const user = (typeof getSessionUser === 'function') ? getSessionUser() : null;
-    const logoBase64 = await loadLogoBase64();
-
-    const sourceUser = _currentApp?.first_name ? _currentApp : user;
-    let studentName = 'STUDENT NAME';
-    if (sourceUser) {
-        const parts = [];
-        if (sourceUser.first_name) parts.push(sourceUser.first_name.toUpperCase());
-        if (sourceUser.middle_name) parts.push(sourceUser.middle_name.charAt(0).toUpperCase() + '.');
-        if (sourceUser.last_name) parts.push(sourceUser.last_name.toUpperCase());
-        studentName = parts.join(' ') || 'STUDENT NAME';
-    }
-
-    const activeCourse = _currentApp?.course || user?.course;
-    const college = _currentApp?.college || getCollegeFromCourse(activeCourse) || 'COLLEGE OF SCIENCE';
-
-    DOM.fullscreenSvgTarget.innerHTML = generateIdCardSVG({
-        studentName: studentName,
-        studentId: _currentApp?.student_id || user?.stu_id || '000000',
-        course: activeCourse || 'BSIT',
-        college: college,
-        photoBase64: _currentApp?.photo_url || _currentApp?.photo_base64 || '',
-        logoBase64: logoBase64,
-    });
-
+    DOM.fullscreenSvgTarget.innerHTML = generateIdCardSVG(await buildCardData(_currentApp));
     DOM.fullscreenPopover.showPopover();
 }
 

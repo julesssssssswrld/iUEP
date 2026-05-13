@@ -18,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,27 +27,30 @@ public class IdApplicationService {
     private final IdApplicationRepository appRepo;
     private final UserRepository userRepo;
     private final NotificationService notificationService;
+    private final IdApplicationMapper appMapper;
 
     @Value("${app.upload-dir}")
     private String uploadDir;
 
-    public IdApplicationService(IdApplicationRepository appRepo, UserRepository userRepo, NotificationService notificationService) {
+    public IdApplicationService(IdApplicationRepository appRepo, UserRepository userRepo,
+                                NotificationService notificationService, IdApplicationMapper appMapper) {
         this.appRepo = appRepo;
         this.userRepo = userRepo;
         this.notificationService = notificationService;
+        this.appMapper = appMapper;
     }
 
     public Map<String, Object> getLatest(String stuId) {
         var app = appRepo.findFirstByStudentIdOrderByIdDesc(stuId);
         if (app.isEmpty()) return null;
-        return enrichApplication(app.get());
+        return appMapper.toMap(app.get());
     }
 
     public Map<String, Object> getDigitalId(String stuId) {
         List<IdApplication> apps = appRepo.findByStudentId(stuId);
         for (IdApplication app : apps) {
             if (List.of("completed", "claimed").contains(app.getStatus())) {
-                return enrichApplication(app);
+                return appMapper.toMap(app);
             }
         }
         return null;
@@ -100,7 +102,7 @@ public class IdApplicationService {
             // Notify admins of new submission
             notificationService.notifyAdmins("new_submission", Map.of("studentId", studentId));
 
-            return enrichApplication(app);
+            return appMapper.toMap(app);
         } catch (ApiException e) {
             throw e;
         } catch (Exception e) {
@@ -125,49 +127,41 @@ public class IdApplicationService {
             throw ApiException.notFound("No application found for this student.");
         }
 
-        IdApplication activeApp = appOpt.get();
-        if (!"claimed".equals(activeApp.getStatus()) && !"lost_declined".equals(activeApp.getStatus())) {
+        IdApplication latestApp = appOpt.get();
+
+        // Allow reporting from 'claimed' or 'lost_declined' states
+        if (!"claimed".equals(latestApp.getStatus()) && !"lost_declined".equals(latestApp.getStatus())) {
             throw ApiException.badRequest("Only fully claimed IDs or declined requests can be reported as lost or damaged.");
         }
 
-        // Create a new ledger entry for the request
+        // Find the original claimed application to carry forward its data
+        IdApplication claimedApp = latestApp;
+        if (!"claimed".equals(latestApp.getStatus())) {
+            // Walk back to find the original claimed entry
+            List<IdApplication> allApps = appRepo.findByStudentId(stuId);
+            for (int i = allApps.size() - 1; i >= 0; i--) {
+                if ("claimed".equals(allApps.get(i).getStatus())) {
+                    claimedApp = allApps.get(i);
+                    break;
+                }
+            }
+        }
+
+        // Create a new ledger entry for the request, carrying forward key data
         IdApplication lostRequest = new IdApplication();
         lostRequest.setStudentId(stuId);
         lostRequest.setStatus("lost_requested");
         lostRequest.setLostReason(reason);
         lostRequest.setUpdatedBy("student");
+        // Carry forward the original ID data so admin can see what was lost
+        lostRequest.setPhotoPath(claimedApp.getPhotoPath());
+        lostRequest.setCorPath(claimedApp.getCorPath());
+        lostRequest.setLibraryId(claimedApp.getLibraryId());
         appRepo.save(lostRequest);
 
         // Notify admins of lost ID request
         notificationService.notifyAdmins("status_update", Map.of("studentId", stuId, "status", "lost_requested"));
 
         return Map.of("success", true, "message", "Replacement request submitted. Awaiting admin approval.");
-    }
-
-    private Map<String, Object> enrichApplication(IdApplication app) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("id", app.getId());
-        map.put("student_id", app.getStudentId());
-        map.put("status", app.getStatus());
-        map.put("photo_path", app.getPhotoPath());
-        map.put("cor_path", app.getCorPath());
-        map.put("photo_base64", app.getPhotoBase64());
-        map.put("cor_base64", app.getCorBase64());
-        map.put("library_id", app.getLibraryId());
-        map.put("rejection_reason", app.getRejectionReason());
-        map.put("lost_reason", app.getLostReason());
-        map.put("submitted_at", app.getSubmittedAt());
-        map.put("updated_at", app.getUpdatedAt());
-        map.put("photo_url", app.getPhotoPath() != null ? app.getPhotoPath() : app.getPhotoBase64());
-        map.put("cor_url", app.getCorPath() != null ? app.getCorPath() : app.getCorBase64());
-        userRepo.findByStuId(app.getStudentId()).ifPresent(user -> {
-            map.put("first_name", user.getFirstName());
-            map.put("middle_name", user.getMiddleName());
-            map.put("last_name", user.getLastName());
-            map.put("course", user.getCourse());
-            map.put("year_level", user.getYearLevel());
-            map.put("section", user.getSection());
-        });
-        return map;
     }
 }
