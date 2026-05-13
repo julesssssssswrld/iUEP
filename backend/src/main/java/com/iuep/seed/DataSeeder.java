@@ -46,7 +46,7 @@ public class DataSeeder implements CommandLineRunner {
         seedUser("235828", "Kent Jeanne", "Saradogan", "De Leon", "BSIT", "2", "C", "2000-11-21", "lampake000@gmail.com");
         seedUser("244556", "Keniel Drew", "Dimaculangan", "De Asis", "BSIT", "2", "C", "2005-12-20", "kenielddeasis@gmail.com");
         seedUser("244530", "Jovan", "Pabia", "Atencio", "BSIT", "2", "C", "2006-02-05", "jovanatencio17@gmail.com");
-        seedUser("240456", "Jose Manuel", "Morado", "Cardeno", "BSIT", "2", "C", "2006-09-23", "jmcardeno706@gmail.com");
+        seedUser("240456", "Jose Manuel", "Morado", "Cardeño", "BSIT", "2", "C", "2006-09-23", "jmcardeno706@gmail.com");
 
         // Seed admin alongside users
         seedAdmin();
