@@ -265,16 +265,21 @@ function initGradesPage() {
 
     // Parse user's year level to set defaults
     const userYearStr = user.year_level || user.yearLevel || '1st Year';
-    studentMaxYear = parseUserYearLevel(userYearStr);
-
-    // Set default dropdown values
+    // Set default year and initialize handlers before loading
     if (yearSelect) yearSelect.value = studentMaxYear;
-    if (semesterSelect) semesterSelect.value = getCurrentSemester();
-
     initFilterHandlers(stuId);
 
-    // Initial load with defaults
-    loadGrades(stuId, studentMaxYear, getCurrentSemester());
+    // Initial load with defaults: fetch year data, then auto-select the first available semester
+    loadGrades(stuId, studentMaxYear, null).then(() => {
+        if (semesterSelect) {
+            // Find the first option that isn't disabled (i.e. has grades)
+            const firstAvailable = Array.from(semesterSelect.options).find(opt => !opt.disabled);
+            if (firstAvailable) {
+                semesterSelect.value = firstAvailable.value;
+                loadGrades(stuId, studentMaxYear, firstAvailable.value);
+            }
+        }
+    });
 }
 
 /**
