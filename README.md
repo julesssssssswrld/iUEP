@@ -9,7 +9,7 @@ iUEP Connect is an integrated student portal designed to streamline university s
 - **Frontend:** Vanilla HTML, CSS, JavaScript
 - **Integrations:** 
   - **Apify:** Facebook Posts Scraper for university news feeds
-  - **SMTP:** JavaMailSender for OTP and email verification
+  - **Brevo API:** Java HttpClient for HTTP-based OTP and email verification
 
 ## Key Features
 
@@ -38,6 +38,10 @@ iUEP Connect is an integrated student portal designed to streamline university s
    *(For Windows: `.\mvnw.cmd spring-boot:run`)*
 
 3. The application will start on `http://localhost:3000`.
+
+### Deployment
+
+This application is configured for deployment on **Render** using Docker. The `render.yaml` file defines the Web Service configuration.
 
 ## Demo Credentials & Seeding
 
