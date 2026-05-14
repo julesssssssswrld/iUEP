@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: iuep-connect
+    runtime: docker
+    region: singapore
+    plan: free
+    branch: main
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    healthCheckPath: /api/health
