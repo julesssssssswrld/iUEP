@@ -53,8 +53,8 @@ public class SecurityConfig {
                         "/Figma/**", "/uploads/**", "/ws/**").permitAll()
                 // Auth endpoints (public)
                 .requestMatchers("/api/auth/**").permitAll()
-                // Health check (Render)
-                .requestMatchers("/api/health").permitAll()
+                // Health check (Render) and error page
+                .requestMatchers("/api/health", "/error").permitAll()
                 // Public data
                 .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/courses/**").permitAll()
