@@ -47,15 +47,21 @@ iUEP Connect is an integrated student portal designed to streamline university s
 > **Apify Scraping Service:** By default, the Facebook posts scraper is disabled to save Apify credits. To test the live feed, you can manually flip the `SCRAPER_ENABLED` variable to `true` inside [`backend/src/main/java/com/iuep/service/ScraperService.java`](backend/src/main/java/com/iuep/service/ScraperService.java).
 
 ### Seeded Student Accounts
-You can use the following Student IDs to register/test the portal:
+The following students are pre-loaded in the database. You can use their Student ID and birthday to simulate a full signup flow on the live site. You can use any email address that you have access to receive OTP codes.
 
-| Student ID | Full Name | Email |
+> **How to simulate a signup:**
+> 1. Go to the **Sign Up** page and enter a student's **Student ID** from the table below.
+> 2. The system will verify the ID exists, then ask for the student's **birthday** as identity confirmation.
+> 3. After passing verification, enter an **email address** to receive an OTP.
+> 4. Complete the OTP verification and set a new username and password.
+
+| Student ID | Full Name | Birthday |
 | :--- | :--- | :--- |
-| `240475` | Jules Ian Cajandab Tomacas | `tomacasjulesiancajandab@gmail.com` |
-| `235828` | Kent Jeanne Saradogan De Leon | `lampake000@gmail.com` |
-| `244556` | Keniel Drew Dimaculangan De Asis | `kenielddeasis@gmail.com` |
-| `244530` | Jovan Pabia Atencio | `jovanatencio17@gmail.com` |
-| `240456` | Jose Manuel Morado Cardeño | `jmcardeno706@gmail.com` |
+| `240475` | Jules Ian Cajandab Tomacas | June 8, 2006 |
+| `235828` | Kent Jeanne Saradogan De Leon | November 21, 2000 |
+| `244556` | Keniel Drew Dimaculangan De Asis | December 20, 2005 |
+| `244530` | Jovan Pabia Atencio | February 5, 2006 |
+| `240456` | Jose Manuel Morado Cardeño | September 23, 2006 |
 
 ### Admin Access
 For administrative access, sample credentials have been pre-configured:

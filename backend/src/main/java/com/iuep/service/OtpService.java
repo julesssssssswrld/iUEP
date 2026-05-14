@@ -6,8 +6,6 @@ import com.iuep.repository.OtpCodeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +18,7 @@ public class OtpService {
 
     private static final Logger log = LoggerFactory.getLogger(OtpService.class);
     private final OtpCodeRepository otpRepo;
-    private final JavaMailSender mailSender;
+    private final EmailDispatchService emailDispatch;
     private final SecureRandom random = new SecureRandom();
 
     @Value("${app.otp.expiration-minutes}")
@@ -29,9 +27,9 @@ public class OtpService {
     @Value("${spring.mail.username:}")
     private String fromEmail;
 
-    public OtpService(OtpCodeRepository otpRepo, JavaMailSender mailSender) {
+    public OtpService(OtpCodeRepository otpRepo, EmailDispatchService emailDispatch) {
         this.otpRepo = otpRepo;
-        this.mailSender = mailSender;
+        this.emailDispatch = emailDispatch;
     }
 
     /** Generates a 6-digit OTP and sends it via email */
@@ -65,21 +63,12 @@ public class OtpService {
         otp.setExpiresAt(LocalDateTime.now().plusMinutes(expirationMinutes));
         otpRepo.save(otp);
 
-        // Try to send email, fall back to console logging
-        try {
-            if (fromEmail != null && !fromEmail.isBlank()) {
-                SimpleMailMessage msg = new SimpleMailMessage();
-                msg.setFrom(fromEmail);
-                msg.setTo(email);
-                msg.setSubject("iUEP Verification Code");
-                msg.setText("Your verification code is: " + code + "\n\nThis code expires in " + expirationMinutes + " minutes.");
-                mailSender.send(msg);
-                log.info("[OTP] Sent verification code to {}", email);
-            } else {
-                log.info("[OTP] Email not configured. Code for {}: {}", email, code);
-            }
-        } catch (Exception e) {
-            log.warn("[OTP] Failed to send email to {}. Code: {} — Error: {}", email, code, e.getMessage());
+        // Fire-and-forget: email is sent on a background thread so the HTTP response
+        // returns immediately after the OTP is persisted.
+        if (fromEmail != null && !fromEmail.isBlank()) {
+            emailDispatch.sendOtpEmail(fromEmail, email, code, expirationMinutes);
+        } else {
+            log.info("[OTP] Email not configured. Code for {}: {}", email, code);
         }
 
         return Map.of("success", true, "message", "Verification code sent.");
