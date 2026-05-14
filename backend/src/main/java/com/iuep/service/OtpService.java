@@ -24,8 +24,6 @@ public class OtpService {
     @Value("${app.otp.expiration-minutes}")
     private int expirationMinutes;
 
-    @Value("${spring.mail.username:}")
-    private String fromEmail;
 
     public OtpService(OtpCodeRepository otpRepo, EmailDispatchService emailDispatch) {
         this.otpRepo = otpRepo;
@@ -63,13 +61,9 @@ public class OtpService {
         otp.setExpiresAt(LocalDateTime.now().plusMinutes(expirationMinutes));
         otpRepo.save(otp);
 
-        // Fire-and-forget: email is sent on a background thread so the HTTP response
-        // returns immediately after the OTP is persisted.
-        if (fromEmail != null && !fromEmail.isBlank()) {
-            emailDispatch.sendOtpEmail(fromEmail, email, code, expirationMinutes);
-        } else {
-            log.info("[OTP] Email not configured. Code for {}: {}", email, code);
-        }
+        // Fire-and-forget: email is sent on a background thread via Brevo HTTP API
+        // so the HTTP response returns immediately after the OTP is persisted.
+        emailDispatch.sendOtpEmail(null, email, code, expirationMinutes);
 
         return Map.of("success", true, "message", "Verification code sent.");
     }
