@@ -12,5 +12,4 @@ RUN ./mvnw clean package -DskipTests -B
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
-EXPOSE ${PORT:-3000}
 ENTRYPOINT ["java", "-jar", "app.jar"]
