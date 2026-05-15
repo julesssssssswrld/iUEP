@@ -72,4 +72,26 @@ public class AuthController {
     public ResponseEntity<?> lookupEmail(@RequestBody Map<String, String> body) {
         return ResponseEntity.ok(authService.lookupEmail(body.get("stuId")));
     }
+
+    /**
+     * Send OTP for password recovery using only stuId.
+     * The backend looks up the real email internally — it's never sent to the client.
+     */
+    @PostMapping("/send-otp-for-recovery")
+    public ResponseEntity<?> sendOtpForRecovery(@RequestBody Map<String, String> body) {
+        String stuId = body.get("stuId");
+        String email = authService.getEmailForStudent(stuId);
+        return ResponseEntity.ok(otpService.sendOtp(email, "password_reset"));
+    }
+
+    /**
+     * Verify OTP for password recovery using only stuId.
+     * The backend looks up the real email internally.
+     */
+    @PostMapping("/verify-otp-for-recovery")
+    public ResponseEntity<?> verifyOtpForRecovery(@RequestBody Map<String, String> body) {
+        String stuId = body.get("stuId");
+        String email = authService.getEmailForStudent(stuId);
+        return ResponseEntity.ok(otpService.verifyOtp(email, body.get("code"), "password_reset"));
+    }
 }

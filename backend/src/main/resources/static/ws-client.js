@@ -10,19 +10,17 @@ function connectWebSocket() {
     stompClient.debug = null; // Disable debug logging for production
 
     stompClient.connect({}, function (frame) {
-        console.log('Connected to WebSocket');
 
         if (isAdminPage) {
             // Admin context
             stompClient.subscribe('/topic/admin', function (message) {
                 const event = JSON.parse(message.body);
-                console.log('Admin event received:', event);
-                
+
                 // If there's a global toast function (either from admin layout or elsewhere)
                 if (typeof showToast === 'function') {
                     showToast('Application Update: ' + (event.data?.studentId || event.event));
                 }
-                
+
                 // Dispatch event after a short delay to ensure backend DB transaction has committed
                 setTimeout(() => {
                     document.dispatchEvent(new CustomEvent('adminDataUpdated', { detail: event }));
@@ -38,8 +36,7 @@ function connectWebSocket() {
                     if (stuId) {
                         stompClient.subscribe('/topic/status/' + stuId, function (message) {
                             const event = JSON.parse(message.body);
-                            console.log('Status event received:', event);
-                            
+
                             // Dispatch event after a short delay to ensure backend DB transaction has committed
                             setTimeout(() => {
                                 document.dispatchEvent(new CustomEvent('idStatusUpdated', { detail: event }));

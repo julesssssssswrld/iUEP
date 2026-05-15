@@ -57,12 +57,7 @@ public class UserService {
 
         User user = getUser(stuId);
 
-        // Verify current password (supports both plain-text and BCrypt)
-        boolean matches = user.getPasswordHash().startsWith("$2")
-                ? passwordEncoder.matches(currentPassword, user.getPasswordHash())
-                : user.getPasswordHash().equals(currentPassword);
-
-        if (!matches) {
+        if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
             throw ApiException.unauthorized("Current password is incorrect.");
         }
 

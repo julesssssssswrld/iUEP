@@ -6,6 +6,7 @@ import com.iuep.repository.OtpCodeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,5 +89,13 @@ public class OtpService {
         otpRepo.save(otp);
 
         return Map.of("success", true, "verified", true);
+    }
+
+    /** Purge expired OTP entries daily at 4 AM */
+    @Scheduled(cron = "0 0 4 * * *")
+    @Transactional
+    public void purgeExpiredOtps() {
+        otpRepo.deleteByExpiresAtBefore(LocalDateTime.now());
+        log.info("[OTP] Purged expired OTP entries");
     }
 }

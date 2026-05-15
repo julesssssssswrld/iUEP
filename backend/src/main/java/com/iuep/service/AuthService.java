@@ -6,7 +6,6 @@ import com.iuep.exception.GlobalExceptionHandler.ApiException;
 import com.iuep.repository.AdminRepository;
 import com.iuep.repository.UserRepository;
 import com.iuep.security.JwtUtil;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -136,14 +135,8 @@ public class AuthService {
             throw ApiException.unauthorized("Invalid credentials.");
         }
 
-        if (!verifyPassword(password, user.getPasswordHash())) {
+        if (!passwordEncoder.matches(password, user.getPasswordHash())) {
             throw ApiException.unauthorized("Invalid credentials.");
-        }
-
-        // Migrate plain-text passwords to BCrypt on successful login
-        if (!user.getPasswordHash().startsWith("$2")) {
-            user.setPasswordHash(passwordEncoder.encode(password));
-            userRepo.save(user);
         }
 
         // Generate JWT and set cookie
@@ -173,14 +166,8 @@ public class AuthService {
         Admin admin = adminRepo.findByUsername(username)
                 .orElseThrow(() -> ApiException.unauthorized("Invalid admin credentials."));
 
-        if (admin.getPasswordHash() == null || !verifyPassword(password, admin.getPasswordHash())) {
+        if (admin.getPasswordHash() == null || !passwordEncoder.matches(password, admin.getPasswordHash())) {
             throw ApiException.unauthorized("Invalid admin credentials.");
-        }
-
-        // Migrate plain-text passwords to BCrypt
-        if (!admin.getPasswordHash().startsWith("$2")) {
-            admin.setPasswordHash(passwordEncoder.encode(password));
-            adminRepo.save(admin);
         }
 
         String token = jwtUtil.generateAdminToken(admin.getId(), admin.getUsername());
@@ -197,11 +184,8 @@ public class AuthService {
 
     /** Logout — clear JWT cookie */
     public void logout(HttpServletResponse response) {
-        Cookie cookie = new Cookie("iUEP_token", "");
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
+        response.addHeader("Set-Cookie",
+                "iUEP_token=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0");
     }
 
     /** Password recovery — reset password after OTP verification */
@@ -249,27 +233,33 @@ public class AuthService {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("found", true);
         result.put("maskedEmail", masked);
-        result.put("email", user.getEmail()); // Full email needed for OTP sending
         return result;
     }
 
-    /** Verify password — supports both plain-text (legacy) and BCrypt */
+    /** Verify password — BCrypt only (plain-text migration removed) */
     private boolean verifyPassword(String rawPassword, String storedHash) {
         if (storedHash == null) return false;
-        // BCrypt hashes start with $2a$, $2b$, or $2y$
-        if (storedHash.startsWith("$2")) {
-            return passwordEncoder.matches(rawPassword, storedHash);
+        return passwordEncoder.matches(rawPassword, storedHash);
+    }
+
+    /** Look up the real email for a student ID (server-side only, not exposed to client) */
+    public String getEmailForStudent(String stuId) {
+        if (stuId == null || !stuId.matches("^\\d{6}$")) {
+            throw ApiException.badRequest("Student ID must be exactly 6 digits.");
         }
-        // Legacy plain-text comparison
-        return storedHash.equals(rawPassword);
+        User user = userRepo.findByStuId(stuId)
+                .orElseThrow(() -> ApiException.notFound("No student found with this ID."));
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            throw ApiException.badRequest("No email on file for this student.");
+        }
+        return user.getEmail();
     }
 
     private void setJwtCookie(HttpServletResponse response, String token) {
-        Cookie cookie = new Cookie("iUEP_token", token);
-        cookie.setHttpOnly(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(86400); // 24 hours
-        cookie.setSecure(false); // Set to true in production with HTTPS
-        response.addCookie(cookie);
+        String cookieHeader = String.format(
+                "iUEP_token=%s; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=86400",
+                token
+        );
+        response.addHeader("Set-Cookie", cookieHeader);
     }
 }

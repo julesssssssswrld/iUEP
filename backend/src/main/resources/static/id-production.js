@@ -831,6 +831,5 @@ if (document.readyState === 'loading') {
 
 // Listen for real-time WebSocket updates
 document.addEventListener('idStatusUpdated', (e) => {
-    console.log('Real-time ID status update received:', e.detail);
     renderIdPage();
 });

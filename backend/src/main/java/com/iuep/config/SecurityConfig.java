@@ -38,14 +38,21 @@ public class SecurityConfig {
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
             // ── Security Headers ──
-            .headers(headers -> headers
-                .contentTypeOptions(cto -> {})                      // X-Content-Type-Options: nosniff
-                .frameOptions(fo -> fo.deny())                      // X-Frame-Options: DENY
-                .referrerPolicy(rp -> rp.policy(
-                        ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
-                .permissionsPolicy(pp -> pp.policy(
-                        "camera=(), microphone=(), geolocation=()"))
-            )
+            .headers(headers -> {
+                headers.contentTypeOptions(cto -> {});                      // X-Content-Type-Options: nosniff
+                headers.frameOptions(fo -> fo.deny());                      // X-Frame-Options: DENY
+                headers.referrerPolicy(rp -> rp.policy(
+                        ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN));
+                headers.permissionsPolicy(pp -> pp.policy(
+                        "camera=(), microphone=(), geolocation=()"));
+                headers.contentSecurityPolicy(csp -> csp.policyDirectives(
+                        "default-src 'self'; " +
+                        "script-src 'self' 'unsafe-inline' cdn.jsdelivr.net; " +
+                        "style-src 'self' 'unsafe-inline' fonts.googleapis.com; " +
+                        "font-src 'self' fonts.gstatic.com; " +
+                        "img-src 'self' data: blob: https:; " +
+                        "connect-src 'self' wss: ws:"));
+            })
 
             .authorizeHttpRequests(auth -> auth
                 // Static resources

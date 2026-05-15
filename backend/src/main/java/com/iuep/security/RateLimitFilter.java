@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -61,6 +62,14 @@ public class RateLimitFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /** Evict stale buckets every 5 minutes to prevent memory leak */
+    @Scheduled(fixedRate = 300_000)
+    public void evictStaleBuckets() {
+        long now = System.nanoTime();
+        long threshold = 10L * 60 * 1_000_000_000L; // 10 minutes
+        buckets.entrySet().removeIf(e -> (now - e.getValue().lastAccessNanos) > threshold);
+    }
+
     private String getClientIp(HttpServletRequest request) {
         String xff = request.getHeader("X-Forwarded-For");
         if (xff != null && !xff.isBlank()) {
@@ -98,16 +107,19 @@ public class RateLimitFilter extends OncePerRequestFilter {
         private final double refillPerSecond;
         private double tokens;
         private long lastRefillNanos;
+        volatile long lastAccessNanos;
 
         RateBucket(int maxTokens, double refillPerSecond) {
             this.maxTokens = maxTokens;
             this.refillPerSecond = refillPerSecond;
             this.tokens = maxTokens;
             this.lastRefillNanos = System.nanoTime();
+            this.lastAccessNanos = System.nanoTime();
         }
 
         synchronized boolean tryConsume() {
             refill();
+            lastAccessNanos = System.nanoTime();
             if (tokens >= 1) {
                 tokens -= 1;
                 return true;

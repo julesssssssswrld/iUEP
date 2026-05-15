@@ -24,6 +24,8 @@ import java.util.Map;
 @Service
 public class IdApplicationService {
 
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(IdApplicationService.class);
+
     private final IdApplicationRepository appRepo;
     private final UserRepository userRepo;
     private final NotificationService notificationService;
@@ -106,7 +108,7 @@ public class IdApplicationService {
         } catch (ApiException e) {
             throw e;
         } catch (Exception e) {
-            e.printStackTrace(); // Log the actual error for debugging
+            log.error("Failed to save ID application for student {}", studentId, e);
             throw new RuntimeException("Failed to save ID application", e);
         }
     }
