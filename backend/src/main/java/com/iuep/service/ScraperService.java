@@ -34,7 +34,7 @@ public class ScraperService {
     // ║  Set to true  → live Apify scraping is active                ║
     // ║  Set to false → all scraping is disabled (saves credits)     ║
     // ╚══════════════════════════════════════════════════════════════╝
-    private static final boolean SCRAPER_ENABLED = false;
+    private static final boolean SCRAPER_ENABLED = true;
 
     private static final Logger log = LoggerFactory.getLogger(ScraperService.class);
     private static final int STALE_HOURS = 168;
