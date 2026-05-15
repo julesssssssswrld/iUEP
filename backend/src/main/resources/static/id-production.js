@@ -166,6 +166,7 @@ async function buildCardData(app) {
  */
 async function renderSvgIdCard(app) {
     if (!DOM.svgTarget || typeof generateIdCardSVG !== 'function') return;
+    showIdCardLoading();
     DOM.svgTarget.innerHTML = generateIdCardSVG(await buildCardData(app));
 }
 
@@ -174,6 +175,7 @@ async function renderSvgIdCard(app) {
  * If not found, renders a placeholder with the fallback message.
  */
 async function loadPersistentDigitalId(fallbackMessage = 'No University ID on record') {
+    showIdCardLoading();
     try {
         const stuId = getCurrentStudentId();
         const app = await apiFetch(`/id-application/${stuId}/digital-id`);
@@ -191,10 +193,20 @@ async function loadPersistentDigitalId(fallbackMessage = 'No University ID on re
 }
 
 /**
- * Shows a placeholder card in the SVG target area.
- * Same dimensions as the SVG card for visual uniformity.
- * @param {string} message - Message to display in the placeholder.
+ * Shows a loading skeleton in the SVG target area while the card loads.
  */
+function showIdCardLoading() {
+    if (!DOM.svgTarget) return;
+    DOM.svgTarget.innerHTML = `
+        <div class="id-card-skeleton" aria-busy="true" aria-label="Loading ID card">
+            <div class="skeleton-pulse skeleton-photo"></div>
+            <div class="skeleton-pulse skeleton-line skeleton-line-wide"></div>
+            <div class="skeleton-pulse skeleton-line skeleton-line-narrow"></div>
+            <div class="skeleton-pulse skeleton-line skeleton-line-mid"></div>
+        </div>
+    `;
+}
+
 function showPlaceholder(message = 'No ID on record') {
     if (!DOM.svgTarget) return;
 
@@ -601,13 +613,20 @@ async function handleFormSubmit(e) {
         return;
     }
 
-    // Compress images to JPEG via canvas (handles PNG transparency)
-    const photoBase64 = await fileToBase64(photoFile, 800);
-    const corBase64 = await fileToBase64(corFile, 1200);
-
-    const studentId = getCurrentStudentId();
+    // Enter submitting state
+    const submitBtn = document.getElementById('id-form-submit');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.classList.add('btn-submitting');
+    submitBtn.innerHTML = `<span class="btn-spinner"></span>Submitting...`;
 
     try {
+        // Compress images to JPEG via canvas (handles PNG transparency)
+        const photoBase64 = await fileToBase64(photoFile, 800);
+        const corBase64 = await fileToBase64(corFile, 1200);
+
+        const studentId = getCurrentStudentId();
+
         await apiFetch('/id-application', {
             method: 'POST',
             body: JSON.stringify({
@@ -624,6 +643,11 @@ async function handleFormSubmit(e) {
     } catch (err) {
         console.error('Failed to submit application:', err);
         showToast('Failed to submit application. Please try again.', true);
+    } finally {
+        // Restore button state
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('btn-submitting');
+        submitBtn.textContent = originalText;
     }
 }
 

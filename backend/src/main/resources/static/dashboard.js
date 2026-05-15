@@ -208,6 +208,9 @@ function initFilterBar() {
         filterList.querySelectorAll('.dept-filter-item').forEach((p) => p.classList.remove('active'));
         item.classList.add('active');
 
+        // Scroll selected filter into view (mobile horizontal scroll)
+        item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+
         activeFilter = item.dataset.dept;
         renderFeed(activeFilter);
     });
