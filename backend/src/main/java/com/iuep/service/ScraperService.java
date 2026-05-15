@@ -34,11 +34,11 @@ public class ScraperService {
     // ║  Set to true  → live Apify scraping is active                ║
     // ║  Set to false → all scraping is disabled (saves credits)     ║
     // ╚══════════════════════════════════════════════════════════════╝
-    private static final boolean SCRAPER_ENABLED = false;
+    private static final boolean SCRAPER_ENABLED = true;
 
     private static final Logger log = LoggerFactory.getLogger(ScraperService.class);
-    private static final int STALE_HOURS = 6;
-    private static final int RESULTS_PER_PAGE = 10;
+    private static final int STALE_HOURS = 168;
+    private static final int RESULTS_PER_PAGE = 5;
 
     private final FbPostRepository postRepo;
     private final ScrapeLogRepository logRepo;
@@ -171,10 +171,10 @@ public class ScraperService {
     // ──────────────────────────────────────────────
 
     /**
-     * Runs every 6 hours. Scrapes all departments whose data is stale.
+     * Runs every week (168 hours). Scrapes all departments whose data is stale.
      * Guarded by an AtomicBoolean to prevent overlapping runs.
      */
-    @Scheduled(fixedRate = 6 * 60 * 60 * 1000, initialDelay = 60_000)
+    @Scheduled(fixedRate = 7 * 24 * 60 * 60 * 1000, initialDelay = 60_000)
     public void scheduledScrape() {
         if (!SCRAPER_ENABLED) return;
 
