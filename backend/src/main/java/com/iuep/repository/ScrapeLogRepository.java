@@ -7,5 +7,6 @@ import java.util.Optional;
 
 public interface ScrapeLogRepository extends JpaRepository<ScrapeLog, Long> {
     Optional<ScrapeLog> findFirstByDepartmentAndStatusOrderByScrapedAtDesc(String department, String status);
+    Optional<ScrapeLog> findFirstByDepartmentOrderByScrapedAtDesc(String department);
     List<ScrapeLog> findTop10ByOrderByScrapedAtDesc();
 }

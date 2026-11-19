@@ -27,6 +27,8 @@ public class PostController {
     public ResponseEntity<?> scrapeStatus() {
         return ResponseEntity.ok(Map.of(
             "scraperEnabled", scraperService.isScraperEnabled(),
+            "paused", scraperService.isPaused(),
+            "running", scraperService.isRunning(),
             "departments", scraperService.getDepartmentKeys(),
             "recentLogs", scraperService.getScrapeStatus()
         ));

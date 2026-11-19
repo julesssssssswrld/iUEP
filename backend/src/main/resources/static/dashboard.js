@@ -52,32 +52,61 @@ function truncateExcerpt(text, max = 200) {
     return text.substring(0, max - 3) + '...';
 }
 
-/** Placeholder image when no post image is available */
-const PLACEHOLDER_POST_IMG = 'data:image/svg+xml;base64,' + btoa(`
-<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
-  <rect fill="#1a2332" width="400" height="300"/>
-  <text fill="#4a5568" font-family="sans-serif" font-size="14" text-anchor="middle" x="200" y="155">No Image Available</text>
-</svg>`);
+/**
+ * Escapes text for safe insertion into HTML (post text comes from scraped Facebook pages).
+ * @param {string} value
+ * @returns {string}
+ */
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+/**
+ * Only allows http(s) links so a scraped value can never become a javascript: URL.
+ * @param {string} url
+ * @returns {string}
+ */
+function safeUrl(url) {
+    return /^https?:\/\//i.test(url || '') ? escapeHtml(url) : '#';
+}
+
+/**
+ * A post is worth showing only if it has a caption (otherwise the card would be "Untitled Post").
+ * @param {Object} post
+ * @returns {boolean}
+ */
+function hasCaption(post) {
+    return typeof post.post_text === 'string' && post.post_text.trim().length > 0;
+}
 
 /**
  * Renders a uniform horizontal feed card from API post data.
+ * The image box is only rendered when a preview image exists (and is removed again if it fails to load).
  * @param {Object} post - Post object from the API.
  * @returns {string} HTML string.
  */
 function renderFeedCard(post) {
-    const title = deriveTitle(post.post_text);
-    const excerpt = truncateExcerpt(post.post_text);
+    const title = escapeHtml(deriveTitle(post.post_text));
+    const excerpt = escapeHtml(truncateExcerpt(post.post_text));
     const date = formatPostDate(post.post_date);
-    const image = post.image_url || PLACEHOLDER_POST_IMG;
-    const link = post.post_url || '#';
-    const deptLabel = post.dept_label || post.department || 'Unknown';
+    const link = safeUrl(post.post_url);
+    const deptLabel = escapeHtml(post.dept_label || post.department || 'Unknown');
+    const imageBox = post.image_url
+        ? `<div class="feed-card-img">
+                <img src="${safeUrl(post.image_url)}" alt="" loading="lazy" referrerpolicy="no-referrer"
+                     onerror="this.closest('.feed-card-img').remove()">
+            </div>`
+        : '';
 
     return `
     <a href="${link}" target="_blank" rel="noopener noreferrer">
         <article class="feed-card content-box">
-            <div class="feed-card-img">
-                <img src="${image}" alt="${title}" onerror="this.src='${PLACEHOLDER_POST_IMG}'">
-            </div>
+            ${imageBox}
             <div class="feed-card-body">
                 <h3>${title}</h3>
                 <p class="feed-card-excerpt">${excerpt}</p>
@@ -100,6 +129,7 @@ function renderFeedCard(post) {
  * @returns {string} HTML string with date-grouped cards.
  */
 function renderGroupedByDate(posts) {
+    posts = posts.filter(hasCaption);
     if (posts.length === 0) {
         return `<p class="empty-state sub-text">No updates available for this department.</p>`;
     }

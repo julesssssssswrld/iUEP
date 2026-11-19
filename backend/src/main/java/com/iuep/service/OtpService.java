@@ -62,7 +62,7 @@ public class OtpService {
         otp.setExpiresAt(LocalDateTime.now().plusMinutes(expirationMinutes));
         otpRepo.save(otp);
 
-        // Fire-and-forget: email is sent on a background thread via Brevo HTTP API
+        // Fire-and-forget: email is sent on a background thread via SMTP
         // so the HTTP response returns immediately after the OTP is persisted.
         emailDispatch.sendOtpEmail(null, email, code, expirationMinutes);
 
