@@ -45,6 +45,13 @@
                 </div>
             </div>
 
+            <!-- Search -->
+            <div id="admin-search-bar">
+                <input type="search" id="admin-search-input" placeholder="Search by student ID, name, course or section"
+                    aria-label="Search applications" autocomplete="off" spellcheck="false">
+                <span id="admin-search-count" class="sub-text" aria-live="polite"></span>
+            </div>
+
             <!-- Filter Pills -->
             <div id="admin-filter-bar">
                 <button class="filter-pill active" data-filter="all">All</button>
@@ -68,7 +75,7 @@
                             <th>Section</th>
                             <th>Status</th>
                             <th>Submitted</th>
-                            <th>Actions</th>
+                            <th class="admin-actions-head">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="admin-queue-body">
@@ -76,7 +83,7 @@
                     </tbody>
                 </table>
                 <div id="admin-empty-state" class="hidden">
-                    <p class="sub-text">No applications found for this filter.</p>
+                    <p class="sub-text" id="admin-empty-text">No applications found for this filter.</p>
                 </div>
             </div>
 

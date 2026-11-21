@@ -23,8 +23,14 @@ const STATUS_LABELS = {
     lost_declined: 'Declined',
 };
 
+// Material Symbols (same set/format as the other icon buttons in the project).
+const ICON_ADVANCE = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="var(--text-primary)"><path d="M647-440H160v-80h487L423-744l57-56 320 320-320 320-57-56 224-224Z"/></svg>';
+const ICON_MORE = '<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="var(--text-primary)"><path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/></svg>';
+
 let currentFilter = 'all';
 let currentReviewId = null;
+let allApplications = [];   // last list fetched for the active status filter
+let searchTerm = '';        // live text from the search box
 
 /* ----------------------------------------------
  *  DOM Cache
@@ -36,6 +42,9 @@ function cacheAdminDom() {
     ADMIN_DOM = {
         tableBody: document.getElementById('admin-queue-body'),
         emptyState: document.getElementById('admin-empty-state'),
+        emptyText: document.getElementById('admin-empty-text'),
+        searchInput: document.getElementById('admin-search-input'),
+        searchCount: document.getElementById('admin-search-count'),
         filterPills: document.querySelectorAll('.filter-pill'),
         statPending: document.getElementById('stat-pending'),
         statProcessing: document.getElementById('stat-processing'),
@@ -114,17 +123,67 @@ async function loadStats() {
 async function loadApplications() {
     try {
         const filterParam = currentFilter === 'all' ? '' : `?status=${currentFilter}`;
-        const apps = await apiFetch(`/admin/applications${filterParam}`);
-        renderTable(apps);
+        allApplications = await apiFetch(`/admin/applications${filterParam}`);
     } catch (e) {
         console.error('Failed to load applications:', e);
-        renderTable([]);
+        allApplications = [];
     }
+    applySearch();
+}
+
+/* ----------------------------------------------
+ *  Search
+ * ---------------------------------------------- */
+
+/** Lower-cased text a search can match for one application. */
+function searchHaystack(app) {
+    return [
+        app.student_id, app.stu_id,
+        app.first_name, app.middle_name, app.last_name,
+        buildFullName(app),
+        app.course, app.year_level, app.section,
+        STATUS_LABELS[app.status],
+    ].filter(Boolean).join(' ').toLowerCase();
+}
+
+/**
+ * Filters the loaded applications by the search box (every word must match somewhere)
+ * and renders the result. Runs on every keystroke and after each data refresh,
+ * so the search survives real-time updates.
+ */
+function applySearch() {
+    const tokens = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
+    const matches = tokens.length
+        ? allApplications.filter((app) => {
+            const hay = searchHaystack(app);
+            return tokens.every((t) => hay.includes(t));
+        })
+        : allApplications;
+
+    ADMIN_DOM.searchCount.textContent = tokens.length
+        ? `${matches.length} of ${allApplications.length} shown`
+        : '';
+    ADMIN_DOM.emptyText.textContent = tokens.length
+        ? `No applications match "${searchTerm.trim()}".`
+        : 'No applications found for this filter.';
+
+    renderTable(matches);
+}
+
+function handleSearchInput(e) {
+    searchTerm = e.target.value;
+    applySearch();
 }
 
 /* ----------------------------------------------
  *  Table Rendering
  * ---------------------------------------------- */
+
+/** Next status in the normal flow, or null when the row has no one-click advance. */
+function getNextStatus(status) {
+    const idx = STATUS_STEPS.indexOf(status);
+    return idx >= 0 && idx < STATUS_STEPS.length - 1 ? STATUS_STEPS[idx + 1] : null;
+}
 
 function renderTable(applications) {
     if (!applications.length) {
@@ -137,8 +196,13 @@ function renderTable(applications) {
 
     ADMIN_DOM.tableBody.innerHTML = applications.map((app) => {
         const fullName = buildFullName(app);
-        const statusClass = `status-${app.status}`;
         const submittedDate = formatShortDate(app.submitted_at);
+        const next = getNextStatus(app.status);
+        // Replacement (lost ID) requests need the reason read first, so they only get the details button.
+        // Rows with nothing to advance keep an empty slot so the details button stays aligned.
+        const quickBtn = next
+            ? `<button class="btn-icon quick-advance-btn" data-id="${app.id}" data-next="${next}" title="Mark as ${STATUS_LABELS[next]}" aria-label="Mark as ${STATUS_LABELS[next]}">${ICON_ADVANCE}</button>`
+            : '<span class="admin-action-slot" aria-hidden="true"></span>';
 
         return `
             <tr data-id="${app.id}">
@@ -147,16 +211,41 @@ function renderTable(applications) {
                 <td>${escapeHtml(app.course || '—')}</td>
                 <td>${escapeHtml(app.year_level || '—')}</td>
                 <td>${escapeHtml(app.section || '—')}</td>
-                <td><span class="status-pill ${statusClass}">${STATUS_LABELS[app.status]}</span></td>
+                <td class="admin-status-cell">${STATUS_LABELS[app.status]}</td>
                 <td class="sub-text">${submittedDate}</td>
-                <td><button class="btn-secondary review-btn" data-id="${app.id}">Review</button></td>
+                <td>
+                    <div class="admin-row-actions">
+                        ${quickBtn}
+                        <button class="btn-icon review-btn" data-id="${app.id}" title="View details" aria-label="View details">${ICON_MORE}</button>
+                    </div>
+                </td>
             </tr>`;
     }).join('');
+}
 
-    // Attach review handlers
-    ADMIN_DOM.tableBody.querySelectorAll('.review-btn').forEach((btn) => {
-        btn.addEventListener('click', () => openReview(btn.dataset.id));
-    });
+/** One delegated handler for both row buttons (rows are re-rendered often). */
+async function handleTableClick(e) {
+    const detailsBtn = e.target.closest('.review-btn');
+    if (detailsBtn) {
+        openReview(detailsBtn.dataset.id);
+        return;
+    }
+
+    const quickBtn = e.target.closest('.quick-advance-btn');
+    if (!quickBtn || quickBtn.disabled) return;
+
+    quickBtn.disabled = true;
+    try {
+        await apiFetch(`/admin/applications/${quickBtn.dataset.id}/status`, {
+            method: 'PATCH',
+            body: JSON.stringify({ status: quickBtn.dataset.next }),
+        });
+        await refreshData();
+    } catch (err) {
+        console.error('Failed to advance status:', err);
+        alert('Failed to update status.');
+        quickBtn.disabled = false;
+    }
 }
 
 /* ----------------------------------------------
@@ -490,6 +579,10 @@ async function initAdminId() {
 
     // Filter pills
     document.getElementById('admin-filter-bar').addEventListener('click', handleFilterClick);
+
+    // Search box + row buttons
+    ADMIN_DOM.searchInput.addEventListener('input', handleSearchInput);
+    ADMIN_DOM.tableBody.addEventListener('click', handleTableClick);
 
     // Review popover controls
     ADMIN_DOM.reviewClose.addEventListener('click', closeReview);
